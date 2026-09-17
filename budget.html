@@ -6,46 +6,46 @@
     <title>Budget Setup - Adelowo's Ledger</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans antialiased pb-24">
+<body class="bg-slate-950 text-slate-100 font-sans antialiased pb-24">
 
     <!-- Header -->
-    <header class="bg-white border-b border-slate-200 p-4 sticky top-0 z-10 flex justify-between items-center shadow-sm">
-        <h1 class="text-base font-extrabold tracking-wider text-emerald-600">WEEKLY BUDGET SETUP</h1>
-        <a href="index.html" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs px-3 py-1.5 rounded-lg border border-emerald-200 font-medium transition-colors">Back to Ledger</a>
+    <header class="bg-slate-900 border-b border-slate-800 p-4 sticky top-0 z-10 flex justify-between items-center shadow-md">
+        <h1 class="text-base font-extrabold tracking-wider text-emerald-400">WEEKLY BUDGET SETUP</h1>
+        <a href="index.html" class="bg-emerald-950 hover:bg-emerald-900 text-emerald-300 text-xs px-3 py-1.5 rounded-lg border border-emerald-800 font-medium transition-colors">Back to Ledger</a>
     </header>
 
     <main class="p-4 max-w-md mx-auto space-y-6">
 
         <!-- Enterprise Aggregate Summary Banner -->
-        <section class="bg-white p-4 rounded-2xl border border-emerald-200 shadow-sm space-y-3">
+        <section class="bg-slate-900 p-4 rounded-2xl border border-slate-800 shadow-lg space-y-3">
             <div class="flex justify-between items-center">
-                <h2 class="text-xs font-bold text-emerald-700 uppercase tracking-wider">Enterprise Master Summary</h2>
+                <h2 class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Enterprise Master Summary</h2>
                 <button onclick="openHealthModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-xl shadow-sm transition-colors">
                     View Budget Health
                 </button>
             </div>
             <div class="grid grid-cols-2 gap-2 text-center pt-1">
-                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                <div class="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700">
                     <p class="text-[10px] text-slate-400 uppercase font-semibold">Total Target Revenue</p>
-                    <p id="master-total-revenue" class="text-xs font-bold text-emerald-600 mt-1">₦0</p>
+                    <p id="master-total-revenue" class="text-xs font-bold text-emerald-400 mt-1">₦0</p>
                 </div>
-                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                <div class="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700">
                     <p class="text-[10px] text-slate-400 uppercase font-semibold">Total Allocations</p>
-                    <p id="master-total-allocations" class="text-xs font-bold text-rose-600 mt-1">₦0</p>
+                    <p id="master-total-allocations" class="text-xs font-bold text-rose-400 mt-1">₦0</p>
                 </div>
             </div>
             <div class="grid grid-cols-4 gap-1 text-center pt-1 text-[10px]">
-                <div class="bg-slate-50 p-1.5 rounded-xl border border-slate-200"><span class="text-slate-400 block font-medium">Paper</span><span id="master-paper" class="font-bold text-slate-700">₦0</span></div>
-                <div class="bg-slate-50 p-1.5 rounded-xl border border-slate-200"><span class="text-slate-400 block font-medium">Data</span><span id="master-data" class="font-bold text-slate-700">₦0</span></div>
-                <div class="bg-slate-50 p-1.5 rounded-xl border border-slate-200"><span class="text-slate-400 block font-medium">Salary</span><span id="master-salary" class="font-bold text-slate-700">₦0</span></div>
-                <div class="bg-slate-50 p-1.5 rounded-xl border border-slate-200"><span class="text-slate-400 block font-medium">Utility</span><span id="master-utility" class="font-bold text-slate-700">₦0</span></div>
+                <div class="bg-slate-800/80 p-1.5 rounded-xl border border-slate-700"><span class="text-slate-400 block font-medium">Paper</span><span id="master-paper" class="font-bold text-slate-200">₦0</span></div>
+                <div class="bg-slate-800/80 p-1.5 rounded-xl border border-slate-700"><span class="text-slate-400 block font-medium">Data</span><span id="master-data" class="font-bold text-slate-200">₦0</span></div>
+                <div class="bg-slate-800/80 p-1.5 rounded-xl border border-slate-700"><span class="text-slate-400 block font-medium">Salary</span><span id="master-salary" class="font-bold text-slate-200">₦0</span></div>
+                <div class="bg-slate-800/80 p-1.5 rounded-xl border border-slate-700"><span class="text-slate-400 block font-medium">Utility</span><span id="master-utility" class="font-bold text-slate-200">₦0</span></div>
             </div>
         </section>
 
         <!-- Select Shop to Configure -->
-        <section class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-            <h2 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Select Shop Location</h2>
-            <select id="budget-shop-select" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 focus:outline-none focus:border-emerald-500">
+        <section class="bg-slate-900 p-4 rounded-2xl border border-slate-800 shadow-lg space-y-3">
+            <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Select Shop Location</h2>
+            <select id="budget-shop-select" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
                 <option value="Elewi Odo">Elewi Odo</option>
                 <option value="10/10">10/10</option>
                 <option value="Idi Ape">Idi Ape</option>
@@ -57,54 +57,54 @@
         </section>
 
         <!-- Expected Revenue Section -->
-        <section class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-            <h2 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Expected Weekly Target for Shop</h2>
+        <section class="bg-slate-900 p-4 rounded-2xl border border-slate-800 shadow-lg space-y-3">
+            <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Expected Weekly Target for Shop</h2>
             <div>
-                <label class="text-[11px] text-slate-500 font-medium">Target Revenue (₦)</label>
-                <input type="number" id="expected-revenue" placeholder="0" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 focus:outline-none focus:border-emerald-500">
+                <label class="text-[11px] text-slate-400 font-medium">Target Revenue (₦)</label>
+                <input type="number" id="expected-revenue" placeholder="0" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500 placeholder-slate-500">
             </div>
         </section>
 
-        <!-- Shop Expense Allocations (Paper, Data, Salary, Utility) -->
-        <section class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-            <h2 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Shop Specific Weekly Expense Allocations (₦)</h2>
+        <!-- Shop Expense Allocations -->
+        <section class="bg-slate-900 p-4 rounded-2xl border border-slate-800 shadow-lg space-y-3">
+            <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Shop Specific Weekly Expense Allocations (₦)</h2>
             <div class="grid grid-cols-2 gap-3">
                 <div>
-                    <label class="text-[10px] text-slate-500 font-medium">Paper (₦)</label>
-                    <input type="number" id="shop-paper" placeholder="0" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl p-2 text-sm text-slate-800">
+                    <label class="text-[10px] text-slate-400 font-medium">Paper (₦)</label>
+                    <input type="number" id="shop-paper" placeholder="0" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl p-2 text-sm text-slate-100 placeholder-slate-500">
                 </div>
                 <div>
-                    <label class="text-[10px] text-slate-500 font-medium">Data (₦)</label>
-                    <input type="number" id="shop-data" placeholder="0" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl p-2 text-sm text-slate-800">
+                    <label class="text-[10px] text-slate-400 font-medium">Data (₦)</label>
+                    <input type="number" id="shop-data" placeholder="0" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl p-2 text-sm text-slate-100 placeholder-slate-500">
                 </div>
                 <div>
-                    <label class="text-[10px] text-slate-500 font-medium">Salary (₦)</label>
-                    <input type="number" id="shop-salary" placeholder="0" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl p-2 text-sm text-slate-800">
+                    <label class="text-[10px] text-slate-400 font-medium">Salary (₦)</label>
+                    <input type="number" id="shop-salary" placeholder="0" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl p-2 text-sm text-slate-100 placeholder-slate-500">
                 </div>
                 <div>
-                    <label class="text-[10px] text-slate-500 font-medium">Utility (₦)</label>
-                    <input type="number" id="shop-utility" placeholder="0" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl p-2 text-sm text-slate-800">
+                    <label class="text-[10px] text-slate-400 font-medium">Utility (₦)</label>
+                    <input type="number" id="shop-utility" placeholder="0" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl p-2 text-sm text-slate-100 placeholder-slate-500">
                 </div>
             </div>
         </section>
 
-        <button id="save-budget-btn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 rounded-xl text-sm transition-colors shadow-sm shadow-emerald-600/20">
+        <button id="save-budget-btn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 rounded-xl text-sm transition-colors shadow-lg shadow-emerald-900/40">
             Save Budget for Selected Shop
         </button>
 
     </main>
 
     <!-- Budget Health Analysis Modal -->
-    <div id="health-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
-        <div class="bg-white border border-slate-200 p-5 rounded-2xl max-w-sm w-full space-y-4 shadow-xl">
-            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                <h3 class="text-sm font-bold text-emerald-600 uppercase tracking-wide">Enterprise Budget Health</h3>
-                <button onclick="closeHealthModal()" class="text-slate-400 hover:text-slate-700 font-bold text-sm">✕</button>
+    <div id="health-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="text-sm font-bold text-emerald-400 uppercase tracking-wide">Enterprise Budget Health</h3>
+                <button onclick="closeHealthModal()" class="text-slate-400 hover:text-slate-100 font-bold text-sm">✕</button>
             </div>
-            <div id="modal-health-content" class="text-xs space-y-3 text-slate-600 font-medium">
+            <div id="modal-health-content" class="text-xs space-y-3 text-slate-300 font-medium">
                 <!-- Injected dynamically -->
             </div>
-            <button onclick="closeHealthModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 rounded-xl text-xs font-semibold">Close Assessment</button>
+            <button onclick="closeHealthModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 py-2.5 rounded-xl text-xs font-semibold">Close Assessment</button>
         </div>
     </div>
 
@@ -131,11 +131,7 @@
 
         function updateMasterSummary() {
             const allBudgets = JSON.parse(localStorage.getItem('adelowo_shop_budgets')) || {};
-            let totalRev = 0;
-            let totalPaper = 0;
-            let totalData = 0;
-            let totalSalary = 0;
-            let totalUtility = 0;
+            let totalRev = 0, totalPaper = 0, totalData = 0, totalSalary = 0, totalUtility = 0;
 
             allShops.forEach(shop => {
                 const b = allBudgets[shop];
@@ -161,9 +157,7 @@
         loadShopBudget(shopSelect.value);
         updateMasterSummary();
 
-        shopSelect.addEventListener('change', (e) => {
-            loadShopBudget(e.target.value);
-        });
+        shopSelect.addEventListener('change', (e) => loadShopBudget(e.target.value));
 
         document.getElementById('save-budget-btn').addEventListener('click', () => {
             const currentShop = shopSelect.value;
@@ -184,8 +178,7 @@
 
         function openHealthModal() {
             const allBudgets = JSON.parse(localStorage.getItem('adelowo_shop_budgets')) || {};
-            let totalRev = 0;
-            let totalAlloc = 0;
+            let totalRev = 0, totalAlloc = 0;
 
             allShops.forEach(shop => {
                 const b = allBudgets[shop];
@@ -199,22 +192,22 @@
             const ratio = totalRev > 0 ? ((totalAlloc / totalRev) * 100).toFixed(1) : 0;
 
             let healthStatus = 'Optimal Growth';
-            let statusColor = 'text-emerald-600 bg-emerald-50';
+            let statusColor = 'text-emerald-400 bg-emerald-950/60 border border-emerald-800';
             if (ratio > 70) {
                 healthStatus = 'High Expense Ratio Alert';
-                statusColor = 'text-rose-600 bg-rose-50';
+                statusColor = 'text-rose-400 bg-rose-950/60 border border-rose-800';
             } else if (ratio > 50) {
                 healthStatus = 'Moderate / Stable';
-                statusColor = 'text-amber-600 bg-amber-50';
+                statusColor = 'text-amber-400 bg-amber-950/60 border border-amber-800';
             }
 
             document.getElementById('modal-health-content').innerHTML = `
-                <div class="flex justify-between"><span>Combined Expected Revenue:</span> <span class="font-semibold text-emerald-600">₦${totalRev.toLocaleString()}</span></div>
-                <div class="flex justify-between"><span>Combined Total Allocations:</span> <span class="font-semibold text-rose-600">₦${totalAlloc.toLocaleString()}</span></div>
-                <div class="flex justify-between"><span>Projected Net Margin:</span> <span class="font-semibold text-blue-600">₦${netMargin.toLocaleString()}</span></div>
-                <div class="flex justify-between"><span>Expense-to-Revenue Ratio:</span> <span class="font-semibold text-slate-800">${ratio}%</span></div>
-                <div class="border-t border-slate-100 pt-2 flex justify-between items-center">
-                    <span>Health Rating:</span> 
+                <div class="flex justify-between text-slate-300"><span>Combined Expected Revenue:</span> <span class="font-semibold text-emerald-400">₦${totalRev.toLocaleString()}</span></div>
+                <div class="flex justify-between text-slate-300"><span>Combined Total Allocations:</span> <span class="font-semibold text-rose-400">₦${totalAlloc.toLocaleString()}</span></div>
+                <div class="flex justify-between text-slate-300"><span>Projected Net Margin:</span> <span class="font-semibold text-blue-400">₦${netMargin.toLocaleString()}</span></div>
+                <div class="flex justify-between text-slate-300"><span>Expense-to-Revenue Ratio:</span> <span class="font-semibold text-slate-100">${ratio}%</span></div>
+                <div class="border-t border-slate-800 pt-2 flex justify-between items-center">
+                    <span class="text-slate-300">Health Rating:</span> 
                     <span class="font-bold uppercase px-2 py-0.5 rounded-lg ${statusColor}">${healthStatus}</span>
                 </div>
             `;

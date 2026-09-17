@@ -8,71 +8,71 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans antialiased pb-24">
+<body class="bg-slate-950 text-slate-100 font-sans antialiased pb-24">
 
     <!-- Top Header -->
-    <header class="bg-white border-b border-slate-200 p-4 sticky top-0 z-10 flex justify-between items-center shadow-sm">
-        <h1 class="text-base font-extrabold tracking-wider text-emerald-600">ADELOWO'S LEDGER</h1>
+    <header class="bg-slate-900 border-b border-slate-800 p-4 sticky top-0 z-10 flex justify-between items-center shadow-md">
+        <h1 class="text-base font-extrabold tracking-wider text-emerald-400">ADELOWO'S LEDGER</h1>
         <div class="flex items-center gap-2">
-            <a href="budget.html" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs px-3 py-1.5 rounded-lg border border-emerald-200 font-medium transition-colors">Budget Setup</a>
-            <span id="current-date" class="text-xs text-slate-500 font-medium"></span>
+            <a href="budget.html" class="bg-emerald-950 hover:bg-emerald-900 text-emerald-300 text-xs px-3 py-1.5 rounded-lg border border-emerald-800 font-medium transition-colors">Budget Setup</a>
+            <span id="current-date" class="text-xs text-slate-400 font-medium"></span>
         </div>
     </header>
 
     <main class="p-4 max-w-md mx-auto space-y-5">
 
-        <!-- Weekly Financial Health Dashboard (Tuesday to Monday Cycle) -->
-        <section class="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm space-y-3">
+        <!-- Weekly Financial Health Dashboard -->
+        <section class="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-lg space-y-3">
             <div class="flex justify-between items-center">
-                <h2 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Weekly Financial Health (Tue - Mon)</h2>
+                <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Weekly Financial Health (Tue - Mon)</h2>
                 <span id="health-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">Calculating...</span>
             </div>
             <div class="grid grid-cols-3 gap-2 text-center pt-1">
-                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/60">
+                <div class="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700/60">
                     <p class="text-[10px] text-slate-400 uppercase font-semibold">Inflow</p>
-                    <p id="health-inflow" class="text-xs font-bold text-emerald-600 mt-1">₦0</p>
+                    <p id="health-inflow" class="text-xs font-bold text-emerald-400 mt-1">₦0</p>
                 </div>
-                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/60">
+                <div class="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700/60">
                     <p class="text-[10px] text-slate-400 uppercase font-semibold">Outflow</p>
-                    <p id="health-outflow" class="text-xs font-bold text-rose-600 mt-1">₦0</p>
+                    <p id="health-outflow" class="text-xs font-bold text-rose-400 mt-1">₦0</p>
                 </div>
-                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/60">
+                <div class="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700/60">
                     <p class="text-[10px] text-slate-400 uppercase font-semibold">Net Position</p>
-                    <p id="health-net" class="text-xs font-bold text-blue-600 mt-1">₦0</p>
+                    <p id="health-net" class="text-xs font-bold text-blue-400 mt-1">₦0</p>
                 </div>
             </div>
         </section>
 
         <!-- Summary Cards -->
         <section class="grid grid-cols-2 gap-3">
-            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-                <p class="text-[11px] text-slate-500 uppercase tracking-wider font-semibold">Total Income</p>
-                <p id="total-income" class="text-lg font-bold text-emerald-600 mt-1">₦0</p>
+            <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 shadow-lg">
+                <p class="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">Total Income</p>
+                <p id="total-income" class="text-lg font-bold text-emerald-400 mt-1">₦0</p>
             </div>
-            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-                <p class="text-[11px] text-slate-500 uppercase tracking-wider font-semibold">Total Expenses</p>
-                <p id="total-expense" class="text-lg font-bold text-rose-600 mt-1">₦0</p>
+            <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 shadow-lg">
+                <p class="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">Total Expenses</p>
+                <p id="total-expense" class="text-lg font-bold text-rose-400 mt-1">₦0</p>
             </div>
         </section>
 
         <!-- Quick Entry Form -->
-        <section class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-            <h2 id="form-title" class="text-xs font-bold text-slate-700 uppercase tracking-wider">Log Transaction</h2>
+        <section class="bg-slate-900 p-4 rounded-2xl border border-slate-800 shadow-lg space-y-3">
+            <h2 id="form-title" class="text-xs font-bold text-slate-300 uppercase tracking-wider">Log Transaction</h2>
             <form id="transaction-form" class="space-y-3">
                 <input type="hidden" id="edit-id" value="">
                 
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="text-[11px] text-slate-500 font-medium">Executor</label>
-                        <select id="executor" required class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 focus:outline-none focus:border-emerald-500">
+                        <label class="text-[11px] text-slate-400 font-medium">Executor</label>
+                        <select id="executor" required class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
                             <option value="">Select Executor</option>
                             <option value="Adel">Adel</option>
                             <option value="Chinyere">Chinyere</option>
                         </select>
                     </div>
                     <div>
-                        <label class="text-[11px] text-slate-500 font-medium">Type</label>
-                        <select id="type" required onchange="toggleFormMode()" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 focus:outline-none focus:border-emerald-500">
+                        <label class="text-[11px] text-slate-400 font-medium">Type</label>
+                        <select id="type" required onchange="toggleFormMode()" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
                             <option value="expense">Expense</option>
                             <option value="income">Income</option>
                         </select>
@@ -81,12 +81,12 @@
 
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="text-[11px] text-slate-500 font-medium">Amount (₦)</label>
-                        <input type="number" id="amount" step="1" min="1" required placeholder="1" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 focus:outline-none focus:border-emerald-500">
+                        <label class="text-[11px] text-slate-400 font-medium">Amount (₦)</label>
+                        <input type="number" id="amount" step="1" min="1" required placeholder="1" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500 placeholder-slate-500">
                     </div>
                     <div id="channel-container">
-                        <label class="text-[11px] text-slate-500 font-medium">Category Channel</label>
-                        <select id="tracking_type" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 focus:outline-none focus:border-emerald-500">
+                        <label class="text-[11px] text-slate-400 font-medium">Category Channel</label>
+                        <select id="tracking_type" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
                             <option value="Personal">Fixed Personal</option>
                             <option value="Shop">Fixed Shop Based</option>
                             <option value="Random">Random Expense</option>
@@ -97,9 +97,9 @@
 
                 <!-- Dynamic Expense Panels -->
                 <div id="expense-panels-wrapper">
-                    <div id="personal-sub-panel" class="space-y-2 bg-slate-50 p-3 rounded-xl border border-slate-200">
-                        <label class="text-[11px] text-slate-500 font-medium">Personal Expense Category</label>
-                        <select id="personal_sub" class="w-full bg-white border border-slate-200 rounded-xl p-2 text-sm text-slate-800">
+                    <div id="personal-sub-panel" class="space-y-2 bg-slate-800/60 p-3 rounded-xl border border-slate-700">
+                        <label class="text-[11px] text-slate-400 font-medium">Personal Expense Category</label>
+                        <select id="personal_sub" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2 text-sm text-slate-100">
                             <option value="Food">Food</option>
                             <option value="Groceries">Groceries</option>
                             <option value="Utility">Utility</option>
@@ -107,10 +107,10 @@
                         </select>
                     </div>
 
-                    <div id="shop-sub-panel" class="space-y-2 bg-slate-50 p-3 rounded-xl border border-slate-200 hidden">
+                    <div id="shop-sub-panel" class="space-y-2 bg-slate-800/60 p-3 rounded-xl border border-slate-700 hidden">
                         <div>
-                            <label class="text-[11px] text-slate-500 font-medium">Select Shop Location</label>
-                            <select id="shop_location" class="w-full bg-white border border-slate-200 rounded-xl p-2 text-sm text-slate-800 mb-2">
+                            <label class="text-[11px] text-slate-400 font-medium">Select Shop Location</label>
+                            <select id="shop_location" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2 text-sm text-slate-100 mb-2">
                                 <option value="Elewi Odo">Elewi Odo</option>
                                 <option value="10/10">10/10</option>
                                 <option value="Idi Ape">Idi Ape</option>
@@ -121,8 +121,8 @@
                             </select>
                         </div>
                         <div>
-                            <label class="text-[11px] text-slate-500 font-medium">Shop Expense Type</label>
-                            <select id="shop_sub" class="w-full bg-white border border-slate-200 rounded-xl p-2 text-sm text-slate-800">
+                            <label class="text-[11px] text-slate-400 font-medium">Shop Expense Type</label>
+                            <select id="shop_sub" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2 text-sm text-slate-100">
                                 <option value="Paper">Paper</option>
                                 <option value="Data">Data</option>
                                 <option value="Salary">Salary</option>
@@ -133,10 +133,10 @@
                 </div>
 
                 <!-- Dynamic Income Panel -->
-                <div id="income-panel" class="space-y-3 bg-slate-50 p-3 rounded-xl border border-slate-200 hidden">
+                <div id="income-panel" class="space-y-3 bg-slate-800/60 p-3 rounded-xl border border-slate-700 hidden">
                     <div>
-                        <label class="text-[11px] text-slate-500 font-medium">Income Category</label>
-                        <select id="income_category" class="w-full mt-1 bg-white border border-slate-200 rounded-xl p-2 text-sm text-slate-800">
+                        <label class="text-[11px] text-slate-400 font-medium">Income Category</label>
+                        <select id="income_category" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl p-2 text-sm text-slate-100">
                             <option value="Service">Service</option>
                             <option value="Sales">Sales</option>
                             <option value="Commission">Commission</option>
@@ -146,51 +146,50 @@
                 </div>
 
                 <div>
-                    <label class="text-[11px] text-slate-500 font-medium">Description / Note <span id="note-asterisk" class="text-rose-500">*</span></label>
-                    <input type="text" id="note" required placeholder="Detailed description required..." class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm text-slate-800 focus:outline-none focus:border-emerald-500">
+                    <label class="text-[11px] text-slate-400 font-medium">Description / Note <span id="note-asterisk" class="text-rose-400">*</span></label>
+                    <input type="text" id="note" required placeholder="Detailed description required..." class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500 placeholder-slate-500">
                 </div>
 
                 <div class="flex gap-2 pt-1">
-                    <button type="submit" id="submit-btn" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-xl text-sm transition-colors shadow-sm shadow-emerald-600/20">
+                    <button type="submit" id="submit-btn" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-xl text-sm transition-colors shadow-lg shadow-emerald-900/40">
                         Save to Cloud Ledger
                     </button>
-                    <button type="button" id="cancel-edit-btn" onclick="resetForm()" class="hidden bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2.5 rounded-xl text-sm transition-colors font-medium">
+                    <button type="button" id="cancel-edit-btn" onclick="resetForm()" class="hidden bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2.5 rounded-xl text-sm transition-colors font-medium border border-slate-700">
                         Cancel
                     </button>
                 </div>
             </form>
         </section>
 
-        <!-- Historical Reports & Date Range PDF Download -->
-        <section class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-            <h2 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Historical Statements & PDF</h2>
+        <!-- Historical Reports & PDF Download -->
+        <section class="bg-slate-900 p-4 rounded-2xl border border-slate-800 shadow-lg space-y-3">
+            <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Historical Statements & PDF</h2>
             
-            <!-- Dual Date Range Selectors -->
             <div class="grid grid-cols-2 gap-2">
                 <div>
-                    <label class="text-[10px] text-slate-500 font-medium">Start Date</label>
-                    <input type="date" id="report-start-date" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs text-slate-800">
+                    <label class="text-[10px] text-slate-400 font-medium">Start Date</label>
+                    <input type="date" id="report-start-date" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2 text-xs text-slate-100">
                 </div>
                 <div>
-                    <label class="text-[10px] text-slate-500 font-medium">End Date</label>
-                    <input type="date" id="report-end-date" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs text-slate-800">
+                    <label class="text-[10px] text-slate-400 font-medium">End Date</label>
+                    <input type="date" id="report-end-date" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2 text-xs text-slate-100">
                 </div>
             </div>
             
-            <div id="report-output" class="text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1.5 font-medium">
+            <div id="report-output" class="text-xs text-slate-300 bg-slate-800/60 p-3 rounded-xl border border-slate-700 space-y-1.5 font-medium">
                 <!-- Metrics injected -->
             </div>
 
-            <button id="download-pdf-btn" class="w-full bg-emerald-700 hover:bg-emerald-600 text-white font-semibold py-2.5 rounded-xl text-xs transition-colors flex items-center justify-center gap-1 shadow-sm shadow-emerald-700/20">
+            <button id="download-pdf-btn" class="w-full bg-emerald-700 hover:bg-emerald-600 text-white font-semibold py-2.5 rounded-xl text-xs transition-colors flex items-center justify-center gap-1 shadow-lg shadow-emerald-900/40">
                 Download Colorful PDF Statement
             </button>
         </section>
 
         <!-- Recent Logs -->
         <section class="space-y-2.5">
-            <h2 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Recent History</h2>
+            <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Recent History</h2>
             <div id="transaction-list" class="space-y-2">
-                <p class="text-xs text-slate-400 text-center py-4">Loading transactions...</p>
+                <p class="text-xs text-slate-500 text-center py-4">Loading transactions...</p>
             </div>
         </section>
 
@@ -424,43 +423,43 @@
             document.getElementById('health-outflow').innerText = formatCurrency(wExp);
             const netEl = document.getElementById('health-net');
             netEl.innerText = formatCurrency(wNet);
-            netEl.className = `text-xs font-bold mt-1 ${wNet >= 0 ? 'text-emerald-600' : 'text-rose-600'}`;
+            netEl.className = `text-xs font-bold mt-1 ${wNet >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
 
             const badge = document.getElementById('health-badge');
             if (wNet > 0) {
                 badge.innerText = 'Sufficit (Surplus)';
-                badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide bg-emerald-100 text-emerald-700 border border-emerald-200';
+                badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide bg-emerald-950 text-emerald-300 border border-emerald-800';
             } else if (wNet < 0) {
                 badge.innerText = 'Deficit';
-                badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide bg-rose-100 text-rose-700 border border-rose-200';
+                badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide bg-rose-950 text-rose-300 border border-rose-800';
             } else {
                 badge.innerText = 'Balanced';
-                badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide bg-blue-100 text-blue-700 border border-blue-200';
+                badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide bg-blue-950 text-blue-300 border border-blue-800';
             }
 
             const listEl = document.getElementById('transaction-list');
             listEl.innerHTML = '';
 
             if (allTransactions.length === 0) {
-                listEl.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">No transactions recorded yet.</p>`;
+                listEl.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">No transactions recorded yet.</p>`;
             } else {
                 allTransactions.slice(0, 15).forEach(t => {
                     const item = document.createElement('div');
-                    item.className = "bg-white border border-slate-200 p-3 rounded-xl flex justify-between items-center text-xs shadow-sm";
+                    item.className = "bg-slate-900 border border-slate-800 p-3 rounded-xl flex justify-between items-center text-xs shadow-sm";
                     const tDate = new Date(t.created_at);
                     let badgeText = t.shop ? `${t.shop} - ${t.sub_category}` : t.sub_category;
                     item.innerHTML = `
                         <div class="pr-2 space-y-0.5">
-                            <p class="font-medium text-slate-800">${t.note} <span class="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded ml-1">${badgeText}</span></p>
-                            <p class="text-slate-400">Executor: <span class="text-slate-600 font-semibold">${t.executor}</span> | ${tDate.toLocaleDateString()}</p>
+                            <p class="font-medium text-slate-200">${t.note} <span class="text-[10px] text-emerald-300 bg-emerald-950 border border-emerald-800 px-1.5 py-0.5 rounded ml-1">${badgeText}</span></p>
+                            <p class="text-slate-500">Executor: <span class="text-slate-300 font-semibold">${t.executor}</span> | ${tDate.toLocaleDateString()}</p>
                         </div>
                         <div class="flex items-center gap-3">
-                            <span class="font-bold whitespace-nowrap ${t.type === 'income' ? 'text-emerald-600' : 'text-rose-600'}">
+                            <span class="font-bold whitespace-nowrap ${t.type === 'income' ? 'text-emerald-400' : 'text-rose-400'}">
                                 ${t.type === 'income' ? '+' : '-'}${formatCurrency(t.amount)}
                             </span>
                             <div class="flex flex-col gap-0.5">
-                                <button onclick="editTransaction(${t.id})" class="text-[10px] text-emerald-600 font-medium hover:underline">Edit</button>
-                                <button onclick="deleteTransaction(${t.id})" class="text-[10px] text-rose-500 font-medium hover:underline">Del</button>
+                                <button onclick="editTransaction(${t.id})" class="text-[10px] text-emerald-400 font-medium hover:underline">Edit</button>
+                                <button onclick="deleteTransaction(${t.id})" class="text-[10px] text-rose-400 font-medium hover:underline">Del</button>
                             </div>
                         </div>
                     `;
@@ -477,9 +476,9 @@
             let net = inc - exp;
 
             document.getElementById('report-output').innerHTML = `
-                <div class="flex justify-between"><span>Inflow:</span> <span class="text-emerald-600 font-semibold">${formatCurrency(inc)}</span></div>
-                <div class="flex justify-between"><span>Outflow:</span> <span class="text-rose-600 font-semibold">${formatCurrency(exp)}</span></div>
-                <div class="flex justify-between border-t border-slate-200 pt-1.5 mt-1 font-bold text-slate-800"><span>Net Balance:</span> <span class="${net >= 0 ? 'text-blue-600' : 'text-amber-600'}">${formatCurrency(net)}</span></div>
+                <div class="flex justify-between"><span>Inflow:</span> <span class="text-emerald-400 font-semibold">${formatCurrency(inc)}</span></div>
+                <div class="flex justify-between"><span>Outflow:</span> <span class="text-rose-400 font-semibold">${formatCurrency(exp)}</span></div>
+                <div class="flex justify-between border-t border-slate-700 pt-1.5 mt-1 font-bold text-slate-100"><span>Net Balance:</span> <span class="${net >= 0 ? 'text-blue-400' : 'text-amber-400'}">${formatCurrency(net)}</span></div>
             `;
         }
 
