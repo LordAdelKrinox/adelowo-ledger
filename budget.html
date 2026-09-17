@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Setup - Adelowo's Ledger</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased pb-24">
+
+    <!-- Header -->
+    <header class="bg-slate-900 border-b border-slate-800 p-4 sticky top-0 z-10 flex justify-between items-center">
+        <h1 class="text-base font-extrabold tracking-wider text-emerald-400">WEEKLY BUDGET SETUP</h1>
+        <a href="index.html" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3 py-1.5 rounded-lg border border-slate-700 font-medium">Back to Ledger</a>
+    </header>
+
+    <main class="p-4 max-w-md mx-auto space-y-6">
+
+        <!-- Expected Revenue Section -->
+        <section class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-3">
+            <h2 class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Expected Weekly Revenue</h2>
+            <div>
+                <label class="text-[11px] text-slate-400">Target Revenue (₦)</label>
+                <input type="number" id="expected-revenue" placeholder="0" class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+            </div>
+        </section>
+
+        <!-- Allocation Percentages -->
+        <section class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-3">
+            <h2 class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Revenue Allocation (%)</h2>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="text-[10px] text-slate-400">Fixed Personal (%)</label>
+                    <input type="number" id="alloc-personal" value="25" class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-slate-100">
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-400">Fixed Shop (%)</label>
+                    <input type="number" id="alloc-shop" value="40" class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-slate-100">
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-400">Random Exp (%)</label>
+                    <input type="number" id="alloc-random" value="15" class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-slate-100">
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-400">Savings (%)</label>
+                    <input type="number" id="alloc-savings" value="20" class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-slate-100">
+                </div>
+            </div>
+            <div id="allocation-total" class="text-xs font-semibold text-emerald-400 pt-1">Total Allocation: 100%</div>
+        </section>
+
+        <!-- Default Shop Budgets Preloaded -->
+        <section class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-3">
+            <h2 class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Shop Default Weekly Allocations</h2>
+            <div class="space-y-2 text-xs text-slate-300">
+                <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 flex justify-between"><span>Elewi Odo</span><span class="text-slate-400">Paper, Data, Salary, Utility</span></div>
+                <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 flex justify-between"><span>10/10</span><span class="text-slate-400">Paper, Data, Salary, Utility</span></div>
+                <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 flex justify-between"><span>Idi Ape</span><span class="text-slate-400">Paper, Data, Salary, Utility</span></div>
+                <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 flex justify-between"><span>Gbaremu</span><span class="text-slate-400">Paper, Data, Salary, Utility</span></div>
+                <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 flex justify-between"><span>Oluyole</span><span class="text-slate-400">Paper, Data, Salary, Utility</span></div>
+                <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 flex justify-between"><span>Gbagi Shop</span><span class="text-slate-400">Paper, Data, Salary, Utility</span></div>
+                <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 flex justify-between"><span>Bodija Oju Irin</span><span class="text-slate-400">Paper, Data, Salary, Utility</span></div>
+            </div>
+        </section>
+
+        <button id="save-budget-btn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 rounded-lg text-sm transition-colors">
+            Save Weekly Budget Settings
+        </button>
+
+    </main>
+
+    <script>
+        // Load saved budget config if available
+        const savedBudget = JSON.parse(localStorage.getItem('adelowo_weekly_budget')) || {};
+        if(savedBudget.revenue) document.getElementById('expected-revenue').value = savedBudget.revenue;
+        if(savedBudget.personal) document.getElementById('alloc-personal').value = savedBudget.personal;
+        if(savedBudget.shop) document.getElementById('alloc-shop').value = savedBudget.shop;
+        if(savedBudget.random) document.getElementById('alloc-random').value = savedBudget.random;
+        if(savedBudget.savings) document.getElementById('alloc-savings').value = savedBudget.savings;
+
+        document.getElementById('save-budget-btn').addEventListener('click', () => {
+            const budgetData = {
+                revenue: document.getElementById('expected-revenue').value,
+                personal: document.getElementById('alloc-personal').value,
+                shop: document.getElementById('alloc-shop').value,
+                random: document.getElementById('alloc-random').value,
+                savings: document.getElementById('alloc-savings').value
+            };
+            localStorage.setItem('adelowo_weekly_budget', JSON.stringify(budgetData));
+            alert('Weekly budget settings saved successfully!');
+        });
+    </script>
+</body>
+</html>

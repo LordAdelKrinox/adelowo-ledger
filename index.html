@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adelowo's Ledger</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- jsPDF for downloading reports as PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased pb-24">
+
+    <!-- Top Header -->
+    <header class="bg-slate-900 border-b border-slate-800 p-4 sticky top-0 z-10 flex justify-between items-center">
+        <h1 class="text-base font-extrabold tracking-wider text-emerald-400">ADELOWO'S LEDGER</h1>
+        <div class="flex items-center gap-2">
+            <a href="budget.html" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3 py-1.5 rounded-lg border border-slate-700 font-medium">Budget Setup</a>
+            <span id="current-date" class="text-xs text-slate-400"></span>
+        </div>
+    </header>
+
+    <main class="p-4 max-w-md mx-auto space-y-5">
+
+        <!-- Summary Cards -->
+        <section class="grid grid-cols-2 gap-3">
+            <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+                <p class="text-[11px] text-slate-400 uppercase tracking-wider">Total Income</p>
+                <p id="total-income" class="text-lg font-semibold text-emerald-400 mt-1">₦0</p>
+            </div>
+            <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+                <p class="text-[11px] text-slate-400 uppercase tracking-wider">Total Expenses</p>
+                <p id="total-expense" class="text-lg font-semibold text-rose-400 mt-1">₦0</p>
+            </div>
+        </section>
+
+        <!-- Quick Entry Form -->
+        <section class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-3">
+            <h2 class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Log Transaction</h2>
+            <form id="transaction-form" class="space-y-3">
+                
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-[11px] text-slate-400">Executor</label>
+                        <select id="executor" required class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+                            <option value="">Select Executor</option>
+                            <option value="Adel">Adel</option>
+                            <option value="Chinyere">Chinyere</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[11px] text-slate-400">Type</label>
+                        <select id="type" required class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+                            <option value="expense">Expense</option>
+                            <option value="income">Income</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-[11px] text-slate-400">Amount (₦)</label>
+                        <input type="number" id="amount" step="1" min="1" required placeholder="1" class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="text-[11px] text-slate-400">Category Channel</label>
+                        <select id="tracking_type" class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+                            <option value="Personal">Fixed Personal</option>
+                            <option value="Shop">Fixed Shop Based</option>
+                            <option value="Random">Random Expense</option>
+                            <option value="Savings">Savings</option>
+                            <option value="GeneralIncome">General Income</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Dynamic Sub-selection Panels -->
+                <div id="personal-sub-panel" class="space-y-2 bg-slate-950 p-3 rounded-lg border border-slate-800">
+                    <label class="text-[11px] text-slate-400">Personal Expense Category</label>
+                    <select id="personal_sub" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-sm text-slate-100">
+                        <option value="Food">Food</option>
+                        <option value="Groceries">Groceries</option>
+                        <option value="Utility">Utility</option>
+                        <option value="Fueling and Transportation">Fueling and Transportation</option>
+                    </select>
+                </div>
+
+                <div id="shop-sub-panel" class="space-y-2 bg-slate-950 p-3 rounded-lg border border-slate-800 hidden">
+                    <div>
+                        <label class="text-[11px] text-slate-400">Select Shop Location</label>
+                        <select id="shop_location" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-sm text-slate-100 mb-2">
+                            <option value="Elewi Odo">Elewi Odo</option>
+                            <option value="10/10">10/10</option>
+                            <option value="Idi Ape">Idi Ape</option>
+                            <option value="Gbaremu">Gbaremu</option>
+                            <option value="Oluyole">Oluyole</option>
+                            <option value="Gbagi Shop">Gbagi Shop</option>
+                            <option value="Bodija Oju Irin">Bodija Oju Irin</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[11px] text-slate-400">Shop Expense Type</label>
+                        <select id="shop_sub" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-sm text-slate-100">
+                            <option value="Paper">Paper</option>
+                            <option value="Data">Data</option>
+                            <option value="Salary">Salary</option>
+                            <option value="Utility">Utility</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-[11px] text-slate-400">Description / Note</label>
+                    <input type="text" id="note" required placeholder="Detailed description required..." class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+                </div>
+
+                <button type="submit" id="submit-btn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2.5 rounded-lg text-sm transition-colors">
+                    Save to Cloud Ledger
+                </button>
+            </form>
+        </section>
+
+        <!-- Historical Reports & PDF Download -->
+        <section class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-3">
+            <h2 class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Historical Statements & PDF</h2>
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="text-[10px] text-slate-400">Select Date</label>
+                    <input type="date" id="report-date" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200">
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-400">Filter Mode</label>
+                    <select id="report-filter" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200">
+                        <option value="daily">Specific Day</option>
+                        <option value="weekly">This Week</option>
+                        <option value="monthly" selected>This Month</option>
+                        <option value="annual">This Year</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div id="report-output" class="text-xs text-slate-400 bg-slate-950 p-3 rounded-lg border border-slate-800 space-y-1.5">
+                <!-- Metrics injected -->
+            </div>
+
+            <button id="download-pdf-btn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-2 rounded-lg text-xs transition-colors flex items-center justify-center gap-1">
+                Download Statement PDF
+            </button>
+        </section>
+
+        <!-- Recent Logs -->
+        <section class="space-y-2.5">
+            <h2 class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Recent History</h2>
+            <div id="transaction-list" class="space-y-2">
+                <p class="text-xs text-slate-500 text-center py-4">Loading transactions...</p>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        const SUPABASE_URL = 'https://itbnekbbezzbpsgsidet.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_3PF-xkCW382a9XOpZWsHYg_rcktU95h';
+
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let allTransactions = [];
+        const todayStr = new Date().toISOString().split('T')[0];
+        document.getElementById('report-date').value = todayStr;
+        document.getElementById('current-date').innerText = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+
+        // Dynamic form display triggers
+        const trackingTypeSelect = document.getElementById('tracking_type');
+        const personalPanel = document.getElementById('personal-sub-panel');
+        const shopPanel = document.getElementById('shop-sub-panel');
+
+        trackingTypeSelect.addEventListener('change', (e) => {
+            const val = e.target.value;
+            personalPanel.classList.add('hidden');
+            shopPanel.classList.add('hidden');
+            if (val === 'Personal') personalPanel.classList.remove('hidden');
+            if (val === 'Shop') shopPanel.classList.remove('hidden');
+        });
+
+        async function fetchTransactions() {
+            const { data, error } = await _supabase
+                .from('transactions')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('Error fetching data:', error);
+                return;
+            }
+            allTransactions = data || [];
+            updateUI();
+        }
+
+        const form = document.getElementById('transaction-form');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            btn.innerText = 'Saving...';
+            btn.disabled = true;
+
+            const trackingType = trackingTypeSelect.value;
+            let subCat = '';
+            let shopLoc = null;
+
+            if (trackingType === 'Personal') {
+                subCat = document.getElementById('personal_sub').value;
+            } else if (trackingType === 'Shop') {
+                subCat = document.getElementById('shop_sub').value;
+                shopLoc = document.getElementById('shop_location').value;
+            } else {
+                subCat = trackingType;
+            }
+
+            const newTx = {
+                executor: document.getElementById('executor').value,
+                type: document.getElementById('type').value,
+                amount: parseFloat(document.getElementById('amount').value),
+                tracking_type: trackingType,
+                shop: shopLoc,
+                sub_category: subCat,
+                note: document.getElementById('note').value
+            };
+
+            const { error } = await _supabase.from('transactions').insert([newTx]);
+
+            if (error) {
+                alert('Error saving transaction: ' + error.message);
+            } else {
+                form.reset();
+                trackingTypeSelect.value = 'Personal';
+                personalPanel.classList.remove('hidden');
+                await fetchTransactions();
+            }
+
+            btn.innerText = 'Save to Cloud Ledger';
+            btn.disabled = false;
+        });
+
+        document.getElementById('report-filter').addEventListener('change', renderReports);
+        document.getElementById('report-date').addEventListener('change', renderReports);
+
+        function formatCurrency(amount) {
+            return '₦' + amount.toLocaleString('en-NG', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+        }
+
+        function getFilteredTransactions() {
+            const mode = document.getElementById('report-filter').value;
+            const targetDateStr = document.getElementById('report-date').value;
+            const targetDate = targetDateStr ? new Date(targetDateStr) : new Date();
+
+            return allTransactions.filter(t => {
+                const tDate = new Date(t.created_at);
+                if (mode === 'daily') {
+                    return tDate.toDateString() === targetDate.toDateString();
+                } else if (mode === 'weekly') {
+                    const oneWeekAgo = new Date(targetDate.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    return tDate >= oneWeekAgo && tDate <= targetDate;
+                } else if (mode === 'monthly') {
+                    return tDate.getMonth() === targetDate.getMonth() && tDate.getFullYear() === targetDate.getFullYear();
+                } else if (mode === 'annual') {
+                    return tDate.getFullYear() === targetDate.getFullYear();
+                }
+                return true;
+            });
+        }
+
+        function updateUI() {
+            let totalInc = allTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount), 0);
+            let totalExp = allTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + Number(t.amount), 0);
+
+            document.getElementById('total-income').innerText = formatCurrency(totalInc);
+            document.getElementById('total-expense').innerText = formatCurrency(totalExp);
+
+            const listEl = document.getElementById('transaction-list');
+            listEl.innerHTML = '';
+
+            if (allTransactions.length === 0) {
+                listEl.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">No transactions recorded yet.</p>`;
+            } else {
+                allTransactions.slice(0, 15).forEach(t => {
+                    const item = document.createElement('div');
+                    item.className = "bg-slate-900 border border-slate-800 p-3 rounded-lg flex justify-between items-center text-xs";
+                    const tDate = new Date(t.created_at);
+                    let badgeText = t.shop ? `${t.shop} - ${t.sub_category}` : t.sub_category;
+                    item.innerHTML = `
+                        <div>
+                            <p class="font-medium text-slate-200">${t.note} <span class="text-[10px] text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded ml-1">${badgeText}</span></p>
+                            <p class="text-slate-500 mt-0.5">Executor: <span class="text-slate-300 font-semibold">${t.executor}</span> | ${tDate.toLocaleDateString()}</p>
+                        </div>
+                        <span class="font-bold ${t.type === 'income' ? 'text-emerald-400' : 'text-rose-400'}">
+                            ${t.type === 'income' ? '+' : '-'}${formatCurrency(t.amount)}
+                        </span>
+                    `;
+                    listEl.appendChild(item);
+                });
+            }
+            renderReports();
+        }
+
+        function renderReports() {
+            const filtered = getFilteredTransactions();
+            let inc = filtered.filter(t => t.type === 'income').reduce((s, t) => s + Number(t.amount), 0);
+            let exp = filtered.filter(t => t.type === 'expense').reduce((s, t) => s + Number(t.amount), 0);
+            let net = inc - exp;
+
+            document.getElementById('report-output').innerHTML = `
+                <div class="flex justify-between"><span>Inflow:</span> <span class="text-emerald-400 font-medium">${formatCurrency(inc)}</span></div>
+                <div class="flex justify-between"><span>Outflow:</span> <span class="text-rose-400 font-medium">${formatCurrency(exp)}</span></div>
+                <div class="flex justify-between border-t border-slate-800 pt-1.5 mt-1 font-bold"><span>Net Balance:</span> <span class="${net >= 0 ? 'text-blue-400' : 'text-amber-400'}">${formatCurrency(net)}</span></div>
+            `;
+        }
+
+        // PDF Statement Download Trigger
+        document.getElementById('download-pdf-btn').addEventListener('click', () => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const filtered = getFilteredTransactions();
+            const mode = document.getElementById('report-filter').value.toUpperCase();
+
+            doc.setFontSize(16);
+            doc.text("ADELOWO'S FINANCIAL STATEMENT", 14, 20);
+            doc.setFontSize(10);
+            doc.text(`Report Mode: ${mode} | Generated: ${new Date().toLocaleDateString()}`, 14, 28);
+
+            let y = 40;
+            doc.setFontSize(9);
+            doc.text("Date / Time", 14, y);
+            doc.text("Executor", 50, y);
+            doc.text("Category / Shop", 80, y);
+            doc.text("Note", 120, y);
+            doc.text("Amount", 175, y);
+            doc.line(14, 32, 195, 32);
+
+            y = 46;
+            filtered.forEach(t => {
+                if (y > 270) {
+                    doc.addPage();
+                    y = 20;
+                }
+                const dateStr = new Date(t.created_at).toLocaleDateString();
+                const catStr = t.shop ? `${t.shop}` : (t.sub_category || '-');
+                doc.text(dateStr, 14, y);
+                doc.text(t.executor || '-', 50, y);
+                doc.text(catStr, 80, y);
+                doc.text((t.note || '').substring(0, 25), 120, y);
+                doc.text(`${t.type === 'income' ? '+' : '-'}${Number(t.amount).toLocaleString()}`, 175, y);
+                y += 8;
+            });
+
+            doc.save(`Adelowo_Statement_${mode}.pdf`);
+        });
+
+        fetchTransactions();
+    </script>
+</body>
+</html>
