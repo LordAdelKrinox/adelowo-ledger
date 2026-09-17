@@ -82,7 +82,7 @@
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="text-[11px] text-slate-400 font-medium">Amount (₦)</label>
-                        <input type="number" id="amount" step="1" min="1" required placeholder="1" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500 placeholder-slate-500">
+                        <input type="number" id="amount" step="0.01" min="0.01" required placeholder="1.00" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500 placeholder-slate-500">
                     </div>
                     <div id="channel-container">
                         <label class="text-[11px] text-slate-400 font-medium">Category Channel</label>
@@ -368,7 +368,7 @@
         document.getElementById('report-end-date').addEventListener('change', renderReports);
 
         function formatCurrency(amount) {
-            return '₦' + amount.toLocaleString('en-NG', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+            return '₦' + Number(amount).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
         function getTuesdayToMondayRange(dateObj) {
@@ -567,12 +567,13 @@
                     doc.text(catStr, 75, y + 4.5);
                     doc.text((t.note || '').substring(0, 30), 115, y + 4.5);
 
+                    const formattedAmt = Number(t.amount).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                     if (t.type === 'income') {
                         doc.setTextColor(16, 185, 129);
-                        doc.text(`+${Number(t.amount).toLocaleString()}`, 170, y + 4.5);
+                        doc.text(`+${formattedAmt}`, 170, y + 4.5);
                     } else {
                         doc.setTextColor(225, 29, 72);
-                        doc.text(`-${Number(t.amount).toLocaleString()}`, 170, y + 4.5);
+                        doc.text(`-${formattedAmt}`, 170, y + 4.5);
                     }
 
                     y += 7;
