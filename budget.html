@@ -3,137 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Budget Setup — Adelowo's Ledger</title>
+    <title>Budget Setup - Adelowo's Ledger</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans antialiased pb-24">
 
-    <!-- Top Header -->
-    <header class="bg-slate-900 border-b border-slate-800 p-4 sticky top-0 z-20 flex justify-between items-center shadow-md">
-        <h1 class="text-base font-extrabold tracking-wider text-emerald-400">BUDGET SETUP</h1>
-        <a href="index.html" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg font-medium transition-colors">Back to Ledger</a>
+    <!-- Header -->
+    <header class="bg-slate-900 border-b border-slate-800 p-4 sticky top-0 z-10 flex justify-between items-center shadow-md">
+        <h1 class="text-base font-extrabold tracking-wider text-emerald-400">WEEKLY BUDGET SETUP</h1>
+        <a href="index.html" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3 py-1.5 rounded-lg border border-slate-700 font-medium">Back to Ledger</a>
     </header>
 
-    <main class="p-4 max-w-md mx-auto space-y-5">
+    <main class="p-4 max-w-md mx-auto space-y-6">
 
-        <!-- Weekly Expected Revenue & Allocations -->
-        <section class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-4">
-            <h2 class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Weekly Revenue & Allocation Targets</h2>
-            
-            <div class="space-y-3">
-                <div>
-                    <label class="text-[11px] text-slate-400">Expected Weekly Revenue (₦)</label>
-                    <input type="number" id="expected-revenue" value="0" class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
-                </div>
-
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="text-[11px] text-slate-400">Personal Expenses (%)</label>
-                        <input type="number" id="pct-personal" value="25" class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
-                    </div>
-                    <div>
-                        <label class="text-[11px] text-slate-400">Shop Expenses (%)</label>
-                        <input type="number" id="pct-shop" value="40" class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="text-[11px] text-slate-400">Random Expenses (%)</label>
-                        <input type="number" id="pct-random" value="15" class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
-                    </div>
-                    <div>
-                        <label class="text-[11px] text-slate-400">Daily Savings (%)</label>
-                        <input type="number" id="pct-savings" value="20" class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
-                    </div>
-                </div>
-
-                <button onclick="saveBudgetPlan()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2.5 rounded-lg text-sm transition-colors">
-                    Save Budget Targets
-                </button>
-            </div>
-        </section>
-
-        <!-- Pre-Loaded Shop Fixed Weekly Expenses Default Allocation -->
+        <!-- Select Shop to Configure -->
         <section class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-3">
-            <h2 class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Default Shop Weekly Allocations</h2>
-            <p class="text-[11px] text-slate-400">Standard weekly expenditure template across your 7 locations for Paper, Data, Salary, and Utility.</p>
-            
-            <div id="shop-templates" class="space-y-2 pt-1">
-                <!-- Injected via script -->
+            <h2 class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Select Shop Location</h2>
+            <select id="budget-shop-select" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+                <option value="Elewi Odo">Elewi Odo</option>
+                <option value="10/10">10/10</option>
+                <option value="Idi Ape">Idi Ape</option>
+                <option value="Gbaremu">Gbaremu</option>
+                <option value="Oluyole">Oluyole</option>
+                <option value="Gbagi Shop">Gbagi Shop</option>
+                <option value="Bodija Oju Irin">Bodija Oju Irin</option>
+            </select>
+        </section>
+
+        <!-- Expected Revenue Section -->
+        <section class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-3">
+            <h2 class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Expected Weekly Target for Shop</h2>
+            <div>
+                <label class="text-[11px] text-slate-400">Target Revenue (₦)</label>
+                <input type="number" id="expected-revenue" placeholder="0" class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
             </div>
         </section>
+
+        <!-- Shop Expense Allocations (Paper, Data, Salary, Utility) -->
+        <section class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-3">
+            <h2 class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Shop Specific Weekly Expense Allocations (₦)</h2>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="text-[10px] text-slate-400">Paper (₦)</label>
+                    <input type="number" id="shop-paper" placeholder="0" class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-slate-100">
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-400">Data (₦)</label>
+                    <input type="number" id="shop-data" placeholder="0" class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-slate-100">
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-400">Salary (₦)</label>
+                    <input type="number" id="shop-salary" placeholder="0" class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-slate-100">
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-400">Utility (₦)</label>
+                    <input type="number" id="shop-utility" placeholder="0" class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-slate-100">
+                </div>
+            </div>
+        </section>
+
+        <button id="save-budget-btn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 rounded-lg text-sm transition-colors">
+            Save Budget for Selected Shop
+        </button>
 
     </main>
 
     <script>
-        const shops = [
-            "Elewi Odo", "10/10", "Idi Ape", "Gbaremu", "Oluyole", "Gbagi Shop", "Bodija Ojú Irin"
-        ];
+        const shopSelect = document.getElementById('budget-shop-select');
+        const revenueInput = document.getElementById('expected-revenue');
+        const paperInput = document.getElementById('shop-paper');
+        const dataInput = document.getElementById('shop-data');
+        const salaryInput = document.getElementById('shop-salary');
+        const utilityInput = document.getElementById('shop-utility');
 
-        const defaultShopAllocations = {
-            "Elewi Odo": { paper: 1000, data: 2500, salary: 15000, utility: 2000 },
-            "10/10": { paper: 1000, data: 2500, salary: 15000, utility: 2000 },
-            "Idi Ape": { paper: 1000, data: 2500, salary: 15000, utility: 2000 },
-            "Gbaremu": { paper: 1000, data: 2500, salary: 15000, utility: 2000 },
-            "Oluyole": { paper: 1000, data: 2500, salary: 15000, utility: 2000 },
-            "Gbagi Shop": { paper: 1000, data: 2500, salary: 15000, utility: 2000 },
-            "Bodija Ojú Irin": { paper: 1000, data: 2500, salary: 15000, utility: 2000 }
-        };
-
-        function renderShopTemplates() {
-            const container = document.getElementById('shop-templates');
-            container.innerHTML = '';
-
-            shops.forEach(shop => {
-                const alloc = defaultShopAllocations[shop];
-                const totalShop = alloc.paper + alloc.data + alloc.salary + alloc.utility;
-
-                const item = document.createElement('div');
-                item.className = "bg-slate-950 border border-slate-800 p-3 rounded-lg text-xs space-y-1.5";
-                item.innerHTML = `
-                    <div class="flex justify-between font-bold text-slate-200">
-                        <span>${shop}</span>
-                        <span class="text-emerald-400">Weekly Total: ₦${totalShop.toLocaleString()}</span>
-                    </div>
-                    <div class="grid grid-cols-4 gap-1 text-[10px] text-slate-400 pt-1">
-                        <div>Paper: ₦${alloc.paper}</div>
-                        <div>Data: ₦${alloc.data}</div>
-                        <div>Salary: ₦${alloc.salary.toLocaleString()}</div>
-                        <div>Utility: ₦${alloc.utility}</div>
-                    </div>
-                `;
-                container.appendChild(item);
-            });
+        function loadShopBudget(shopName) {
+            const allBudgets = JSON.parse(localStorage.getItem('adelowo_shop_budgets')) || {};
+            const shopData = allBudgets[shopName] || { revenue: '', paper: '', data: '', salary: '', utility: '' };
+            
+            revenueInput.value = shopData.revenue;
+            paperInput.value = shopData.paper;
+            dataInput.value = shopData.data;
+            salaryInput.value = shopData.salary;
+            utilityInput.value = shopData.utility;
         }
 
-        function saveBudgetPlan() {
-            const plan = {
-                expectedRevenue: document.getElementById('expected-revenue').value,
-                personal: document.getElementById('pct-personal').value,
-                shop: document.getElementById('pct-shop').value,
-                random: document.getElementById('pct-random').value,
-                savings: document.getElementById('pct-savings').value
+        loadShopBudget(shopSelect.value);
+
+        shopSelect.addEventListener('change', (e) => {
+            loadShopBudget(e.target.value);
+        });
+
+        document.getElementById('save-budget-btn').addEventListener('click', () => {
+            const currentShop = shopSelect.value;
+            const allBudgets = JSON.parse(localStorage.getItem('adelowo_shop_budgets')) || {};
+            
+            allBudgets[currentShop] = {
+                revenue: revenueInput.value,
+                paper: paperInput.value,
+                data: dataInput.value,
+                salary: salaryInput.value,
+                utility: utilityInput.value
             };
 
-            localStorage.setItem('adelowo_budget_plan', JSON.stringify(plan));
-            alert('Weekly budget allocations saved successfully!');
-        }
-
-        function loadBudgetPlan() {
-            const saved = JSON.parse(localStorage.getItem('adelowo_budget_plan'));
-            if (saved) {
-                document.getElementById('expected-revenue').value = saved.expectedRevenue || 0;
-                document.getElementById('pct-personal').value = saved.personal || 25;
-                document.getElementById('pct-shop').value = saved.shop || 40;
-                document.getElementById('pct-random').value = saved.random || 15;
-                document.getElementById('pct-savings').value = saved.savings || 20;
-            }
-        }
-
-        renderShopTemplates();
-        loadBudgetPlan();
+            localStorage.setItem('adelowo_shop_budgets', JSON.stringify(allBudgets));
+            alert(`Budget settings for ${currentShop} saved successfully!`);
+        });
     </script>
 </body>
 </html>
