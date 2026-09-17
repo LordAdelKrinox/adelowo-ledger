@@ -16,6 +16,32 @@
 
     <main class="p-4 max-w-md mx-auto space-y-6">
 
+        <!-- Enterprise Aggregate Summary Banner -->
+        <section class="bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-950/40 p-4 rounded-xl border border-emerald-900/40 shadow-lg space-y-3">
+            <div class="flex justify-between items-center">
+                <h2 class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Enterprise Master Summary</h2>
+                <button onclick="openHealthModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg shadow transition-colors">
+                    View Budget Health
+                </button>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-center pt-1">
+                <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
+                    <p class="text-[10px] text-slate-400 uppercase">Total Target Revenue</p>
+                    <p id="master-total-revenue" class="text-xs font-bold text-emerald-400 mt-1">₦0</p>
+                </div>
+                <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
+                    <p class="text-[10px] text-slate-400 uppercase">Total Allocations</p>
+                    <p id="master-total-allocations" class="text-xs font-bold text-rose-400 mt-1">₦0</p>
+                </div>
+            </div>
+            <div class="grid grid-cols-4 gap-1 text-center pt-1 text-[10px]">
+                <div class="bg-slate-950/80 p-1.5 rounded border border-slate-800"><span class="text-slate-400 block">Paper</span><span id="master-paper" class="font-semibold text-slate-200">₦0</span></div>
+                <div class="bg-slate-950/80 p-1.5 rounded border border-slate-800"><span class="text-slate-400 block">Data</span><span id="master-data" class="font-semibold text-slate-200">₦0</span></div>
+                <div class="bg-slate-950/80 p-1.5 rounded border border-slate-800"><span class="text-slate-400 block">Salary</span><span id="master-salary" class="font-semibold text-slate-200">₦0</span></div>
+                <div class="bg-slate-950/80 p-1.5 rounded border border-slate-800"><span class="text-slate-400 block">Utility</span><span id="master-utility" class="font-semibold text-slate-200">₦0</span></div>
+            </div>
+        </section>
+
         <!-- Select Shop to Configure -->
         <section class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-3">
             <h2 class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Select Shop Location</h2>
@@ -68,6 +94,20 @@
 
     </main>
 
+    <!-- Budget Health Analysis Modal -->
+    <div id="health-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="text-sm font-bold text-emerald-400 uppercase tracking-wide">Enterprise Budget Health</h3>
+                <button onclick="closeHealthModal()" class="text-slate-400 hover:text-slate-100 font-bold text-sm">✕</button>
+            </div>
+            <div id="modal-health-content" class="text-xs space-y-3 text-slate-300">
+                <!-- Injected dynamically -->
+            </div>
+            <button onclick="closeHealthModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 py-2 rounded-lg text-xs font-medium">Close Assessment</button>
+        </div>
+    </div>
+
     <script>
         const shopSelect = document.getElementById('budget-shop-select');
         const revenueInput = document.getElementById('expected-revenue');
@@ -75,6 +115,8 @@
         const dataInput = document.getElementById('shop-data');
         const salaryInput = document.getElementById('shop-salary');
         const utilityInput = document.getElementById('shop-utility');
+
+        const allShops = ["Elewi Odo", "10/10", "Idi Ape", "Gbaremu", "Oluyole", "Gbagi Shop", "Bodija Oju Irin"];
 
         function loadShopBudget(shopName) {
             const allBudgets = JSON.parse(localStorage.getItem('adelowo_shop_budgets')) || {};
@@ -87,7 +129,37 @@
             utilityInput.value = shopData.utility;
         }
 
+        function updateMasterSummary() {
+            const allBudgets = JSON.parse(localStorage.getItem('adelowo_shop_budgets')) || {};
+            let totalRev = 0;
+            let totalPaper = 0;
+            let totalData = 0;
+            let totalSalary = 0;
+            let totalUtility = 0;
+
+            allShops.forEach(shop => {
+                const b = allBudgets[shop];
+                if (b) {
+                    totalRev += Number(b.revenue) || 0;
+                    totalPaper += Number(b.paper) || 0;
+                    totalData += Number(b.data) || 0;
+                    totalSalary += Number(b.salary) || 0;
+                    totalUtility += Number(b.utility) || 0;
+                }
+            });
+
+            const totalAlloc = totalPaper + totalData + totalSalary + totalUtility;
+
+            document.getElementById('master-total-revenue').innerText = '₦' + totalRev.toLocaleString();
+            document.getElementById('master-total-allocations').innerText = '₦' + totalAlloc.toLocaleString();
+            document.getElementById('master-paper').innerText = '₦' + totalPaper.toLocaleString();
+            document.getElementById('master-data').innerText = '₦' + totalData.toLocaleString();
+            document.getElementById('master-salary').innerText = '₦' + totalSalary.toLocaleString();
+            document.getElementById('master-utility').innerText = '₦' + totalUtility.toLocaleString();
+        }
+
         loadShopBudget(shopSelect.value);
+        updateMasterSummary();
 
         shopSelect.addEventListener('change', (e) => {
             loadShopBudget(e.target.value);
@@ -106,8 +178,52 @@
             };
 
             localStorage.setItem('adelowo_shop_budgets', JSON.stringify(allBudgets));
+            updateMasterSummary();
             alert(`Budget settings for ${currentShop} saved successfully!`);
         });
+
+        function openHealthModal() {
+            const allBudgets = JSON.parse(localStorage.getItem('adelowo_shop_budgets')) || {};
+            let totalRev = 0;
+            let totalAlloc = 0;
+
+            allShops.forEach(shop => {
+                const b = allBudgets[shop];
+                if (b) {
+                    totalRev += Number(b.revenue) || 0;
+                    totalAlloc += (Number(b.paper) || 0) + (Number(b.data) || 0) + (Number(b.salary) || 0) + (Number(b.utility) || 0);
+                }
+            });
+
+            const netMargin = totalRev - totalAlloc;
+            const ratio = totalRev > 0 ? ((totalAlloc / totalRev) * 100).toFixed(1) : 0;
+
+            let healthStatus = 'Optimal Growth';
+            let statusColor = 'text-emerald-400';
+            if (ratio > 70) {
+                healthStatus = 'High Expense Ratio Alert';
+                statusColor = 'text-rose-400';
+            } else if (ratio > 50) {
+                healthStatus = 'Moderate / Stable';
+                statusColor = 'text-amber-400';
+            }
+
+            document.getElementById('modal-health-content').innerHTML = `
+                <div class="flex justify-between"><span>Combined Expected Revenue:</span> <span class="font-semibold text-emerald-400">₦${totalRev.toLocaleString()}</span></div>
+                <div class="flex justify-between"><span>Combined Total Allocations:</span> <span class="font-semibold text-rose-400">₦${totalAlloc.toLocaleString()}</span></div>
+                <div class="flex justify-between"><span>Projected Net Margin:</span> <span class="font-semibold text-blue-400">₦${netMargin.toLocaleString()}</span></div>
+                <div class="flex justify-between"><span>Expense-to-Revenue Ratio:</span> <span class="font-semibold">${ratio}%</span></div>
+                <div class="border-t border-slate-800 pt-2 flex justify-between items-center">
+                    <span>Health Rating:</span> 
+                    <span class="font-bold uppercase px-2 py-0.5 rounded bg-slate-800 ${statusColor}">${healthStatus}</span>
+                </div>
+            `;
+            document.getElementById('health-modal').classList.remove('hidden');
+        }
+
+        function closeHealthModal() {
+            document.getElementById('health-modal').classList.add('hidden');
+        }
     </script>
 </body>
 </html>
