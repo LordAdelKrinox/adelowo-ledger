@@ -165,25 +165,8 @@
         <section class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-3">
             <h2 class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Historical Statements & PDF</h2>
             
+            <!-- Dual Date Range Selectors -->
             <div class="grid grid-cols-2 gap-2">
-                <div>
-                    <label class="text-[10px] text-slate-400">Filter Mode</label>
-                    <select id="report-filter" onchange="toggleDateRangeInputs()" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200">
-                        <option value="daily">Specific Day</option>
-                        <option value="weekly">This Week (Tue-Mon)</option>
-                        <option value="monthly" selected>This Month</option>
-                        <option value="annual">This Year</option>
-                        <option value="range">Custom Date Range</option>
-                    </select>
-                </div>
-                <div id="single-date-container">
-                    <label class="text-[10px] text-slate-400">Target Date</label>
-                    <input type="date" id="report-date" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200">
-                </div>
-            </div>
-
-            <!-- Custom Date Range Inputs (Shown when 'Custom Date Range' is selected) -->
-            <div id="range-date-container" class="grid grid-cols-2 gap-2 hidden">
                 <div>
                     <label class="text-[10px] text-slate-400">Start Date</label>
                     <input type="date" id="report-start-date" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200">
@@ -221,11 +204,15 @@
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let allTransactions = [];
-        const todayStr = new Date().toISOString().split('T')[0];
-        document.getElementById('report-date').value = todayStr;
-        document.getElementById('report-start-date').value = todayStr;
+        
+        // Initialize default date range to current month
+        const now = new Date();
+        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+        const todayStr = now.toISOString().split('T')[0];
+        
+        document.getElementById('report-start-date').value = firstDayOfMonth;
         document.getElementById('report-end-date').value = todayStr;
-        document.getElementById('current-date').innerText = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+        document.getElementById('current-date').innerText = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
         const typeSelect = document.getElementById('type');
         const trackingTypeSelect = document.getElementById('tracking_type');
@@ -258,20 +245,6 @@
             if (val === 'Personal') personalPanel.classList.remove('hidden');
             if (val === 'Shop') shopPanel.classList.remove('hidden');
         });
-
-        function toggleDateRangeInputs() {
-            const mode = document.getElementById('report-filter').value;
-            const rangeContainer = document.getElementById('range-date-container');
-            const singleContainer = document.getElementById('single-date-container');
-            if (mode === 'range') {
-                rangeContainer.classList.remove('hidden');
-                singleContainer.classList.add('hidden');
-            } else {
-                rangeContainer.classList.add('hidden');
-                singleContainer.classList.remove('hidden');
-            }
-            renderReports();
-        }
 
         async function fetchTransactions() {
             const { data, error } = await _supabase
@@ -393,8 +366,6 @@
             }
         }
 
-        document.getElementById('report-filter').addEventListener('change', toggleDateRangeInputs);
-        document.getElementById('report-date').addEventListener('change', renderReports);
         document.getElementById('report-start-date').addEventListener('change', renderReports);
         document.getElementById('report-end-date').addEventListener('change', renderReports);
 
@@ -405,7 +376,7 @@
         // Helper to get Tuesday-to-Monday week boundaries for any given date
         function getTuesdayToMondayRange(dateObj) {
             const d = new Date(dateObj);
-            const day = d.getDay(); // 0 is Sunday, 2 is Tuesday
+            const day = d.getDay(); 
             let diff = d.getDate() - day + (day === 0 ? -5 : 2);
             if (day < 2) diff -= 7;
             
@@ -420,31 +391,17 @@
         }
 
         function getFilteredTransactions() {
-            const mode = document.getElementById('report-filter').value;
-            const targetDateStr = document.getElementById('report-date').value;
-            const targetDate = targetDateStr ? new Date(targetDateStr) : new Date();
+            const startStr = document.getElementById('report-start-date').value;
+            const endStr = document.getElementById('report-end-date').value;
+            const startDate = startStr ? new Date(startStr) : new Date(0);
+            const endDate = endStr ? new Date(endStr) : new Date();
+            
+            startDate.setHours(0, 0, 0, 0);
+            endDate.setHours(23, 59, 59, 999);
 
             return allTransactions.filter(t => {
                 const tDate = new Date(t.created_at);
-                if (mode === 'daily') {
-                    return tDate.toDateString() === targetDate.toDateString();
-                } else if (mode === 'weekly') {
-                    const { startTuesday, endMonday } = getTuesdayToMondayRange(targetDate);
-                    return tDate >= startTuesday && tDate <= endMonday;
-                } else if (mode === 'monthly') {
-                    return tDate.getMonth() === targetDate.getMonth() && tDate.getFullYear() === targetDate.getFullYear();
-                } else if (mode === 'annual') {
-                    return tDate.getFullYear() === targetDate.getFullYear();
-                } else if (mode === 'range') {
-                    const startStr = document.getElementById('report-start-date').value;
-                    const endStr = document.getElementById('report-end-date').value;
-                    const startDate = startStr ? new Date(startStr) : new Date(0);
-                    const endDate = endStr ? new Date(endStr) : new Date();
-                    startDate.setHours(0, 0, 0, 0);
-                    endDate.setHours(23, 59, 59, 999);
-                    return tDate >= startDate && tDate <= endDate;
-                }
-                return true;
+                return tDate >= startDate && tDate <= endDate;
             });
         }
 
@@ -534,14 +491,10 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             const filtered = getFilteredTransactions();
-            const mode = document.getElementById('report-filter').value.toUpperCase();
             
-            let subtitle = `FINANCIAL STATEMENT REPORT (${mode})`;
-            if (mode === 'RANGE') {
-                const startStr = document.getElementById('report-start-date').value;
-                const endStr = document.getElementById('report-end-date').value;
-                subtitle = `FINANCIAL STATEMENT REPORT (${startStr} to ${endStr})`;
-            }
+            const startStr = document.getElementById('report-start-date').value;
+            const endStr = document.getElementById('report-end-date').value;
+            const subtitle = `FINANCIAL STATEMENT REPORT (${startStr} to ${endStr})`;
 
             // Header Banner Background
             doc.setFillColor(15, 23, 42);
@@ -641,7 +594,7 @@
             doc.setTextColor(150, 150, 150);
             doc.text("Adelowo's Financial Management System — Powered by Supabase", 14, 290);
 
-            doc.save(`Adelowo_Statement_${mode}.pdf`);
+            doc.save(`Adelowo_Statement_${startStr}_to_${endStr}.pdf`);
         });
 
         fetchTransactions();
