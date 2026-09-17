@@ -6,7 +6,6 @@
     <title>Adelowo's Ledger</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- jsPDF for downloading reports as PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans antialiased pb-24">
@@ -170,7 +169,6 @@
         document.getElementById('report-date').value = todayStr;
         document.getElementById('current-date').innerText = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
-        // Dynamic form display triggers
         const trackingTypeSelect = document.getElementById('tracking_type');
         const personalPanel = document.getElementById('personal-sub-panel');
         const shopPanel = document.getElementById('shop-sub-panel');
@@ -316,7 +314,6 @@
             `;
         }
 
-        // PDF Statement Download Trigger
         document.getElementById('download-pdf-btn').addEventListener('click', () => {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
