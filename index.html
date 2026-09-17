@@ -182,7 +182,7 @@
                 </div>
             </div>
 
-            <!-- Custom Date Range Inputs (Hidden by default) -->
+            <!-- Custom Date Range Inputs (Shown when 'Custom Date Range' is selected) -->
             <div id="range-date-container" class="grid grid-cols-2 gap-2 hidden">
                 <div>
                     <label class="text-[10px] text-slate-400">Start Date</label>
@@ -393,7 +393,7 @@
             }
         }
 
-        document.getElementById('report-filter').addEventListener('change', renderReports);
+        document.getElementById('report-filter').addEventListener('change', toggleDateRangeInputs);
         document.getElementById('report-date').addEventListener('change', renderReports);
         document.getElementById('report-start-date').addEventListener('change', renderReports);
         document.getElementById('report-end-date').addEventListener('change', renderReports);
@@ -406,9 +406,8 @@
         function getTuesdayToMondayRange(dateObj) {
             const d = new Date(dateObj);
             const day = d.getDay(); // 0 is Sunday, 2 is Tuesday
-            // Calculate offset back to the most recent Tuesday
             let diff = d.getDate() - day + (day === 0 ? -5 : 2);
-            if (day < 2) diff -= 7; // If Sunday or Monday, shift back to last Tuesday
+            if (day < 2) diff -= 7;
             
             const startTuesday = new Date(d.setDate(diff));
             startTuesday.setHours(0, 0, 0, 0);
@@ -441,8 +440,8 @@
                     const endStr = document.getElementById('report-end-date').value;
                     const startDate = startStr ? new Date(startStr) : new Date(0);
                     const endDate = endStr ? new Date(endStr) : new Date();
-                    startDate.setHours(0,0,0,0);
-                    endDate.setHours(23,59,59,999);
+                    startDate.setHours(0, 0, 0, 0);
+                    endDate.setHours(23, 59, 59, 999);
                     return tDate >= startDate && tDate <= endDate;
                 }
                 return true;
@@ -536,6 +535,13 @@
             const doc = new jsPDF();
             const filtered = getFilteredTransactions();
             const mode = document.getElementById('report-filter').value.toUpperCase();
+            
+            let subtitle = `FINANCIAL STATEMENT REPORT (${mode})`;
+            if (mode === 'RANGE') {
+                const startStr = document.getElementById('report-start-date').value;
+                const endStr = document.getElementById('report-end-date').value;
+                subtitle = `FINANCIAL STATEMENT REPORT (${startStr} to ${endStr})`;
+            }
 
             // Header Banner Background
             doc.setFillColor(15, 23, 42);
@@ -546,10 +552,10 @@
             doc.setFont('helvetica', 'bold');
             doc.text("ADELOWO'S LEDGER", 14, 20);
 
-            doc.setFontSize(10);
+            doc.setFontSize(9);
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(16, 185, 129);
-            doc.text(`FINANCIAL STATEMENT REPORT (${mode})`, 14, 28);
+            doc.text(subtitle, 14, 28);
 
             doc.setTextColor(148, 163, 184);
             doc.text(`Generated: ${new Date().toLocaleString()}`, 130, 28);
