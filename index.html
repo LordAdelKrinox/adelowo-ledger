@@ -54,7 +54,7 @@
     <main class="p-4 max-w-md mx-auto space-y-4">
 
         <!-- Main Balance Card Style -->
-        <section class="bg-white/95 backdrop-blur-xl border border-white/40 p-5 rounded-3xl shadow-xl space-y-4 relative overflow-hidden text-slate-800">
+        <section class="bg-white/85 backdrop-blur-xl border border-white/40 p-5 rounded-3xl shadow-xl space-y-4 relative overflow-hidden text-slate-800">
             <div class="absolute -right-10 -top-10 w-32 h-32 bg-emerald-400/20 rounded-full blur-2xl pointer-events-none"></div>
             
             <div class="flex justify-between items-start">
@@ -71,11 +71,11 @@
             </div>
 
             <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-100">
-                <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200/60 shadow-sm">
+                <div class="bg-slate-50/80 p-3 rounded-2xl border border-slate-200/60 shadow-sm">
                     <p class="text-[10px] text-slate-500 uppercase font-bold">Total Income</p>
                     <p id="total-income" class="text-sm font-extrabold text-emerald-600 mt-0.5">₦0</p>
                 </div>
-                <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200/60 shadow-sm">
+                <div class="bg-slate-50/80 p-3 rounded-2xl border border-slate-200/60 shadow-sm">
                     <p class="text-[10px] text-slate-500 uppercase font-bold">Total Expenses</p>
                     <p id="total-expense" class="text-sm font-extrabold text-rose-600 mt-0.5">₦0</p>
                 </div>
@@ -83,10 +83,10 @@
         </section>
 
         <!-- Quick Icon Actions Grid -->
-        <section class="bg-white/95 backdrop-blur-xl border border-white/40 p-4 rounded-3xl shadow-lg">
+        <section class="bg-white/85 backdrop-blur-xl border border-white/40 p-4 rounded-3xl shadow-lg">
             <div class="grid grid-cols-4 gap-3 text-center">
                 <button type="button" onclick="scrollToForm('income')" class="group flex flex-col items-center gap-1.5 focus:outline-none">
-                    <div class="w-13 h-13 w-12 h-12 rounded-2xl bg-emerald-50 group-hover:bg-emerald-100 border border-emerald-200 flex items-center justify-center text-emerald-600 transition-all shadow-sm">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-50 group-hover:bg-emerald-100 border border-emerald-200 flex items-center justify-center text-emerald-600 transition-all shadow-sm">
                         <span class="text-lg">📥</span>
                     </div>
                     <span class="text-[11px] font-semibold text-slate-700">Income</span>
@@ -113,7 +113,7 @@
         </section>
 
         <!-- Weekly Financial Health Dashboard -->
-        <section class="bg-white/95 backdrop-blur-xl border border-white/40 p-4 rounded-3xl shadow-lg space-y-3 text-slate-800">
+        <section class="bg-white/85 backdrop-blur-xl border border-white/40 p-4 rounded-3xl shadow-lg space-y-3 text-slate-800">
             <div class="flex justify-between items-center">
                 <div class="flex items-center gap-2">
                     <h2 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Weekly Health (Tue - Mon)</h2>
@@ -127,15 +127,15 @@
                 <span id="health-badge" class="text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide">Calculating...</span>
             </div>
             <div class="grid grid-cols-3 gap-2 text-center pt-1">
-                <div class="bg-slate-50 p-2.5 rounded-2xl border border-slate-200/60">
+                <div class="bg-slate-50/80 p-2.5 rounded-2xl border border-slate-200/60">
                     <p class="text-[10px] text-slate-500 uppercase font-bold">Inflow</p>
                     <p id="health-inflow" class="text-xs font-bold text-emerald-600 mt-1">₦0</p>
                 </div>
-                <div class="bg-slate-50 p-2.5 rounded-2xl border border-slate-200/60">
+                <div class="bg-slate-50/80 p-2.5 rounded-2xl border border-slate-200/60">
                     <p class="text-[10px] text-slate-500 uppercase font-bold">Outflow</p>
                     <p id="health-outflow" class="text-xs font-bold text-rose-600 mt-1">₦0</p>
                 </div>
-                <div class="bg-slate-50 p-2.5 rounded-2xl border border-slate-200/60">
+                <div class="bg-slate-50/80 p-2.5 rounded-2xl border border-slate-200/60">
                     <p class="text-[10px] text-slate-500 uppercase font-bold">Net Position</p>
                     <p id="health-net" class="text-xs font-bold text-slate-700 mt-1">₦0</p>
                 </div>
@@ -143,7 +143,7 @@
         </section>
 
         <!-- Financial Overview Pie Chart Section -->
-        <section class="bg-white/95 backdrop-blur-xl p-4 rounded-3xl border border-white/40 shadow-xl space-y-3 text-slate-800">
+        <section class="bg-white/85 backdrop-blur-xl p-4 rounded-3xl border border-white/40 shadow-xl space-y-3 text-slate-800">
             <h2 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Financial Breakdown Chart</h2>
             <div class="relative w-full h-52 flex justify-center items-center chart-container-3d">
                 <canvas id="financialPieChart"></canvas>
@@ -151,7 +151,7 @@
         </section>
 
         <!-- Quick Entry Form -->
-        <section id="entry-form-section" class="bg-white/95 backdrop-blur-xl p-4 rounded-3xl border border-white/40 shadow-lg space-y-3 text-slate-800">
+        <section id="entry-form-section" class="bg-white/85 backdrop-blur-xl p-4 rounded-3xl border border-white/40 shadow-lg space-y-3 text-slate-800">
             <h2 id="form-title" class="text-xs font-bold text-slate-700 uppercase tracking-wider">Log Transaction</h2>
             <form id="transaction-form" class="space-y-3">
                 <input type="hidden" id="edit-id" value="">
@@ -159,7 +159,7 @@
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="text-[11px] text-slate-600 font-semibold">Executor</label>
-                        <select id="executor" required class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-2xl p-2.5 text-sm text-slate-800 focus:outline-none focus:border-emerald-500 shadow-inner">
+                        <select id="executor" required class="w-full mt-1 bg-slate-50/80 border border-slate-200 rounded-2xl p-2.5 text-sm text-slate-800 focus:outline-none focus:border-emerald-500 shadow-inner">
                             <option value="">Select Executor</option>
                             <option value="Adel">Adel</option>
                             <option value="Chinyere">Chinyere</option>
@@ -167,7 +167,7 @@
                     </div>
                     <div>
                         <label class="text-[11px] text-slate-600 font-semibold">Type</label>
-                        <select id="type" required onchange="toggleFormMode()" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-2xl p-2.5 text-sm text-slate-800 focus:outline-none focus:border-emerald-500 shadow-inner">
+                        <select id="type" required onchange="toggleFormMode()" class="w-full mt-1 bg-slate-50/80 border border-slate-200 rounded-2xl p-2.5 text-sm text-slate-800 focus:outline-none focus:border-emerald-500 shadow-inner">
                             <option value="expense">Expense</option>
                             <option value="income">Income</option>
                         </select>
@@ -177,11 +177,11 @@
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="text-[11px] text-slate-600 font-semibold">Amount (₦)</label>
-                        <input type="number" id="amount" step="0.01" min="0.01" required placeholder="1.00" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-2xl p-2.5 text-sm text-slate-800 focus:outline-none focus:border-emerald-500 placeholder-slate-400 shadow-inner">
+                        <input type="number" id="amount" step="0.01" min="0.01" required placeholder="1.00" class="w-full mt-1 bg-slate-50/80 border border-slate-200 rounded-2xl p-2.5 text-sm text-slate-800 focus:outline-none focus:border-emerald-500 placeholder-slate-400 shadow-inner">
                     </div>
                     <div id="channel-container">
                         <label class="text-[11px] text-slate-600 font-semibold">Category Channel</label>
-                        <select id="tracking_type" onchange="toggleFormMode()" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-2xl p-2.5 text-sm text-slate-800 focus:outline-none focus:border-emerald-500 shadow-inner">
+                        <select id="tracking_type" onchange="toggleFormMode()" class="w-full mt-1 bg-slate-50/80 border border-slate-200 rounded-2xl p-2.5 text-sm text-slate-800 focus:outline-none focus:border-emerald-500 shadow-inner">
                             <option value="Personal">Fixed Personal</option>
                             <option value="Shop">Fixed Shop Based</option>
                             <option value="Random">Random Expense</option>
@@ -193,14 +193,14 @@
                 <!-- Transaction Date Picker -->
                 <div>
                     <label class="text-[11px] text-slate-600 font-semibold">Transaction Date</label>
-                    <input type="date" id="transaction_date" required class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-2xl p-2.5 text-sm text-slate-800 focus:outline-none focus:border-emerald-500 shadow-inner">
+                    <input type="date" id="transaction_date" required class="w-full mt-1 bg-slate-50/80 border border-slate-200 rounded-2xl p-2.5 text-sm text-slate-800 focus:outline-none focus:border-emerald-500 shadow-inner">
                 </div>
 
                 <!-- Dynamic Expense Panels -->
                 <div id="expense-panels-wrapper">
-                    <div id="personal-sub-panel" class="space-y-2 bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                    <div id="personal-sub-panel" class="space-y-2 bg-slate-50/80 p-3 rounded-2xl border border-slate-200">
                         <label class="text-[11px] text-slate-600 font-semibold">Personal Expense Category</label>
-                        <select id="personal_sub" class="w-full bg-white border border-slate-200 rounded-xl p-2 text-sm text-slate-800 shadow-sm">
+                        <select id="personal_sub" class="w-full bg-white/80 border border-slate-200 rounded-xl p-2 text-sm text-slate-800 shadow-sm">
                             <option value="Food">Food</option>
                             <option value="Groceries">Groceries</option>
                             <option value="Utility">Utility</option>
@@ -208,10 +208,10 @@
                         </select>
                     </div>
 
-                    <div id="shop-sub-panel" class="space-y-2 bg-slate-50 p-3 rounded-2xl border border-slate-200 hidden">
+                    <div id="shop-sub-panel" class="space-y-2 bg-slate-50/80 p-3 rounded-2xl border border-slate-200 hidden">
                         <div>
                             <label class="text-[11px] text-slate-600 font-semibold">Select Shop Location</label>
-                            <select id="shop_location" class="w-full bg-white border border-slate-200 rounded-xl p-2 text-sm text-slate-800 mb-2 shadow-sm">
+                            <select id="shop_location" class="w-full bg-white/80 border border-slate-200 rounded-xl p-2 text-sm text-slate-800 mb-2 shadow-sm">
                                 <option value="Elewi Odo">Elewi Odo</option>
                                 <option value="10/10">10/10</option>
                                 <option value="Idi Ape">Idi Ape</option>
@@ -223,7 +223,7 @@
                         </div>
                         <div>
                             <label class="text-[11px] text-slate-600 font-semibold">Shop Expense Type</label>
-                            <select id="shop_sub" class="w-full bg-white border border-slate-200 rounded-xl p-2 text-sm text-slate-800 shadow-sm">
+                            <select id="shop_sub" class="w-full bg-white/80 border border-slate-200 rounded-xl p-2 text-sm text-slate-800 shadow-sm">
                                 <option value="Paper">Paper</option>
                                 <option value="Data">Data</option>
                                 <option value="Salary">Salary</option>
@@ -234,10 +234,10 @@
                 </div>
 
                 <!-- Dynamic Income Panels -->
-                <div id="income-panel" class="space-y-3 bg-slate-50 p-3 rounded-2xl border border-slate-200 hidden">
+                <div id="income-panel" class="space-y-3 bg-slate-50/80 p-3 rounded-2xl border border-slate-200 hidden">
                     <div>
                         <label class="text-[11px] text-slate-600 font-semibold">Income Level Category</label>
-                        <select id="income_main_category" onchange="toggleIncomeCategoryMode()" class="w-full mt-1 bg-white border border-slate-200 rounded-xl p-2 text-sm text-slate-800 shadow-sm">
+                        <select id="income_main_category" onchange="toggleIncomeCategoryMode()" class="w-full mt-1 bg-white/80 border border-slate-200 rounded-xl p-2 text-sm text-slate-800 shadow-sm">
                             <option value="Personal Income">1. Personal Income</option>
                             <option value="Shop Based Income">2. Shop Based Income</option>
                             <option value="TechXted Based Income">3. TechXted Based Income</option>
@@ -249,14 +249,14 @@
                     <div id="income-personal-sub-panel" class="space-y-2 pt-1">
                         <div>
                             <label class="text-[11px] text-slate-600 font-semibold">Select Executor Name</label>
-                            <select id="income_personal_executor" class="w-full mt-1 bg-white border border-slate-200 rounded-xl p-2 text-sm text-slate-800 shadow-sm">
+                            <select id="income_personal_executor" class="w-full mt-1 bg-white/80 border border-slate-200 rounded-xl p-2 text-sm text-slate-800 shadow-sm">
                                 <option value="Adel">Adel</option>
                                 <option value="Chinyere">Chinyere</option>
                             </select>
                         </div>
                         <div>
                             <label class="text-[11px] text-slate-600 font-semibold">Personal Income Sub-Category</label>
-                            <select id="income_personal_sub" class="w-full mt-1 bg-white border border-slate-200 rounded-xl p-2 text-sm text-slate-800 shadow-sm">
+                            <select id="income_personal_sub" class="w-full mt-1 bg-white/80 border border-slate-200 rounded-xl p-2 text-sm text-slate-800 shadow-sm">
                                 <option value="Service">Service</option>
                                 <option value="Sales">Sales</option>
                                 <option value="Commission">Commission</option>
@@ -270,7 +270,7 @@
                     <div id="income-shop-sub-panel" class="space-y-2 pt-1 hidden">
                         <div>
                             <label class="text-[11px] text-slate-600 font-semibold">Select Shop Location</label>
-                            <select id="income_shop_location" class="w-full mt-1 bg-white border border-slate-200 rounded-xl p-2 text-sm text-slate-800 mb-2 shadow-sm">
+                            <select id="income_shop_location" class="w-full mt-1 bg-white/80 border border-slate-200 rounded-xl p-2 text-sm text-slate-800 mb-2 shadow-sm">
                                 <option value="Elewi Odo">Elewi Odo</option>
                                 <option value="10/10">10/10</option>
                                 <option value="Idi Ape">Idi Ape</option>
@@ -282,7 +282,7 @@
                         </div>
                         <div>
                             <label class="text-[11px] text-slate-600 font-semibold">Shop Income Sub-Category</label>
-                            <select id="income_shop_sub" class="w-full mt-1 bg-white border border-slate-200 rounded-xl p-2 text-sm text-slate-800 shadow-sm">
+                            <select id="income_shop_sub" class="w-full mt-1 bg-white/80 border border-slate-200 rounded-xl p-2 text-sm text-slate-800 shadow-sm">
                                 <option value="Service">Service</option>
                                 <option value="Sales">Sales</option>
                                 <option value="Commission">Commission</option>
@@ -296,7 +296,7 @@
                     <div id="income-standard-sub-panel" class="space-y-2 pt-1 hidden">
                         <div>
                             <label class="text-[11px] text-slate-600 font-semibold">Income Sub-Category</label>
-                            <select id="income_standard_sub" class="w-full mt-1 bg-white border border-slate-200 rounded-xl p-2 text-sm text-slate-800 shadow-sm">
+                            <select id="income_standard_sub" class="w-full mt-1 bg-white/80 border border-slate-200 rounded-xl p-2 text-sm text-slate-800 shadow-sm">
                                 <option value="Service">Service</option>
                                 <option value="Sales">Sales</option>
                                 <option value="Commission">Commission</option>
@@ -308,7 +308,7 @@
 
                 <div>
                     <label class="text-[11px] text-slate-600 font-semibold">Description / Note <span id="note-asterisk" class="text-rose-600">*</span></label>
-                    <input type="text" id="note" required placeholder="Detailed description required..." class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-2xl p-2.5 text-sm text-slate-800 focus:outline-none focus:border-emerald-500 placeholder-slate-400 shadow-inner">
+                    <input type="text" id="note" required placeholder="Detailed description required..." class="w-full mt-1 bg-slate-50/80 border border-slate-200 rounded-2xl p-2.5 text-sm text-slate-800 focus:outline-none focus:border-emerald-500 placeholder-slate-400 shadow-inner">
                 </div>
 
                 <div class="flex gap-2 pt-1">
@@ -323,13 +323,13 @@
         </section>
 
         <!-- Historical Reports & Export Options -->
-        <section id="reports-section" class="bg-white/95 backdrop-blur-xl p-4 rounded-3xl border border-white/40 shadow-lg space-y-3 text-slate-800">
+        <section id="reports-section" class="bg-white/85 backdrop-blur-xl p-4 rounded-3xl border border-white/40 shadow-lg space-y-3 text-slate-800">
             <h2 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Advanced Financial Reports & Export</h2>
             
             <!-- Tier 1: Executor Filter -->
             <div>
                 <label class="text-[10px] text-slate-600 font-semibold">1. Executor Filter</label>
-                <select id="report-scope" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-2xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 shadow-sm">
+                <select id="report-scope" class="w-full mt-1 bg-slate-50/80 border border-slate-200 rounded-2xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 shadow-sm">
                     <option value="general">General (All Executors)</option>
                     <option value="Adel">Executor Adel</option>
                     <option value="Chinyere">Executor Chinyere</option>
@@ -339,7 +339,7 @@
             <!-- Tier 2: Transaction Type Filter -->
             <div>
                 <label class="text-[10px] text-slate-600 font-semibold">2. Transaction Type Filter</label>
-                <select id="report-type-filter" onchange="updateReportSubFilters()" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-2xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 shadow-sm">
+                <select id="report-type-filter" onchange="updateReportSubFilters()" class="w-full mt-1 bg-slate-50/80 border border-slate-200 rounded-2xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 shadow-sm">
                     <option value="all">General (All Incomes & Expenses)</option>
                     <option value="income">Income Only</option>
                     <option value="expense">Expenses Only</option>
@@ -349,7 +349,7 @@
             <!-- Tier 3: Category / Main Channel Filter -->
             <div id="report-category-wrapper">
                 <label class="text-[10px] text-slate-600 font-semibold">3. Category / Channel Filter</label>
-                <select id="report-category-filter" onchange="updateReportSubCategoryVisibility()" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-2xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 shadow-sm">
+                <select id="report-category-filter" onchange="updateReportSubCategoryVisibility()" class="w-full mt-1 bg-slate-50/80 border border-slate-200 rounded-2xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 shadow-sm">
                     <option value="all">General (All Categories)</option>
                 </select>
             </div>
@@ -357,7 +357,7 @@
             <!-- Tier 4: Income Sub-Category Filter -->
             <div id="report-income-sub-wrapper" class="hidden">
                 <label class="text-[10px] text-slate-600 font-semibold">4. Income Sub-Category Filter</label>
-                <select id="report-income-sub-filter" onchange="renderReports()" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-2xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 shadow-sm">
+                <select id="report-income-sub-filter" onchange="renderReports()" class="w-full mt-1 bg-slate-50/80 border border-slate-200 rounded-2xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 shadow-sm">
                     <option value="all">All Sub-Categories</option>
                 </select>
             </div>
@@ -365,7 +365,7 @@
             <!-- Shop-Specific Filter -->
             <div id="report-shop-wrapper" class="hidden">
                 <label class="text-[10px] text-slate-600 font-semibold">Specific Shop Filter</label>
-                <select id="report-shop-filter" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-2xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 shadow-sm">
+                <select id="report-shop-filter" class="w-full mt-1 bg-slate-50/80 border border-slate-200 rounded-2xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 shadow-sm">
                     <option value="all">General (All Shops Combined)</option>
                     <option value="Elewi Odo">Elewi Odo</option>
                     <option value="10/10">10/10</option>
@@ -381,22 +381,22 @@
             <div class="grid grid-cols-2 gap-2 pt-1">
                 <div>
                     <label class="text-[10px] text-slate-600 font-semibold">Start Date</label>
-                    <input type="date" id="report-start-date" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs text-slate-800 shadow-sm">
+                    <input type="date" id="report-start-date" class="w-full bg-slate-50/80 border border-slate-200 rounded-xl p-2 text-xs text-slate-800 shadow-sm">
                 </div>
                 <div>
                     <label class="text-[10px] text-slate-600 font-semibold">End Date</label>
-                    <input type="date" id="report-end-date" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs text-slate-800 shadow-sm">
+                    <input type="date" id="report-end-date" class="w-full bg-slate-50/80 border border-slate-200 rounded-xl p-2 text-xs text-slate-800 shadow-sm">
                 </div>
             </div>
             
-            <div id="report-output" class="text-xs text-slate-700 bg-slate-50 p-3 rounded-2xl border border-slate-200 space-y-1.5 font-semibold">
+            <div id="report-output" class="text-xs text-slate-700 bg-slate-50/80 p-3 rounded-2xl border border-slate-200 space-y-1.5 font-semibold">
                 <!-- Metrics injected -->
             </div>
 
             <!-- Export Format Option -->
             <div>
                 <label class="text-[10px] text-slate-600 font-semibold">Export Format Option</label>
-                <select id="export-format" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 shadow-sm">
+                <select id="export-format" class="w-full mt-1 bg-slate-50/80 border border-slate-200 rounded-xl p-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 shadow-sm">
                     <option value="pdf">PDF Document (.pdf)</option>
                     <option value="jpeg">JPEG Image (.jpg)</option>
                 </select>
@@ -415,8 +415,8 @@
         <!-- Recent Logs -->
         <section id="history-section" class="space-y-2.5">
             <h2 class="text-xs font-bold text-white uppercase tracking-wider">Recent History (Last 10)</h2>
-            <div id="transaction-list" class="space-y-2">
-                <p class="text-xs text-emerald-200 text-center py-4">Loading transactions...</p>
+            <div id="transaction-list" class="bg-white/85 backdrop-blur-xl border border-white/40 rounded-3xl shadow-lg divide-y divide-slate-100 overflow-hidden">
+                <p class="text-xs text-slate-500 text-center py-4">Loading transactions...</p>
             </div>
         </section>
 
@@ -980,11 +980,11 @@
             listEl.innerHTML = '';
 
             if (allTransactions.length === 0) {
-                listEl.innerHTML = `<p class="text-xs text-emerald-200 text-center py-4">No transactions recorded yet.</p>`;
+                listEl.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">No transactions recorded yet.</p>`;
             } else {
                 allTransactions.slice(0, 10).forEach(t => {
                     const item = document.createElement('div');
-                    item.className = "bg-white/95 backdrop-blur-xl border border-white/40 p-3.5 rounded-2xl flex justify-between items-center text-xs shadow-sm text-slate-800";
+                    item.className = "p-3.5 flex justify-between items-center text-xs text-slate-800";
                     const tDate = new Date(t.created_at);
                     let badgeText = t.shop ? `${t.shop} - ${t.sub_category}` : (t.sub_category || t.tracking_type);
                     item.innerHTML = `
