@@ -852,7 +852,10 @@
             if (allTransactions.length === 0) {
                 listEl.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">No transactions recorded yet.</p>`;
             } else {
-                allTransactions.slice(0, 10).forEach(t => {
+                // FIXED: Explicitly sort copy of transactions by created_at descending to guarantee backdated entries sequence accurately
+                const sortedTransactions = [...allTransactions].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                
+                sortedTransactions.slice(0, 10).forEach(t => {
                     const item = document.createElement('div');
                     item.className = "bg-slate-900 border border-slate-800 p-3 rounded-xl flex justify-between items-center text-xs shadow-sm";
                     const tDate = new Date(t.created_at);
@@ -880,7 +883,6 @@
 
         function updateFinancialPieChart(inc, exp, net) {
             const ctx = document.getElementById('financialPieChart').getContext('2d');
-            // Use absolute value for chart display if net position is negative, or handle accordingly
             const chartNetVal = Math.abs(net);
 
             const chartData = {
