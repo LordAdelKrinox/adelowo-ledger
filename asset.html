@@ -23,150 +23,159 @@
 
     <main class="p-4 max-w-md mx-auto space-y-5">
 
-        <!-- Overview Banner -->
-        <section class="bg-zinc-900/40 backdrop-blur-xl p-4 rounded-3xl border border-zinc-700/50 shadow-2xl space-y-3 relative overflow-hidden">
-            <div class="absolute -right-10 -top-10 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
-            <div class="flex justify-between items-center">
-                <h2 class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Enterprise Asset Portfolio</h2>
-                <span id="total-assets-count" class="bg-emerald-950/80 text-emerald-300 text-[10px] font-bold px-2.5 py-1 rounded-xl border border-emerald-800">0 Items</span>
+        <!-- Navigation Tabs: Hub vs Location File -->
+        <div class="flex bg-zinc-900/80 p-1.5 rounded-2xl border border-zinc-800 shadow-xl">
+            <button onclick="switchMainView('hub')" id="tab-hub-btn" class="flex-1 py-2 text-xs font-bold rounded-xl transition-all bg-emerald-600 text-white shadow-md">Overview Hub</button>
+            <button onclick="switchMainView('file')" id="tab-file-btn" class="flex-1 py-2 text-xs font-bold rounded-xl transition-all text-zinc-400 hover:text-zinc-200">Shop / Office File</button>
+        </div>
+
+        <!-- VIEW 1: MASTER OVERVIEW HUB -->
+        <div id="view-hub" class="space-y-4">
+            <!-- Overview Banner -->
+            <section class="bg-zinc-900/40 backdrop-blur-xl p-4 rounded-3xl border border-zinc-700/50 shadow-2xl space-y-3 relative overflow-hidden">
+                <div class="absolute -right-10 -top-10 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
+                <div class="flex justify-between items-center">
+                    <h2 class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Enterprise Asset & Bill Portfolio</h2>
+                    <span id="total-assets-count" class="bg-emerald-950/80 text-emerald-300 text-[10px] font-bold px-2.5 py-1 rounded-xl border border-emerald-800">0 Items</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-center pt-1">
+                    <div class="bg-zinc-800/50 backdrop-blur-md p-2.5 rounded-2xl border border-zinc-700/60 shadow-inner">
+                        <p class="text-[10px] text-zinc-400 uppercase font-semibold">Total Asset Valuation</p>
+                        <p id="total-asset-valuation" class="text-xs font-bold text-emerald-400 mt-1">₦0</p>
+                    </div>
+                    <div class="bg-zinc-800/50 backdrop-blur-md p-2.5 rounded-2xl border border-zinc-700/60 shadow-inner">
+                        <p class="text-[10px] text-zinc-400 uppercase font-semibold">Monthly Recurrent Bills</p>
+                        <p id="total-recurrent-bills" class="text-xs font-bold text-rose-400 mt-1">₦0</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Master Location Breakdown List -->
+            <section class="space-y-2.5">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-xs font-bold text-zinc-300 uppercase tracking-wider">All Shops & Offices Breakdown</h2>
+                    <button onclick="switchMainView('file')" class="text-[11px] text-emerald-400 font-semibold hover:underline">+ Manage Files</button>
+                </div>
+                <div id="master-locations-container" class="space-y-3">
+                    <p class="text-xs text-zinc-400 text-center py-4 bg-zinc-900/40 rounded-2xl border border-zinc-800">Loading master records...</p>
+                </div>
+            </section>
+        </div>
+
+        <!-- VIEW 2: SHOP / OFFICE FILE MANAGEMENT -->
+        <div id="view-file" class="space-y-4 hidden">
+            <!-- Select Location File -->
+            <section class="bg-zinc-900/40 backdrop-blur-xl p-4 rounded-3xl border border-zinc-700/50 shadow-xl space-y-3">
+                <h2 class="text-xs font-bold text-zinc-300 uppercase tracking-wider">Select Location File</h2>
+                <select id="active-location-select" onchange="onLocationFileChanged()" class="w-full bg-zinc-800/70 border border-zinc-700/80 rounded-2xl p-3 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500 shadow-inner transition-all">
+                    <optgroup label="Bet9ja Shops">
+                        <option value="Elewi Odo">Elewi Odo</option>
+                        <option value="10/10">10/10</option>
+                        <option value="Idi Ape">Idi Ape</option>
+                        <option value="Gbaremu">Gbaremu</option>
+                        <option value="Oluyole">Oluyole</option>
+                        <option value="Gbagi Shop">Gbagi Shop</option>
+                        <option value="Bodija Oju Irin">Bodija Oju Irin</option>
+                    </optgroup>
+                    <optgroup label="TechXted Offices">
+                        <option value="TechXted HQ">TechXted HQ</option>
+                        <option value="TechXted Annex">TechXted Annex</option>
+                    </optgroup>
+                </select>
+            </section>
+
+            <!-- Inner Tabs: Assets vs Utilities -->
+            <div class="flex bg-zinc-900/80 p-1 rounded-xl border border-zinc-800">
+                <button onclick="switchFileTab('assets')" id="file-tab-assets" class="flex-1 py-1.5 text-xs font-bold rounded-lg bg-zinc-800 text-emerald-400 transition-all shadow">Physical Assets</button>
+                <button onclick="switchFileTab('utilities')" id="file-tab-utilities" class="flex-1 py-1.5 text-xs font-bold rounded-lg text-zinc-400 transition-all hover:text-zinc-200">Utilities & Bills</button>
             </div>
-            <div class="grid grid-cols-2 gap-2 text-center pt-1">
-                <div class="bg-zinc-800/50 backdrop-blur-md p-2.5 rounded-2xl border border-zinc-700/60 shadow-inner">
-                    <p class="text-[10px] text-zinc-400 uppercase font-semibold">Total Asset Valuation</p>
-                    <p id="total-asset-valuation" class="text-xs font-bold text-emerald-400 mt-1">₦0</p>
-                </div>
-                <div class="bg-zinc-800/50 backdrop-blur-md p-2.5 rounded-2xl border border-zinc-700/60 shadow-inner">
-                    <p class="text-[10px] text-zinc-400 uppercase font-semibold">Monthly Recurrent Bills</p>
-                    <p id="total-recurrent-bills" class="text-xs font-bold text-rose-400 mt-1">₦0</p>
-                </div>
-            </div>
-        </section>
 
-        <!-- Location Filter -->
-        <section class="bg-zinc-900/40 backdrop-blur-xl p-4 rounded-3xl border border-zinc-700/50 shadow-xl space-y-3">
-            <h2 class="text-xs font-bold text-zinc-300 uppercase tracking-wider">Filter by Location</h2>
-            <select id="filter-location" onchange="filterAssetsByLocation()" class="w-full bg-zinc-800/70 border border-zinc-700/80 rounded-2xl p-3 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500 shadow-inner transition-all">
-                <option value="ALL">All Locations (Shops & Offices)</option>
-                <optgroup label="Bet9ja Shops">
-                    <option value="Elewi Odo">Elewi Odo</option>
-                    <option value="10/10">10/10</option>
-                    <option value="Idi Ape">Idi Ape</option>
-                    <option value="Gbaremu">Gbaremu</option>
-                    <option value="Oluyole">Oluyole</option>
-                    <option value="Gbagi Shop">Gbagi Shop</option>
-                    <option value="Bodija Oju Irin">Bodija Oju Irin</option>
-                </optgroup>
-                <optgroup label="TechXted Offices">
-                    <option value="TechXted HQ">TechXted HQ</option>
-                    <option value="TechXted Annex">TechXted Annex</option>
-                </optgroup>
-            </select>
-        </section>
-
-        <!-- Asset Registration Form -->
-        <section class="bg-zinc-900/40 backdrop-blur-xl p-4 rounded-3xl border border-zinc-700/50 shadow-xl space-y-3">
-            <h2 id="form-title" class="text-xs font-bold text-zinc-300 uppercase tracking-wider">Register Asset or Recurrent Bill</h2>
-            <form id="asset-form" class="space-y-3">
-                <input type="hidden" id="edit-asset-id" value="">
-
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="text-[11px] text-zinc-400 font-medium">Location Name</label>
-                        <select id="asset_location" required class="w-full mt-1 bg-zinc-800/70 border border-zinc-700/80 rounded-2xl p-2.5 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500 shadow-inner">
-                            <option value="Elewi Odo">Elewi Odo</option>
-                            <option value="10/10">10/10</option>
-                            <option value="Idi Ape">Idi Ape</option>
-                            <option value="Gbaremu">Gbaremu</option>
-                            <option value="Oluyole">Oluyole</option>
-                            <option value="Gbagi Shop">Gbagi Shop</option>
-                            <option value="Bodija Oju Irin">Bodija Oju Irin</option>
-                            <option value="TechXted HQ">TechXted HQ</option>
-                            <option value="TechXted Annex">TechXted Annex</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="text-[11px] text-zinc-400 font-medium">Entity Type</label>
-                        <select id="location_type" required class="w-full mt-1 bg-zinc-800/70 border border-zinc-700/80 rounded-2xl p-2.5 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500 shadow-inner">
-                            <option value="Shop">Shop</option>
-                            <option value="TechXted">TechXted Office</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="text-[11px] text-zinc-400 font-medium">Asset Name</label>
-                        <input type="text" id="asset_name" required placeholder="e.g. Inverter / Printer" class="w-full mt-1 bg-zinc-800/70 border border-zinc-700/80 rounded-2xl p-2.5 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500 placeholder-zinc-500 shadow-inner">
-                    </div>
-                    <div>
-                        <label class="text-[11px] text-zinc-400 font-medium">Category</label>
-                        <select id="asset_category" required class="w-full mt-1 bg-zinc-800/70 border border-zinc-700/80 rounded-2xl p-2.5 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500 shadow-inner">
-                            <option value="Hardware">Hardware / Equipment</option>
-                            <option value="Furniture">Furniture & Fittings</option>
-                            <option value="Power">Power / Solar</option>
-                            <option value="Technology">Software / Tech</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="text-[11px] text-zinc-400 font-medium">Purchase Cost (₦)</label>
-                        <input type="number" id="purchase_cost" min="0" value="0" class="w-full mt-1 bg-zinc-800/70 border border-zinc-700/80 rounded-2xl p-2.5 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500 shadow-inner">
-                    </div>
-                    <div>
-                        <label class="text-[11px] text-zinc-400 font-medium">Status</label>
-                        <select id="asset_status" required class="w-full mt-1 bg-zinc-800/70 border border-zinc-700/80 rounded-2xl p-2.5 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500 shadow-inner">
-                            <option value="Active">Active</option>
-                            <option value="Maintenance">Under Maintenance</option>
-                            <option value="Decommissioned">Decommissioned</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Recurrent Bill Checkbox & Toggle Panel -->
-                <div class="bg-zinc-800/40 p-3 rounded-2xl border border-zinc-700/50 space-y-2">
-                    <label class="flex items-center space-x-2 cursor-pointer">
-                        <input type="checkbox" id="has_recurring_bill" onchange="toggleBillPanel()" class="w-4 h-4 rounded accent-emerald-500 bg-zinc-800 border-zinc-700">
-                        <span class="text-xs font-bold text-emerald-400">Has Recurrent Bill (e.g. Data Subscription / Utility)</span>
-                    </label>
-
-                    <div id="bill-panel" class="space-y-2 pt-2 hidden">
+            <!-- SUB-VIEW A: ASSETS TAB -->
+            <div id="file-sub-assets" class="space-y-4">
+                <!-- Add Asset Form -->
+                <section class="bg-zinc-900/40 backdrop-blur-xl p-4 rounded-3xl border border-zinc-700/50 shadow-xl space-y-3">
+                    <h2 id="asset-form-title" class="text-xs font-bold text-zinc-300 uppercase tracking-wider">Add Item to <span id="current-file-label-1" class="text-emerald-400">Elewi Odo</span></h2>
+                    <form id="asset-form" class="space-y-3">
+                        <input type="hidden" id="edit-asset-id" value="">
                         <div>
-                            <label class="text-[10px] text-zinc-400 font-medium">Bill Description</label>
-                            <input type="text" id="bill_name" placeholder="e.g. Monthly Data Sub / Electricity" class="w-full mt-1 bg-zinc-800/80 border border-zinc-700 rounded-xl p-2 text-xs text-zinc-100 placeholder-zinc-500">
+                            <label class="text-[11px] text-zinc-400 font-medium">Asset Name</label>
+                            <input type="text" id="asset_name" required placeholder="e.g. Inverter / Printer / Generator" class="w-full mt-1 bg-zinc-800/70 border border-zinc-700/80 rounded-2xl p-2.5 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500 placeholder-zinc-500 shadow-inner">
                         </div>
                         <div class="grid grid-cols-2 gap-2">
                             <div>
-                                <label class="text-[10px] text-zinc-400 font-medium">Bill Amount (₦)</label>
-                                <input type="number" id="bill_amount" min="0" value="0" class="w-full mt-1 bg-zinc-800/80 border border-zinc-700 rounded-xl p-2 text-xs text-zinc-100">
+                                <label class="text-[11px] text-zinc-400 font-medium">Purchase Cost (₦)</label>
+                                <input type="number" id="purchase_cost" min="0" value="0" class="w-full mt-1 bg-zinc-800/70 border border-zinc-700/80 rounded-2xl p-2.5 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500 shadow-inner">
                             </div>
                             <div>
-                                <label class="text-[10px] text-zinc-400 font-medium">Due Day of Month (1–31)</label>
-                                <input type="number" id="bill_due_day" min="1" max="31" value="1" class="w-full mt-1 bg-zinc-800/80 border border-zinc-700 rounded-xl p-2 text-xs text-zinc-100">
+                                <label class="text-[11px] text-zinc-400 font-medium">Status</label>
+                                <select id="asset_status" required class="w-full mt-1 bg-zinc-800/70 border border-zinc-700/80 rounded-2xl p-2.5 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500 shadow-inner">
+                                    <option value="Active">Active</option>
+                                    <option value="Maintenance">Under Maintenance</option>
+                                    <option value="Decommissioned">Decommissioned</option>
+                                </select>
                             </div>
                         </div>
+                        <div class="flex gap-2 pt-1">
+                            <button type="submit" id="asset-submit-btn" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-2xl text-xs transition-all shadow-lg shadow-emerald-900/40">
+                                Save Asset Item
+                            </button>
+                            <button type="button" id="cancel-asset-edit-btn" onclick="resetAssetForm()" class="hidden bg-zinc-800 hover:bg-zinc-700 text-zinc-300 px-3 py-2.5 rounded-2xl text-xs font-semibold border border-zinc-700">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- Asset List for Selected File -->
+                <section class="space-y-2.5">
+                    <h2 class="text-xs font-bold text-zinc-300 uppercase tracking-wider">Registered Assets</h2>
+                    <div id="file-asset-list" class="space-y-2">
+                        <p class="text-xs text-zinc-400 text-center py-4 bg-zinc-900/40 rounded-2xl border border-zinc-800">No assets recorded for this file.</p>
                     </div>
-                </div>
-
-                <div class="flex gap-2 pt-1">
-                    <button type="submit" id="asset-submit-btn" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 rounded-2xl text-sm transition-all shadow-lg shadow-emerald-900/40">
-                        Save Asset & Bill Record
-                    </button>
-                    <button type="button" id="cancel-edit-btn" onclick="resetAssetForm()" class="hidden bg-zinc-800 hover:bg-zinc-700 text-zinc-300 px-4 py-3 rounded-2xl text-xs font-semibold border border-zinc-700">
-                        Cancel
-                    </button>
-                </div>
-            </form>
-        </section>
-
-        <!-- Asset Directory List -->
-        <section class="space-y-2.5">
-            <h2 class="text-xs font-bold text-zinc-300 uppercase tracking-wider">Asset & Recurrence Inventory</h2>
-            <div id="asset-list-container" class="space-y-2.5">
-                <p class="text-xs text-zinc-400 text-center py-4 bg-zinc-900/40 rounded-2xl border border-zinc-800">Loading inventories...</p>
+                </section>
             </div>
-        </section>
+
+            <!-- SUB-VIEW B: UTILITIES & BILLS TAB -->
+            <div id="file-sub-utilities" class="space-y-4 hidden">
+                <!-- Add Utility / Bill Form -->
+                <section class="bg-zinc-900/40 backdrop-blur-xl p-4 rounded-3xl border border-zinc-700/50 shadow-xl space-y-3">
+                    <h2 id="bill-form-title" class="text-xs font-bold text-zinc-300 uppercase tracking-wider">Add Utility/Bill to <span id="current-file-label-2" class="text-emerald-400">Elewi Odo</span></h2>
+                    <form id="bill-form" class="space-y-3">
+                        <input type="hidden" id="edit-bill-id" value="">
+                        <div>
+                            <label class="text-[11px] text-zinc-400 font-medium">Utility / Bill Description</label>
+                            <input type="text" id="bill_name" required placeholder="e.g. Monthly Data Subscription / Electricity" class="w-full mt-1 bg-zinc-800/70 border border-zinc-700/80 rounded-2xl p-2.5 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500 placeholder-zinc-500 shadow-inner">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-[11px] text-zinc-400 font-medium">Bill Amount (₦)</label>
+                                <input type="number" id="bill_amount" min="0" value="0" required class="w-full mt-1 bg-zinc-800/70 border border-zinc-700/80 rounded-2xl p-2.5 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500 shadow-inner">
+                            </div>
+                            <div>
+                                <label class="text-[11px] text-zinc-400 font-medium">Due Day (1–31)</label>
+                                <input type="number" id="bill_due_day" min="1" max="31" value="1" required class="w-full mt-1 bg-zinc-800/70 border border-zinc-700/80 rounded-2xl p-2.5 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500 shadow-inner">
+                            </div>
+                        </div>
+                        <div class="flex gap-2 pt-1">
+                            <button type="submit" id="bill-submit-btn" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-2xl text-xs transition-all shadow-lg shadow-emerald-900/40">
+                                Save Utility Bill
+                            </button>
+                            <button type="button" id="cancel-bill-edit-btn" onclick="resetBillForm()" class="hidden bg-zinc-800 hover:bg-zinc-700 text-zinc-300 px-3 py-2.5 rounded-2xl text-xs font-semibold border border-zinc-700">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- Utilities List for Selected File -->
+                <section class="space-y-2.5">
+                    <h2 class="text-xs font-bold text-zinc-300 uppercase tracking-wider">Registered Utilities & Bills</h2>
+                    <div id="file-bill-list" class="space-y-2">
+                        <p class="text-xs text-zinc-400 text-center py-4 bg-zinc-900/40 rounded-2xl border border-zinc-800">No utility bills recorded for this file.</p>
+                    </div>
+                </section>
+            </div>
+        </div>
 
     </main>
 
@@ -181,7 +190,6 @@
                 <span class="text-lg">📊</span>
                 <span class="text-[10px] font-semibold mt-0.5">Budget</span>
             </a>
-            <!-- Fixed href from assets.html to asset.html -->
             <a href="asset.html" class="flex flex-col items-center justify-center text-emerald-400">
                 <span class="text-lg">💻</span>
                 <span class="text-[10px] font-bold mt-0.5">Assets</span>
@@ -199,34 +207,94 @@
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let allAssets = [];
+        let allBills = [];
         const now = new Date();
         document.getElementById('current-date').innerText = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
-        function toggleBillPanel() {
-            const isChecked = document.getElementById('has_recurring_bill').checked;
-            const panel = document.getElementById('bill-panel');
-            if (isChecked) {
-                panel.classList.remove('hidden');
+        // Switch Views: Hub vs Location File
+        function switchMainView(view) {
+            const hubBtn = document.getElementById('tab-hub-btn');
+            const fileBtn = document.getElementById('tab-file-btn');
+            const viewHub = document.getElementById('view-hub');
+            const viewFile = document.getElementById('view-file');
+
+            if (view === 'hub') {
+                hubBtn.className = "flex-1 py-2 text-xs font-bold rounded-xl transition-all bg-emerald-600 text-white shadow-md";
+                fileBtn.className = "flex-1 py-2 text-xs font-bold rounded-xl transition-all text-zinc-400 hover:text-zinc-200";
+                viewHub.classList.remove('hidden');
+                viewFile.classList.add('hidden');
+                fetchData();
             } else {
-                panel.classList.add('hidden');
+                fileBtn.className = "flex-1 py-2 text-xs font-bold rounded-xl transition-all bg-emerald-600 text-white shadow-md";
+                hubBtn.className = "flex-1 py-2 text-xs font-bold rounded-xl transition-all text-zinc-400 hover:text-zinc-200";
+                viewFile.classList.remove('hidden');
+                viewHub.classList.add('hidden');
+                updateLocationLabels();
+                fetchFileSpecificData();
             }
+        }
+
+        // Switch Tabs inside Location File: Assets vs Utilities
+        function switchFileTab(tab) {
+            const assetTabBtn = document.getElementById('file-tab-assets');
+            const utilTabBtn = document.getElementById('file-tab-utilities');
+            const subAssets = document.getElementById('file-sub-assets');
+            const subUtilities = document.getElementById('file-sub-utilities');
+
+            if (tab === 'assets') {
+                assetTabBtn.className = "flex-1 py-1.5 text-xs font-bold rounded-lg bg-zinc-800 text-emerald-400 transition-all shadow";
+                utilTabBtn.className = "flex-1 py-1.5 text-xs font-bold rounded-lg text-zinc-400 transition-all hover:text-zinc-200";
+                subAssets.classList.remove('hidden');
+                subUtilities.classList.add('hidden');
+            } else {
+                utilTabBtn.className = "flex-1 py-1.5 text-xs font-bold rounded-lg bg-zinc-800 text-emerald-400 transition-all shadow";
+                assetTabBtn.className = "flex-1 py-1.5 text-xs font-bold rounded-lg text-zinc-400 transition-all hover:text-zinc-200";
+                subUtilities.classList.remove('hidden');
+                subAssets.classList.add('hidden');
+            }
+        }
+
+        function onLocationFileChanged() {
+            updateLocationLabels();
+            resetAssetForm();
+            resetBillForm();
+            fetchFileSpecificData();
+        }
+
+        function updateLocationLabels() {
+            const loc = document.getElementById('active-location-select').value;
+            document.getElementById('current-file-label-1').innerText = loc;
+            document.getElementById('current-file-label-2').innerText = loc;
+        }
+
+        async function fetchData() {
+            await Promise.all([fetchAssets(), fetchBills()]);
+            renderMasterHub();
         }
 
         async function fetchAssets() {
-            const { data, error } = await _supabase
-                .from('location_assets')
-                .select('*')
-                .order('id', { ascending: false });
-
-            if (error) {
-                console.error('Error fetching assets:', error);
-                document.getElementById('asset-list-container').innerHTML = `<p class="text-xs text-rose-400 text-center py-4">Error loading assets table. Please run the setup SQL script.</p>`;
-                return;
-            }
-            allAssets = data || [];
-            renderAssetUI(allAssets);
+            const { data, error } = await _supabase.from('location_assets').select('*').order('id', { ascending: false });
+            if (!error) allAssets = data || [];
         }
 
+        async function fetchBills() {
+            const { data, error } = await _supabase.from('location_bills').select('*').order('id', { ascending: false });
+            if (!error) allBills = data || [];
+        }
+
+        async function fetchFileSpecificData() {
+            const loc = document.getElementById('active-location-select').value;
+            
+            // Fetch assets for this location
+            const { data: assets } = await _supabase.from('location_assets').select('*').eq('location_name', loc).order('id', { ascending: false });
+            renderFileAssets(assets || []);
+
+            // Fetch bills for this location
+            const { data: bills } = await _supabase.from('location_bills').select('*').eq('location_name', loc).order('id', { ascending: false });
+            renderFileBills(bills || []);
+        }
+
+        // Asset Form Submission
         const assetForm = document.getElementById('asset-form');
         assetForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -235,19 +303,12 @@
             btn.innerText = 'Saving...';
             btn.disabled = true;
 
-            const hasBill = document.getElementById('has_recurring_bill').checked;
-
+            const loc = document.getElementById('active-location-select').value;
             const assetData = {
-                location_name: document.getElementById('asset_location').value,
-                location_type: document.getElementById('location_type').value,
+                location_name: loc,
                 asset_name: document.getElementById('asset_name').value,
-                asset_category: document.getElementById('asset_category').value,
                 purchase_cost: parseFloat(document.getElementById('purchase_cost').value) || 0,
-                status: document.getElementById('asset_status').value,
-                has_recurring_bill: hasBill,
-                bill_name: hasBill ? document.getElementById('bill_name').value : null,
-                bill_amount: hasBill ? (parseFloat(document.getElementById('bill_amount').value) || 0) : 0,
-                bill_due_day: hasBill ? (parseInt(document.getElementById('bill_due_day').value) || 1) : null
+                status: document.getElementById('asset_status').value
             };
 
             let error;
@@ -260,139 +321,225 @@
             }
 
             if (error) {
-                alert('Error saving asset record: ' + error.message);
+                alert('Error saving asset: ' + error.message);
             } else {
                 resetAssetForm();
-                await fetchAssets();
+                await fetchFileSpecificData();
             }
 
-            btn.innerText = 'Save Asset & Bill Record';
+            btn.innerText = 'Save Asset Item';
+            btn.disabled = false;
+        });
+
+        // Bill Form Submission
+        const billForm = document.getElementById('bill-form');
+        billForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('bill-submit-btn');
+            const editId = document.getElementById('edit-bill-id').value;
+            btn.innerText = 'Saving...';
+            btn.disabled = true;
+
+            const loc = document.getElementById('active-location-select').value;
+            const billData = {
+                location_name: loc,
+                bill_name: document.getElementById('bill_name').value,
+                bill_amount: parseFloat(document.getElementById('bill_amount').value) || 0,
+                bill_due_day: parseInt(document.getElementById('bill_due_day').value) || 1
+            };
+
+            let error;
+            if (editId) {
+                const res = await _supabase.from('location_bills').update(billData).eq('id', editId);
+                error = res.error;
+            } else {
+                const res = await _supabase.from('location_bills').insert([billData]);
+                error = res.error;
+            }
+
+            if (error) {
+                alert('Error saving bill: ' + error.message);
+            } else {
+                resetBillForm();
+                await fetchFileSpecificData();
+            }
+
+            btn.innerText = 'Save Utility Bill';
             btn.disabled = false;
         });
 
         function resetAssetForm() {
             assetForm.reset();
             document.getElementById('edit-asset-id').value = '';
-            document.getElementById('form-title').innerText = 'Register Asset or Recurrent Bill';
-            document.getElementById('asset-submit-btn').innerText = 'Save Asset & Bill Record';
-            document.getElementById('cancel-edit-btn').classList.add('hidden');
-            document.getElementById('has_recurring_bill').checked = false;
-            toggleBillPanel();
+            document.getElementById('asset-submit-btn').innerText = 'Save Asset Item';
+            document.getElementById('cancel-asset-edit-btn').classList.add('hidden');
         }
 
-        function editAsset(id) {
-            const asset = allAssets.find(a => a.id == id);
-            if (!asset) return;
+        function resetBillForm() {
+            billForm.reset();
+            document.getElementById('edit-bill-id').value = '';
+            document.getElementById('bill-submit-btn').innerText = 'Save Utility Bill';
+            document.getElementById('cancel-bill-edit-btn').classList.add('hidden');
+        }
 
-            document.getElementById('edit-asset-id').value = asset.id;
-            document.getElementById('asset_location').value = asset.location_name;
-            document.getElementById('location_type').value = asset.location_type;
-            document.getElementById('asset_name').value = asset.asset_name;
-            document.getElementById('asset_category').value = asset.asset_category;
-            document.getElementById('purchase_cost').value = asset.purchase_cost || 0;
-            document.getElementById('asset_status').value = asset.status || 'Active';
+        async function editAsset(id) {
+            const { data } = await _supabase.from('location_assets').select('*').eq('id', id).single();
+            if (!data) return;
 
-            const hasBill = asset.has_recurring_bill;
-            document.getElementById('has_recurring_bill').checked = hasBill;
-            toggleBillPanel();
+            document.getElementById('edit-asset-id').value = data.id;
+            document.getElementById('asset_name').value = data.asset_name;
+            document.getElementById('purchase_cost').value = data.purchase_cost || 0;
+            document.getElementById('asset_status').value = data.status || 'Active';
 
-            if (hasBill) {
-                document.getElementById('bill_name').value = asset.bill_name || '';
-                document.getElementById('bill_amount').value = asset.bill_amount || 0;
-                document.getElementById('bill_due_day').value = asset.bill_due_day || 1;
-            }
-
-            document.getElementById('form-title').innerText = 'Edit Asset #' + asset.id;
-            document.getElementById('asset-submit-btn').innerText = 'Update Asset Record';
-            document.getElementById('cancel-edit-btn').classList.remove('hidden');
+            document.getElementById('asset-submit-btn').innerText = 'Update Asset Item';
+            document.getElementById('cancel-asset-edit-btn').classList.remove('hidden');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         async function deleteAsset(id) {
-            if (!confirm('Are you sure you want to delete this asset record?')) return;
+            if (!confirm('Are you sure you want to delete this asset?')) return;
             const { error } = await _supabase.from('location_assets').delete().eq('id', id);
-            if (error) {
-                alert('Error deleting asset: ' + error.message);
-            } else {
-                await fetchAssets();
-            }
+            if (!error) fetchFileSpecificData();
         }
 
-        function filterAssetsByLocation() {
-            const loc = document.getElementById('filter-location').value;
-            if (loc === 'ALL') {
-                renderAssetUI(allAssets);
-            } else {
-                const filtered = allAssets.filter(a => a.location_name === loc);
-                renderAssetUI(filtered);
-            }
+        async function editBill(id) {
+            const { data } = await _supabase.from('location_bills').select('*').eq('id', id).single();
+            if (!data) return;
+
+            document.getElementById('edit-bill-id').value = data.id;
+            document.getElementById('bill_name').value = data.bill_name;
+            document.getElementById('bill_amount').value = data.bill_amount || 0;
+            document.getElementById('bill_due_day').value = data.bill_due_day || 1;
+
+            document.getElementById('bill-submit-btn').innerText = 'Update Utility Bill';
+            document.getElementById('cancel-bill-edit-btn').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function deleteBill(id) {
+            if (!confirm('Are you sure you want to delete this bill?')) return;
+            const { error } = await _supabase.from('location_bills').delete().eq('id', id);
+            if (!error) fetchFileSpecificData();
         }
 
         function formatCurrency(amount) {
             return '₦' + Number(amount).toLocaleString();
         }
 
-        function renderAssetUI(assets) {
-            const totalCount = allAssets.length;
-            const totalValuation = allAssets.reduce((sum, a) => sum + Number(a.purchase_cost || 0), 0);
-            const totalRecurrent = allAssets.filter(a => a.has_recurring_bill).reduce((sum, a) => sum + Number(a.bill_amount || 0), 0);
-
-            document.getElementById('total-assets-count').innerText = totalCount + ' Items';
-            document.getElementById('total-asset-valuation').innerText = formatCurrency(totalValuation);
-            document.getElementById('total-recurrent-bills').innerText = formatCurrency(totalRecurrent);
-
-            const container = document.getElementById('asset-list-container');
+        function renderFileAssets(assets) {
+            const container = document.getElementById('file-asset-list');
             container.innerHTML = '';
-
             if (assets.length === 0) {
-                container.innerHTML = `<p class="text-xs text-zinc-400 text-center py-4 bg-zinc-900/40 rounded-2xl border border-zinc-800">No asset records found for this view.</p>`;
+                container.innerHTML = `<p class="text-xs text-zinc-400 text-center py-4 bg-zinc-900/40 rounded-2xl border border-zinc-800">No assets recorded for this file.</p>`;
                 return;
             }
 
             assets.forEach(a => {
                 const card = document.createElement('div');
-                card.className = "bg-zinc-900/60 backdrop-blur-xl border border-zinc-700/60 p-4 rounded-3xl shadow-lg space-y-2 text-zinc-100";
-                
+                card.className = "bg-zinc-900/60 backdrop-blur-xl border border-zinc-700/60 p-3 rounded-2xl shadow-md flex justify-between items-center text-zinc-100";
                 const statusColor = a.status === 'Active' ? 'text-emerald-400 bg-emerald-950/60 border-emerald-800' : 'text-amber-400 bg-amber-950/60 border-amber-800';
-                
-                let billHtml = '';
-                if (a.has_recurring_bill) {
-                    billHtml = `
-                        <div class="mt-2 pt-2 border-t border-zinc-800 text-[11px] flex justify-between items-center bg-zinc-800/30 p-2 rounded-xl">
-                            <span class="text-emerald-400 font-medium">🔁 ${a.bill_name || 'Recurrent Bill'}: <strong>${formatCurrency(a.bill_amount)}</strong></span>
-                            <span class="text-zinc-400 text-[10px]">Due: ${a.bill_due_day}th</span>
-                        </div>
-                    `;
-                }
-
                 card.innerHTML = `
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <h3 class="font-bold text-zinc-100 text-sm">${a.asset_name}</h3>
-                                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold border ${statusColor}">${a.status}</span>
-                            </div>
-                            <p class="text-[11px] text-zinc-400 font-medium mt-0.5">📍 <span class="text-zinc-200 font-semibold">${a.location_name}</span> • ${a.asset_category}</p>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 class="font-bold text-zinc-100 text-xs">${a.asset_name}</h3>
+                            <span class="px-2 py-0.5 rounded-full text-[9px] font-bold border ${statusColor}">${a.status}</span>
                         </div>
-                        <div class="text-right">
-                            <p class="text-xs font-black text-emerald-400">${formatCurrency(a.purchase_cost)}</p>
-                            <p class="text-[9px] text-zinc-500 font-medium mt-0.5">Cost</p>
-                        </div>
+                        <p class="text-xs font-bold text-emerald-400 mt-1">${formatCurrency(a.purchase_cost)}</p>
                     </div>
-                    ${billHtml}
-                    <div class="flex justify-between items-center pt-2 border-t border-zinc-800 text-[10px]">
-                        <span class="text-zinc-400 font-semibold">Type: ${a.location_type}</span>
-                        <div class="flex items-center gap-3">
-                            <button onclick="editAsset(${a.id})" class="text-emerald-400 font-bold hover:underline">Edit</button>
-                            <button onclick="deleteAsset(${a.id})" class="text-rose-400 font-bold hover:underline">Delete</button>
-                        </div>
+                    <div class="flex items-center gap-3 text-xs">
+                        <button onclick="editAsset(${a.id})" class="text-emerald-400 font-bold hover:underline">Edit</button>
+                        <button onclick="deleteAsset(${a.id})" class="text-rose-400 font-bold hover:underline">Delete</button>
                     </div>
                 `;
                 container.appendChild(card);
             });
         }
 
-        fetchAssets();
+        function renderFileBills(bills) {
+            const container = document.getElementById('file-bill-list');
+            container.innerHTML = '';
+            if (bills.length === 0) {
+                container.innerHTML = `<p class="text-xs text-zinc-400 text-center py-4 bg-zinc-900/40 rounded-2xl border border-zinc-800">No utility bills recorded for this file.</p>`;
+                return;
+            }
+
+            bills.forEach(b => {
+                const card = document.createElement('div');
+                card.className = "bg-zinc-900/60 backdrop-blur-xl border border-zinc-700/60 p-3 rounded-2xl shadow-md flex justify-between items-center text-zinc-100";
+                card.innerHTML = `
+                    <div>
+                        <h3 class="font-bold text-zinc-100 text-xs">${b.bill_name}</h3>
+                        <p class="text-[11px] text-rose-400 font-medium mt-0.5">${formatCurrency(b.bill_amount)} • <span class="text-zinc-400">Due: ${b.bill_due_day}th</span></p>
+                    </div>
+                    <div class="flex items-center gap-3 text-xs">
+                        <button onclick="editBill(${b.id})" class="text-emerald-400 font-bold hover:underline">Edit</button>
+                        <button onclick="deleteBill(${b.id})" class="text-rose-400 font-bold hover:underline">Delete</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderMasterHub() {
+            const totalValuation = allAssets.reduce((sum, a) => sum + Number(a.purchase_cost || 0), 0);
+            const totalRecurrent = allBills.reduce((sum, b) => sum + Number(b.bill_amount || 0), 0);
+            const totalCount = allAssets.length + allBills.length;
+
+            document.getElementById('total-assets-count').innerText = totalCount + ' Records';
+            document.getElementById('total-asset-valuation').innerText = formatCurrency(totalValuation);
+            document.getElementById('total-recurrent-bills').innerText = formatCurrency(totalRecurrent);
+
+            const locations = [
+                "Elewi Odo", "10/10", "Idi Ape", "Gbaremu", "Oluyole", "Gbagi Shop", "Bodija Oju Irin", "TechXted HQ", "TechXted Annex"
+            ];
+
+            const container = document.getElementById('master-locations-container');
+            container.innerHTML = '';
+
+            locations.forEach(loc => {
+                const locAssets = allAssets.filter(a => a.location_name === loc);
+                const locBills = allBills.filter(b => b.location_name === loc);
+
+                if (locAssets.length === 0 && locBills.length === 0) return;
+
+                const locValuation = locAssets.reduce((sum, a) => sum + Number(a.purchase_cost || 0), 0);
+                const locBillTotal = locBills.reduce((sum, b) => sum + Number(b.bill_amount || 0), 0);
+
+                const card = document.createElement('div');
+                card.className = "bg-zinc-900/60 backdrop-blur-xl border border-zinc-700/60 p-4 rounded-3xl space-y-3 shadow-lg";
+                
+                let assetsHtml = locAssets.map(a => `<div class="text-[11px] flex justify-between text-zinc-300 py-1 border-b border-zinc-800/60"><span>💻 ${a.asset_name} (${a.status})</span><span class="font-bold text-emerald-400">${formatCurrency(a.purchase_cost)}</span></div>`).join('');
+                let billsHtml = locBills.map(b => `<div class="text-[11px] flex justify-between text-zinc-300 py-1 border-b border-zinc-800/60"><span>📄 ${b.bill_name} (Due: ${b.bill_due_day}th)</span><span class="font-bold text-rose-400">${formatCurrency(b.bill_amount)}</span></div>`).join('');
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-center border-b border-zinc-800 pb-2">
+                        <h3 class="font-bold text-zinc-100 text-sm">📍 ${loc}</h3>
+                        <button onclick="openLocationFile('${loc}')" class="text-[10px] bg-emerald-950 text-emerald-300 px-2 py-1 rounded-xl border border-emerald-800 font-semibold hover:bg-emerald-900">Open File</button>
+                    </div>
+                    <div class="space-y-1">
+                        ${locAssets.length > 0 ? '<p class="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mt-1">Assets</p>' + assetsHtml : ''}
+                        ${locBills.length > 0 ? '<p class="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mt-2">Utilities & Bills</p>' + billsHtml : ''}
+                    </div>
+                    <div class="flex justify-between items-center pt-2 text-xs font-bold border-t border-zinc-800">
+                        <span class="text-zinc-400">Total Valuation:</span>
+                        <span class="text-emerald-400">${formatCurrency(locValuation)}</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            if (container.children.length === 0) {
+                container.innerHTML = `<p class="text-xs text-zinc-400 text-center py-4 bg-zinc-900/40 rounded-2xl border border-zinc-800">No assets or bills registered across any location yet. Switch to "Shop / Office File" to add records.</p>`;
+            }
+        }
+
+        function openLocationFile(locName) {
+            document.getElementById('active-location-select').value = locName;
+            switchMainView('file');
+        }
+
+        // Initial load
+        fetchData();
     </script>
 </body>
 </html>
