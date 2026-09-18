@@ -92,6 +92,19 @@
 
             <!-- SUB-VIEW A: ASSETS TAB -->
             <div id="file-sub-assets" class="space-y-4">
+                <!-- Quick-Clone Asset Template Component -->
+                <section class="bg-zinc-900/40 backdrop-blur-xl p-3.5 rounded-3xl border border-zinc-700/50 shadow-xl space-y-2.5">
+                    <h2 class="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">⚡ Quick-Clone Asset Template</h2>
+                    <div class="flex items-center gap-2">
+                        <select id="clone-source-select" class="flex-1 bg-zinc-800/70 border border-zinc-700/80 rounded-xl p-2 text-xs text-zinc-200 focus:outline-none focus:border-emerald-500 shadow-inner">
+                            <!-- Populated dynamically -->
+                        </select>
+                        <button onclick="cloneAssetsFromLocation()" class="bg-zinc-800 hover:bg-zinc-700 text-emerald-400 font-semibold px-3 py-2 rounded-xl text-xs border border-emerald-700/50 transition-all shadow">
+                            Import Items
+                        </button>
+                    </div>
+                </section>
+
                 <!-- Add Asset Form -->
                 <section class="bg-zinc-900/40 backdrop-blur-xl p-4 rounded-3xl border border-zinc-700/50 shadow-xl space-y-3">
                     <h2 id="asset-form-title" class="text-xs font-bold text-zinc-300 uppercase tracking-wider">Add Item to <span id="current-file-label-1" class="text-emerald-400">Elewi Odo</span></h2>
@@ -212,6 +225,10 @@
 
         let allAssets = [];
         let allBills = [];
+        const allLocationNames = [
+            "Elewi Odo", "10/10", "Idi Ape", "Gbaremu", "Oluyole", "Gbagi Shop", "Bodija Oju Irin", "TechXted HQ", "TechXted Annex"
+        ];
+
         const now = new Date();
         document.getElementById('current-date').innerText = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
@@ -269,6 +286,18 @@
             const loc = document.getElementById('active-location-select').value;
             document.getElementById('current-file-label-1').innerText = loc;
             document.getElementById('current-file-label-2').innerText = loc;
+
+            // Update clone source dropdown (exclude current location)
+            const cloneSelect = document.getElementById('clone-source-select');
+            cloneSelect.innerHTML = '';
+            allLocationNames.forEach(name => {
+                if (name !== loc) {
+                    const opt = document.createElement('option');
+                    opt.value = name;
+                    opt.innerText = `Copy from ${name}`;
+                    cloneSelect.appendChild(opt);
+                }
+            });
         }
 
         async function fetchData() {
@@ -296,6 +325,44 @@
             // Fetch bills for this location
             const { data: bills } = await _supabase.from('location_bills').select('*').eq('location_name', loc).order('id', { ascending: false });
             renderFileBills(bills || []);
+        }
+
+        // Clone Assets Functionality
+        async function cloneAssetsFromLocation() {
+            const sourceLoc = document.getElementById('clone-source-select').value;
+            const targetLoc = document.getElementById('active-location-select').value;
+
+            if (!sourceLoc) {
+                alert('Please select a valid source location.');
+                return;
+            }
+
+            if (!confirm(`Are you sure you want to import all asset items from "${sourceLoc}" into "${targetLoc}"?`)) return;
+
+            // Fetch source assets
+            const { data: sourceAssets, error: fetchErr } = await _supabase.from('location_assets').select('*').eq('location_name', sourceLoc);
+            if (fetchErr || !sourceAssets || sourceAssets.length === 0) {
+                alert('No assets found in the selected source location to import.');
+                return;
+            }
+
+            // Map and strip out old IDs so they insert as fresh rows
+            const newAssetsPayload = sourceAssets.map(a => ({
+                location_name: targetLoc,
+                location_type: targetLoc.includes('TechXted') ? 'TechXted Office' : 'Shop',
+                asset_name: a.asset_name,
+                units: a.units || 1,
+                purchase_cost: a.purchase_cost || 0,
+                status: a.status || 'Active'
+            }));
+
+            const { error: insertErr } = await _supabase.from('location_assets').insert(newAssetsPayload);
+            if (insertErr) {
+                alert('Error importing assets: ' + insertErr.message);
+            } else {
+                alert(`Successfully imported ${newAssetsPayload.length} items from ${sourceLoc}!`);
+                await fetchFileSpecificData();
+            }
         }
 
         // Asset Form Submission
@@ -502,14 +569,10 @@
             document.getElementById('total-asset-valuation').innerText = formatCurrency(totalValuation);
             document.getElementById('total-recurrent-bills').innerText = formatCurrency(totalRecurrent);
 
-            const locations = [
-                "Elewi Odo", "10/10", "Idi Ape", "Gbaremu", "Oluyole", "Gbagi Shop", "Bodija Oju Irin", "TechXted HQ", "TechXted Annex"
-            ];
-
             const container = document.getElementById('master-locations-container');
             container.innerHTML = '';
 
-            locations.forEach(loc => {
+            allLocationNames.forEach(loc => {
                 const locAssets = allAssets.filter(a => a.location_name === loc);
                 const locBills = allBills.filter(b => b.location_name === loc);
 
