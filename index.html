@@ -27,7 +27,7 @@
             <div class="flex justify-between items-center">
                 <div class="flex items-center gap-2">
                     <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Weekly Health (Tue - Mon)</h2>
-                    <button type="button" onclick="resetWeeklyDashboard()" title="Manual Reset for New Week" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 text-[10px] px-2 py-0.5 rounded border border-slate-700 font-medium transition-colors flex items-center gap-1">
+                    <button type="button" onclick="promptResetDashboard()" title="Manual Reset for New Week" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 text-[10px] px-2 py-0.5 rounded border border-slate-700 font-medium transition-colors flex items-center gap-1">
                         🔄 Reset
                     </button>
                 </div>
@@ -651,8 +651,13 @@
             return { startTuesday, endMonday };
         }
 
-        function resetWeeklyDashboard() {
-            if (!confirm('Are you sure you want to manually clear and reset the weekly financial health dashboard?')) return;
+        function promptResetDashboard() {
+            const passwordInput = prompt('Enter password to reset the weekly financial health dashboard:');
+            if (passwordInput === null) return; // Cancelled
+            if (passwordInput !== 'Krinox1803') {
+                alert('Incorrect password! Reset action cancelled.');
+                return;
+            }
             const resetTimestamp = new Date().toISOString();
             localStorage.setItem('adel_dashboard_reset_time', resetTimestamp);
             updateUI();
