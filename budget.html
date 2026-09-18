@@ -5,13 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Budget Setup - Adelowo's Ledger</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase Client Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-zinc-950 text-zinc-100 font-sans antialiased pb-24 selection:bg-emerald-500 selection:text-white">
 
     <!-- Header -->
-    <header class="bg-zinc-900/70 backdrop-blur-md border-b border-zinc-800/80 p-4 sticky top-0 z-10 flex justify-between items-center shadow-lg">
+    <header class="bg-zinc-900/75 backdrop-blur-md border-b border-zinc-800/80 p-4 sticky top-0 z-10 flex justify-between items-center shadow-lg">
         <h1 class="text-base font-extrabold tracking-wider text-emerald-400">WEEKLY BUDGET SETUP</h1>
-        <a href="index.html" class="bg-zinc-800/80 hover:bg-zinc-700 text-emerald-300 text-xs px-3 py-1.5 rounded-xl border border-zinc-700 font-medium transition-all shadow-sm">Back to Ledger</a>
+        <div class="flex items-center space-x-2">
+            <a href="staff.html" class="bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 text-xs px-3 py-1.5 rounded-xl border border-emerald-800 font-medium transition-all shadow-sm">Staff</a>
+            <a href="index.html" class="bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 text-xs px-3 py-1.5 rounded-xl border border-zinc-700 font-medium transition-all shadow-sm">Back to Ledger</a>
+        </div>
     </header>
 
     <main class="p-4 max-w-md mx-auto space-y-5">
@@ -79,7 +84,10 @@
                     <input type="number" id="shop-data" min="0" placeholder="0" class="w-full mt-1 bg-zinc-800/70 border border-zinc-700/80 rounded-2xl p-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500 shadow-inner transition-all">
                 </div>
                 <div>
-                    <label class="text-[10px] text-zinc-400 font-medium">Salary (₦)</label>
+                    <label class="text-[10px] text-zinc-400 font-medium flex justify-between items-center">
+                        <span>Salary (₦)</span>
+                        <span class="text-[9px] text-emerald-400 font-normal">Auto-synced from Staff</span>
+                    </label>
                     <input type="number" id="shop-salary" min="0" placeholder="0" class="w-full mt-1 bg-zinc-800/70 border border-zinc-700/80 rounded-2xl p-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500 shadow-inner transition-all">
                 </div>
                 <div>
@@ -110,6 +118,11 @@
     </div>
 
     <script>
+        // Supabase configuration connection
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
         const shopSelect = document.getElementById('budget-shop-select');
         const revenueInput = document.getElementById('expected-revenue');
         const paperInput = document.getElementById('shop-paper');
@@ -120,20 +133,55 @@
 
         const allShops = ["Elewi Odo", "10/10", "Idi Ape", "Gbaremu", "Oluyole", "Gbagi Shop", "Bodija Oju Irin"];
 
-        function loadShopBudget(shopName) {
+        async function loadShopBudget(shopName) {
             const allBudgets = JSON.parse(localStorage.getItem('adelowo_shop_budgets')) || {};
             const shopData = allBudgets[shopName] || { revenue: '', paper: '', data: '', salary: '', utility: '' };
             
             revenueInput.value = shopData.revenue;
             paperInput.value = shopData.paper;
             dataInput.value = shopData.data;
-            salaryInput.value = shopData.salary;
             utilityInput.value = shopData.utility;
+
+            // Fetch staff salaries assigned to this shop from Supabase
+            try {
+                const { data: staffList, error } = await _supabase
+                    .from('staff')
+                    .select('*')
+                    .eq('shop_location', shopName);
+
+                if (!error && staffList) {
+                    let totalShopSalary = 0;
+                    staffList.forEach(st => {
+                        totalShopSalary += Number(st.salary) || 0;
+                    });
+                    // Auto-fill salary if staff exist for this location, otherwise fallback to saved value
+                    salaryInput.value = totalShopSalary > 0 ? totalShopSalary : (shopData.salary || '');
+                } else {
+                    salaryInput.value = shopData.salary;
+                }
+            } catch (err) {
+                console.error('Error fetching staff salaries:', err);
+                salaryInput.value = shopData.salary;
+            }
+
+            updateMasterSummary();
         }
 
-        function updateMasterSummary() {
+        async function updateMasterSummary() {
             const allBudgets = JSON.parse(localStorage.getItem('adelowo_shop_budgets')) || {};
             let totalRev = 0, totalPaper = 0, totalData = 0, totalSalary = 0, totalUtility = 0;
+
+            // Fetch all staff members to calculate global salaries accurately
+            try {
+                const { data: allStaff, error } = await _supabase.from('staff').select('*');
+                if (!error && allStaff) {
+                    allStaff.forEach(st => {
+                        totalSalary += Number(st.salary) || 0;
+                    });
+                }
+            } catch (err) {
+                console.error('Error fetching global staff:', err);
+            }
 
             allShops.forEach(shop => {
                 const b = allBudgets[shop];
@@ -141,8 +189,11 @@
                     totalRev += Math.max(0, Number(b.revenue) || 0);
                     totalPaper += Math.max(0, Number(b.paper) || 0);
                     totalData += Math.max(0, Number(b.data) || 0);
-                    totalSalary += Math.max(0, Number(b.salary) || 0);
                     totalUtility += Math.max(0, Number(b.utility) || 0);
+                    // If shop isn't overridden by database sum in local calculation, add manual fallback
+                    if (!totalSalary) {
+                        totalSalary += Math.max(0, Number(b.salary) || 0);
+                    }
                 }
             });
 
@@ -156,8 +207,8 @@
             document.getElementById('master-utility').innerText = '₦' + totalUtility.toLocaleString();
         }
 
+        // Initialize view on load
         loadShopBudget(shopSelect.value);
-        updateMasterSummary();
 
         shopSelect.addEventListener('change', (e) => loadShopBudget(e.target.value));
 
@@ -178,17 +229,26 @@
             alert(`Budget settings for ${currentShop} saved successfully!`);
         });
 
-        function openHealthModal() {
+        async function openHealthModal() {
             const allBudgets = JSON.parse(localStorage.getItem('adelowo_shop_budgets')) || {};
             let totalRev = 0, totalAlloc = 0;
+
+            let totalStaffSalaries = 0;
+            try {
+                const { data: allStaff } = await _supabase.from('staff').select('salary');
+                if (allStaff) {
+                    allStaff.forEach(s => totalStaffSalaries += Number(s.salary) || 0);
+                }
+            } catch (e) {}
 
             allShops.forEach(shop => {
                 const b = allBudgets[shop];
                 if (b) {
                     totalRev += Math.max(0, Number(b.revenue) || 0);
-                    totalAlloc += Math.max(0, Number(b.paper) || 0) + Math.max(0, Number(b.data) || 0) + Math.max(0, Number(b.salary) || 0) + Math.max(0, Number(b.utility) || 0);
+                    totalAlloc += Math.max(0, Number(b.paper) || 0) + Math.max(0, Number(b.data) || 0) + Math.max(0, Number(b.utility) || 0);
                 }
             });
+            totalAlloc += totalStaffSalaries;
 
             const netMargin = totalRev - totalAlloc;
             const ratio = totalRev > 0 ? ((totalAlloc / totalRev) * 100).toFixed(1) : 0;
