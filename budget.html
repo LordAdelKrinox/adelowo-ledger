@@ -12,7 +12,10 @@
 
     <!-- Header -->
     <header class="bg-zinc-900/75 backdrop-blur-md border-b border-zinc-800/80 p-4 sticky top-0 z-10 flex justify-between items-center shadow-lg">
-        <h1 class="text-base font-extrabold tracking-wider text-emerald-400">WEEKLY BUDGET SETUP</h1>
+        <div>
+            <h1 class="text-base font-extrabold tracking-wider text-emerald-400">WEEKLY BUDGET SETUP</h1>
+            <p id="live-calendar-indicator" class="text-[10px] text-zinc-400 font-medium mt-0.5">Detecting live calendar week...</p>
+        </div>
         <div class="flex items-center space-x-2">
             <a href="staff.html" class="bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 text-xs px-3 py-1.5 rounded-xl border border-emerald-800 font-medium transition-all shadow-sm">Staff</a>
             <a href="index.html" class="bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 text-xs px-3 py-1.5 rounded-xl border border-zinc-700 font-medium transition-all shadow-sm">Back to Ledger</a>
@@ -86,7 +89,7 @@
                 <div>
                     <label class="text-[10px] text-zinc-400 font-medium flex justify-between items-center">
                         <span>Salary (₦)</span>
-                        <span class="text-[9px] text-emerald-400 font-normal">Auto-synced from Staff</span>
+                        <span class="text-[9px] text-emerald-400 font-normal">Calendar Auto-synced</span>
                     </label>
                     <input type="number" id="shop-salary" min="0" placeholder="0" class="w-full mt-1 bg-zinc-800/70 border border-zinc-700/80 rounded-2xl p-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500 shadow-inner transition-all">
                 </div>
@@ -113,14 +116,13 @@
             <div id="modal-health-content" class="text-xs space-y-3 text-zinc-300 font-medium">
                 <!-- Injected dynamically -->
             </div>
-            <button onclick="closeHealthModal()" class="w-full bg-zinc-800/80 hover:bg-zinc-700 text-zinc-200 py-3 rounded-2xl text-xs font-semibold border border-zinc-700/50 shadow-md">Close Assessment</button>
+            <button onclick="closeHealthModal()" class="w-full bg-zinc-800/80 hover:bg-zinc-700 text-zinc-200 py-3 rounded-2xl text-xs font-semibold border border-zinc-700/50 shadow-md">Close Assessment</storage>
         </div>
     </div>
 
     <script>
-        // Supabase configuration connection
-        const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        const SUPABASE_URL = 'https://itbnekbbezzbpsgsidet.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_3PF-xkCW382a9XOpZWsHYg_rcktU95h';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         const shopSelect = document.getElementById('budget-shop-select');
@@ -133,8 +135,32 @@
 
         const allShops = ["Elewi Odo", "10/10", "Idi Ape", "Gbaremu", "Oluyole", "Gbagi Shop", "Bodija Oju Irin"];
 
+        // Determine current active week based on live phone calendar date
+        function getCurrentCalendarWeek() {
+            const currentDate = new Date();
+            const dayNum = currentDate.getDate();
+            if (dayNum >= 1 && dayNum <= 7) return "w1";
+            if (dayNum >= 8 && dayNum <= 14) return "w2";
+            if (dayNum >= 15 && dayNum <= 21) return "w3";
+            return "w4";
+        }
+
+        function getWeekIntervalNumber(day) {
+            if (day >= 1 && day <= 7) return "w1";
+            if (day >= 8 && dayNum <= 14) return "w2";
+            if (day >= 15 && day <= 21) return "w3";
+            return "w4";
+        }
+
+        // Display live calendar context in header
+        const todayObj = new Date();
+        const currentWeekKey = getCurrentCalendarWeek();
+        const weekLabels = { "w1": "Week 1 (1st–7th)", "w2": "Week 2 (8th–14th)", "w3": "Week 3 (15th–21st)", "w4": "Week 4 (22nd–End)" };
+        document.getElementById('live-calendar-indicator').innerText = `Active Calendar: ${weekLabels[currentWeekKey]}`;
+
         async function loadShopBudget(shopName) {
-            const allBudgets = JSON.parse(localStorage.getItem('adelowo_shop_budgets')) || {};
+            const storageKey = `adelowo_shop_budgets_${currentWeekKey}`;
+            const allBudgets = JSON.parse(localStorage.getItem(storageKey)) || {};
             const shopData = allBudgets[shopName] || { revenue: '', paper: '', data: '', salary: '', utility: '' };
             
             revenueInput.value = shopData.revenue;
@@ -142,59 +168,72 @@
             dataInput.value = shopData.data;
             utilityInput.value = shopData.utility;
 
-            // Fetch staff salaries assigned to this shop from Supabase
+            // Calendar Intelligence: Match staff whose salary due date falls in this active calendar week
             try {
                 const { data: staffList, error } = await _supabase
                     .from('staff')
                     .select('*')
-                    .eq('shop_location', shopName);
+                    .eq('shop_location', shopName)
+                    .eq('work_category', 'Shop');
 
                 if (!error && staffList) {
-                    let totalShopSalary = 0;
+                    let calculatedWeekSalary = 0;
                     staffList.forEach(st => {
-                        totalShopSalary += Number(st.salary) || 0;
+                        const dueDay = Number(st.salary_due_day) || 1;
+                        let staffWeekKey = "w1";
+                        if (dueDay >= 8 && dueDay <= 14) staffWeekKey = "w2";
+                        else if (dueDay >= 15 && dueDay <= 21) staffWeekKey = "w3";
+                        else if (dueDay >= 22) staffWeekKey = "w4";
+
+                        // If staff salary due date falls within the current live calendar week
+                        if (staffWeekKey === currentWeekKey) {
+                            calculatedWeekSalary += Number(st.salary) || 0;
+                        }
                     });
-                    // Auto-fill salary if staff exist for this location, otherwise fallback to saved value
-                    salaryInput.value = totalShopSalary > 0 ? totalShopSalary : (shopData.salary || '');
+                    
+                    salaryInput.value = calculatedWeekSalary > 0 ? calculatedWeekSalary : (shopData.salary || 0);
                 } else {
-                    salaryInput.value = shopData.salary;
+                    salaryInput.value = shopData.salary || 0;
                 }
             } catch (err) {
-                console.error('Error fetching staff salaries:', err);
-                salaryInput.value = shopData.salary;
+                console.error('Error fetching staff salaries via calendar intelligence:', err);
+                salaryInput.value = shopData.salary || 0;
             }
 
             updateMasterSummary();
         }
 
         async function updateMasterSummary() {
-            const allBudgets = JSON.parse(localStorage.getItem('adelowo_shop_budgets')) || {};
+            const storageKey = `adelowo_shop_budgets_${currentWeekKey}`;
+            const allBudgets = JSON.parse(localStorage.getItem(storageKey)) || {};
             let totalRev = 0, totalPaper = 0, totalData = 0, totalSalary = 0, totalUtility = 0;
 
-            // Fetch all staff members to calculate global salaries accurately
+            let allStaff = [];
             try {
-                const { data: allStaff, error } = await _supabase.from('staff').select('*');
-                if (!error && allStaff) {
-                    allStaff.forEach(st => {
-                        totalSalary += Number(st.salary) || 0;
-                    });
-                }
-            } catch (err) {
-                console.error('Error fetching global staff:', err);
-            }
+                const { data } = await _supabase.from('staff').select('*').eq('work_category', 'Shop');
+                if (data) allStaff = data;
+            } catch (err) {}
 
             allShops.forEach(shop => {
-                const b = allBudgets[shop];
-                if (b) {
-                    totalRev += Math.max(0, Number(b.revenue) || 0);
-                    totalPaper += Math.max(0, Number(b.paper) || 0);
-                    totalData += Math.max(0, Number(b.data) || 0);
-                    totalUtility += Math.max(0, Number(b.utility) || 0);
-                    // If shop isn't overridden by database sum in local calculation, add manual fallback
-                    if (!totalSalary) {
-                        totalSalary += Math.max(0, Number(b.salary) || 0);
+                const b = allBudgets[shop] || {};
+                totalRev += Math.max(0, Number(b.revenue) || 0);
+                totalPaper += Math.max(0, Number(b.paper) || 0);
+                totalData += Math.max(0, Number(b.data) || 0);
+                totalUtility += Math.max(0, Number(b.utility) || 0);
+
+                let shopWeekSalary = Number(b.salary) || 0;
+                allStaff.filter(st => st.shop_location === shop).forEach(st => {
+                    const dueDay = Number(st.salary_due_day) || 1;
+                    let staffWeekKey = "w1";
+                    if (dueDay >= 8 && dueDay <= 14) staffWeekKey = "w2";
+                    else if (dueDay >= 15 && dueDay <= 21) staffWeekKey = "w3";
+                    else if (dueDay >= 22) staffWeekKey = "w4";
+
+                    if (staffWeekKey === currentWeekKey) {
+                        shopWeekSalary = Number(st.salary) || 0;
                     }
-                }
+                });
+                totalSalary += shopWeekSalary;
             });
 
             const totalAlloc = totalPaper + totalData + totalSalary + totalUtility;
@@ -207,14 +246,15 @@
             document.getElementById('master-utility').innerText = '₦' + totalUtility.toLocaleString();
         }
 
-        // Initialize view on load
+        // Initialize view on load using live phone calendar
         loadShopBudget(shopSelect.value);
 
         shopSelect.addEventListener('change', (e) => loadShopBudget(e.target.value));
 
         document.getElementById('save-budget-btn').addEventListener('click', () => {
             const currentShop = shopSelect.value;
-            const allBudgets = JSON.parse(localStorage.getItem('adelowo_shop_budgets')) || {};
+            const storageKey = `adelowo_shop_budgets_${currentWeekKey}`;
+            const allBudgets = JSON.parse(localStorage.getItem(storageKey)) || {};
             
             allBudgets[currentShop] = {
                 revenue: revenueInput.value,
@@ -224,20 +264,31 @@
                 utility: utilityInput.value
             };
 
-            localStorage.setItem('adelowo_shop_budgets', JSON.stringify(allBudgets));
+            localStorage.setItem(storageKey, JSON.stringify(allBudgets));
             updateMasterSummary();
-            alert(`Budget settings for ${currentShop} saved successfully!`);
+            alert(`Budget for ${currentShop} (${weekLabels[currentWeekKey]}) saved successfully!`);
         });
 
         async function openHealthModal() {
-            const allBudgets = JSON.parse(localStorage.getItem('adelowo_shop_budgets')) || {};
+            const storageKey = `adelowo_shop_budgets_${currentWeekKey}`;
+            const allBudgets = JSON.parse(localStorage.getItem(storageKey)) || {};
             let totalRev = 0, totalAlloc = 0;
+            let totalWeekSalaries = 0;
 
-            let totalStaffSalaries = 0;
             try {
-                const { data: allStaff } = await _supabase.from('staff').select('salary');
+                const { data: allStaff } = await _supabase.from('staff').select('*').eq('work_category', 'Shop');
                 if (allStaff) {
-                    allStaff.forEach(s => totalStaffSalaries += Number(s.salary) || 0);
+                    allStaff.forEach(s => {
+                        const dueDay = Number(s.salary_due_day) || 1;
+                        let staffWeekKey = "w1";
+                        if (dueDay >= 8 && dueDay <= 14) staffWeekKey = "w2";
+                        else if (dueDay >= 15 && dueDay <= 21) staffWeekKey = "w3";
+                        else if (dueDay >= 22) staffWeekKey = "w4";
+
+                        if (staffWeekKey === currentWeekKey) {
+                            totalWeekSalaries += Number(s.salary) || 0;
+                        }
+                    });
                 }
             } catch (e) {}
 
@@ -248,7 +299,7 @@
                     totalAlloc += Math.max(0, Number(b.paper) || 0) + Math.max(0, Number(b.data) || 0) + Math.max(0, Number(b.utility) || 0);
                 }
             });
-            totalAlloc += totalStaffSalaries;
+            totalAlloc += totalWeekSalaries;
 
             const netMargin = totalRev - totalAlloc;
             const ratio = totalRev > 0 ? ((totalAlloc / totalRev) * 100).toFixed(1) : 0;
@@ -264,6 +315,7 @@
             }
 
             document.getElementById('modal-health-content').innerHTML = `
+                <div class="flex justify-between text-zinc-300"><span>Live Calendar Period:</span> <span class="font-semibold text-emerald-400">${weekLabels[currentWeekKey]}</span></div>
                 <div class="flex justify-between text-zinc-300"><span>Combined Expected Revenue:</span> <span class="font-semibold text-emerald-400">₦${totalRev.toLocaleString()}</span></div>
                 <div class="flex justify-between text-zinc-300"><span>Combined Total Allocations:</span> <span class="font-semibold text-rose-400">₦${totalAlloc.toLocaleString()}</span></div>
                 <div class="flex justify-between text-zinc-300"><span>Projected Net Margin:</span> <span class="font-semibold text-blue-400">₦${netMargin.toLocaleString()}</span></div>
