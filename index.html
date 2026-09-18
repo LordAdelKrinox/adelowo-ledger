@@ -6,6 +6,7 @@
     <title>Adelowo's Ledger</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
@@ -52,15 +53,27 @@
             </div>
         </section>
 
-        <!-- Summary Cards -->
-        <section class="grid grid-cols-2 gap-3">
-            <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 shadow-lg">
-                <p class="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">Total Income</p>
-                <p id="total-income" class="text-lg font-bold text-emerald-400 mt-1">₦0</p>
+        <!-- Summary Cards (Expanded to include Net Position) -->
+        <section class="grid grid-cols-3 gap-2">
+            <div class="bg-slate-900 p-3 rounded-2xl border border-slate-800 shadow-lg text-center">
+                <p class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Total Income</p>
+                <p id="total-income" class="text-sm font-bold text-emerald-400 mt-1">₦0</p>
             </div>
-            <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 shadow-lg">
-                <p class="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">Total Expenses</p>
-                <p id="total-expense" class="text-lg font-bold text-rose-400 mt-1">₦0</p>
+            <div class="bg-slate-900 p-3 rounded-2xl border border-slate-800 shadow-lg text-center">
+                <p class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Total Expenses</p>
+                <p id="total-expense" class="text-sm font-bold text-rose-400 mt-1">₦0</p>
+            </div>
+            <div class="bg-slate-900 p-3 rounded-2xl border border-slate-800 shadow-lg text-center">
+                <p class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Net Position</p>
+                <p id="total-net" class="text-sm font-bold text-blue-400 mt-1">₦0</p>
+            </div>
+        </section>
+
+        <!-- Financial Overview Pie Chart Section -->
+        <section class="bg-slate-900 p-4 rounded-2xl border border-slate-800 shadow-lg space-y-3">
+            <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Financial Breakdown Chart</h2>
+            <div class="relative w-full h-48 flex justify-center items-center">
+                <canvas id="financialPieChart"></canvas>
             </div>
         </section>
 
@@ -159,7 +172,7 @@
                         </select>
                     </div>
 
-                    <!-- Personal Income Sub-Panel (with Name Executor & Salary) -->
+                    <!-- Personal Income Sub-Panel -->
                     <div id="income-personal-sub-panel" class="space-y-2 pt-1">
                         <div>
                             <label class="text-[11px] text-slate-400 font-medium">Select Executor Name</label>
@@ -268,7 +281,7 @@
                 </select>
             </div>
 
-            <!-- Tier 4: Income Sub-Category Filter (Dynamic Cascading) -->
+            <!-- Tier 4: Income Sub-Category Filter -->
             <div id="report-income-sub-wrapper" class="hidden">
                 <label class="text-[10px] text-slate-400 font-medium">4. Income Sub-Category Filter</label>
                 <select id="report-income-sub-filter" onchange="renderReports()" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-emerald-500">
@@ -400,6 +413,7 @@
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let allTransactions = [];
+        let financialChart = null; // Chart.js instance handle
         
         const now = new Date();
         const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
@@ -407,7 +421,7 @@
         
         document.getElementById('report-start-date').value = firstDayOfMonth;
         document.getElementById('report-end-date').value = todayStr;
-        document.getElementById('transaction_date').value = todayStr; // Default transaction date to today
+        document.getElementById('transaction_date').value = todayStr;
         document.getElementById('current-date').innerText = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
         const typeSelect = document.getElementById('type');
@@ -456,7 +470,6 @@
         typeSelect.addEventListener('change', toggleFormMode);
         incomeMainCategory.addEventListener('change', toggleIncomeCategoryMode);
 
-        // Advanced Report Cascading Sub-Filters
         function updateReportSubFilters() {
             const typeFilter = document.getElementById('report-type-filter').value;
             const catFilter = document.getElementById('report-category-filter');
@@ -498,7 +511,6 @@
             const incomeSubFilter = document.getElementById('report-income-sub-filter');
             const shopWrapper = document.getElementById('report-shop-wrapper');
 
-            // Reset sub-filter options
             incomeSubFilter.innerHTML = '<option value="all">All Sub-Categories</option>';
 
             if (typeFilter === 'income' && catFilterVal !== 'all') {
@@ -586,7 +598,7 @@
                 shop: shopLoc,
                 sub_category: subCat,
                 note: document.getElementById('note').value,
-                created_at: new Date(txDateVal + 'T00:00:00').toISOString() // Save with user-selected execution date
+                created_at: new Date(txDateVal + 'T00:00:00').toISOString()
             };
 
             let error;
@@ -712,7 +724,6 @@
                 return;
             }
 
-            // Save previous reset state for undo capability
             const currentResetTime = localStorage.getItem('adel_dashboard_reset_time');
             if (currentResetTime) {
                 localStorage.setItem('adel_dashboard_previous_reset_time', currentResetTime);
@@ -733,7 +744,6 @@
                 return;
             }
 
-            // Restore previous reset time
             localStorage.setItem('adel_dashboard_reset_time', previousResetTime);
             localStorage.removeItem('adel_dashboard_previous_reset_time');
             
@@ -783,18 +793,24 @@
         }
 
         function updateUI() {
+            // Overall summary calculations
             let totalInc = allTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount), 0);
             let totalExp = allTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + Number(t.amount), 0);
+            let totalNet = totalInc - totalExp;
 
             document.getElementById('total-income').innerText = formatCurrency(totalInc);
             document.getElementById('total-expense').innerText = formatCurrency(totalExp);
+            const totalNetEl = document.getElementById('total-net');
+            totalNetEl.innerText = formatCurrency(totalNet);
+            totalNetEl.className = `text-sm font-bold mt-1 ${totalNet >= 0 ? 'text-blue-400' : 'text-rose-400'}`;
+
+            // Render/Update Pie Chart
+            updateFinancialPieChart(totalInc, totalExp, totalNet);
 
             const resetTimeStr = localStorage.getItem('adel_dashboard_reset_time');
             const resetTime = resetTimeStr ? new Date(resetTimeStr) : new Date(0);
             const { startTuesday, endMonday } = getTuesdayToMondayRange(new Date());
             
-            // Protected Weekly Cycle Logic:
-            // Ensures calculations remain intact inside the current week cycle and aren't prematurely wiped.
             const effectiveStart = (resetTime >= startTuesday) ? resetTime : startTuesday;
 
             const weeklyTx = allTransactions.filter(t => {
@@ -812,7 +828,6 @@
             netEl.innerText = formatCurrency(wNet);
             netEl.className = `text-xs font-bold mt-1 ${wNet >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
 
-            // Show Undo button if an active previous reset exists
             if (localStorage.getItem('adel_dashboard_previous_reset_time')) {
                 document.getElementById('undo-reset-btn').classList.remove('hidden');
             } else {
@@ -861,6 +876,61 @@
                 });
             }
             renderReports();
+        }
+
+        function updateFinancialPieChart(inc, exp, net) {
+            const ctx = document.getElementById('financialPieChart').getContext('2d');
+            // Use absolute value for chart display if net position is negative, or handle accordingly
+            const chartNetVal = Math.abs(net);
+
+            const chartData = {
+                labels: ['Total Income', 'Total Expenses', 'Net Position'],
+                datasets: [{
+                    data: [inc, exp, chartNetVal],
+                    backgroundColor: [
+                        '#34d399', // Emerald-400 for Income
+                        '#fb7185', // Rose-400 for Expenses
+                        '#60a5fa'  // Blue-400 for Net Position
+                    ],
+                    borderColor: '#1e293b',
+                    borderWidth: 2
+                }]
+            };
+
+            if (financialChart) {
+                financialChart.data = chartData;
+                financialChart.update();
+            } else {
+                financialChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: chartData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    color: '#cbd5e1',
+                                    font: {
+                                        size: 11
+                                    },
+                                    boxWidth: 12
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.label || '';
+                                        let value = context.raw || 0;
+                                        return ` ${label}: ${formatCurrency(value)}`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
         }
 
         function renderReports() {
