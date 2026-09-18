@@ -101,19 +101,23 @@
                             <label class="text-[11px] text-zinc-400 font-medium">Asset Name</label>
                             <input type="text" id="asset_name" required placeholder="e.g. Inverter / Printer / Generator" class="w-full mt-1 bg-zinc-800/70 border border-zinc-700/80 rounded-2xl p-2.5 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500 placeholder-zinc-500 shadow-inner">
                         </div>
-                        <div class="grid grid-cols-2 gap-2">
+                        <div class="grid grid-cols-3 gap-2">
                             <div>
-                                <label class="text-[11px] text-zinc-400 font-medium">Purchase Cost (₦)</label>
+                                <label class="text-[11px] text-zinc-400 font-medium">Units</label>
+                                <input type="number" id="asset_units" min="1" value="1" required class="w-full mt-1 bg-zinc-800/70 border border-zinc-700/80 rounded-2xl p-2.5 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500 shadow-inner">
+                            </div>
+                            <div class="col-span-2">
+                                <label class="text-[11px] text-zinc-400 font-medium">Purchase Cost / Unit (₦)</label>
                                 <input type="number" id="purchase_cost" min="0" value="0" class="w-full mt-1 bg-zinc-800/70 border border-zinc-700/80 rounded-2xl p-2.5 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500 shadow-inner">
                             </div>
-                            <div>
-                                <label class="text-[11px] text-zinc-400 font-medium">Status</label>
-                                <select id="asset_status" required class="w-full mt-1 bg-zinc-800/70 border border-zinc-700/80 rounded-2xl p-2.5 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500 shadow-inner">
-                                    <option value="Active">Active</option>
-                                    <option value="Maintenance">Under Maintenance</option>
-                                    <option value="Decommissioned">Decommissioned</option>
-                                </select>
-                            </div>
+                        </div>
+                        <div>
+                            <label class="text-[11px] text-zinc-400 font-medium">Status</label>
+                            <select id="asset_status" required class="w-full mt-1 bg-zinc-800/70 border border-zinc-700/80 rounded-2xl p-2.5 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500 shadow-inner">
+                                <option value="Active">Active</option>
+                                <option value="Maintenance">Under Maintenance</option>
+                                <option value="Decommissioned">Decommissioned</option>
+                            </select>
                         </div>
                         <div class="flex gap-2 pt-1">
                             <button type="submit" id="asset-submit-btn" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-2xl text-xs transition-all shadow-lg shadow-emerald-900/40">
@@ -308,6 +312,7 @@
                 location_name: loc,
                 location_type: loc.includes('TechXted') ? 'TechXted Office' : 'Shop', // Satisfies the database NOT NULL constraint
                 asset_name: document.getElementById('asset_name').value,
+                units: parseInt(document.getElementById('asset_units').value) || 1,
                 purchase_cost: parseFloat(document.getElementById('purchase_cost').value) || 0,
                 status: document.getElementById('asset_status').value
             };
@@ -371,6 +376,8 @@
 
         function resetAssetForm() {
             assetForm.reset();
+            document.getElementById('asset_units').value = 1;
+            document.getElementById('purchase_cost').value = 0;
             document.getElementById('edit-asset-id').value = '';
             document.getElementById('asset-submit-btn').innerText = 'Save Asset Item';
             document.getElementById('cancel-asset-edit-btn').classList.add('hidden');
@@ -389,6 +396,7 @@
 
             document.getElementById('edit-asset-id').value = data.id;
             document.getElementById('asset_name').value = data.asset_name;
+            document.getElementById('asset_units').value = data.units || 1;
             document.getElementById('purchase_cost').value = data.purchase_cost || 0;
             document.getElementById('asset_status').value = data.status || 'Active';
 
@@ -439,13 +447,17 @@
                 const card = document.createElement('div');
                 card.className = "bg-zinc-900/60 backdrop-blur-xl border border-zinc-700/60 p-3 rounded-2xl shadow-md flex justify-between items-center text-zinc-100";
                 const statusColor = a.status === 'Active' ? 'text-emerald-400 bg-emerald-950/60 border-emerald-800' : 'text-amber-400 bg-amber-950/60 border-amber-800';
+                const units = a.units || 1;
+                const totalCost = Number(a.purchase_cost || 0) * units;
+
                 card.innerHTML = `
                     <div>
                         <div class="flex items-center gap-2">
                             <h3 class="font-bold text-zinc-100 text-xs">${a.asset_name}</h3>
                             <span class="px-2 py-0.5 rounded-full text-[9px] font-bold border ${statusColor}">${a.status}</span>
                         </div>
-                        <p class="text-xs font-bold text-emerald-400 mt-1">${formatCurrency(a.purchase_cost)}</p>
+                        <p class="text-[11px] text-zinc-400 mt-0.5">Units: <span class="text-zinc-200 font-semibold">${units}</span> • Cost/Unit: <span class="text-zinc-200">${formatCurrency(a.purchase_cost)}</span></p>
+                        <p class="text-xs font-bold text-emerald-400 mt-0.5">Total: ${formatCurrency(totalCost)}</p>
                     </div>
                     <div class="flex items-center gap-3 text-xs">
                         <button onclick="editAsset(${a.id})" class="text-emerald-400 font-bold hover:underline">Edit</button>
@@ -482,9 +494,9 @@
         }
 
         function renderMasterHub() {
-            const totalValuation = allAssets.reduce((sum, a) => sum + Number(a.purchase_cost || 0), 0);
+            const totalValuation = allAssets.reduce((sum, a) => sum + (Number(a.purchase_cost || 0) * (a.units || 1)), 0);
             const totalRecurrent = allBills.reduce((sum, b) => sum + Number(b.bill_amount || 0), 0);
-            const totalCount = allAssets.length + allBills.length;
+            const totalCount = allAssets.reduce((sum, a) => sum + (a.units || 1), 0) + allBills.length;
 
             document.getElementById('total-assets-count').innerText = totalCount + ' Records';
             document.getElementById('total-asset-valuation').innerText = formatCurrency(totalValuation);
@@ -503,13 +515,17 @@
 
                 if (locAssets.length === 0 && locBills.length === 0) return;
 
-                const locValuation = locAssets.reduce((sum, a) => sum + Number(a.purchase_cost || 0), 0);
+                const locValuation = locAssets.reduce((sum, a) => sum + (Number(a.purchase_cost || 0) * (a.units || 1)), 0);
                 const locBillTotal = locBills.reduce((sum, b) => sum + Number(b.bill_amount || 0), 0);
 
                 const card = document.createElement('div');
                 card.className = "bg-zinc-900/60 backdrop-blur-xl border border-zinc-700/60 p-4 rounded-3xl space-y-3 shadow-lg";
                 
-                let assetsHtml = locAssets.map(a => `<div class="text-[11px] flex justify-between text-zinc-300 py-1 border-b border-zinc-800/60"><span>💻 ${a.asset_name} (${a.status})</span><span class="font-bold text-emerald-400">${formatCurrency(a.purchase_cost)}</span></div>`).join('');
+                let assetsHtml = locAssets.map(a => {
+                    const u = a.units || 1;
+                    const subtotal = Number(a.purchase_cost || 0) * u;
+                    return `<div class="text-[11px] flex justify-between text-zinc-300 py-1 border-b border-zinc-800/60"><span>💻 ${a.asset_name} (${u}x - ${a.status})</span><span class="font-bold text-emerald-400">${formatCurrency(subtotal)}</span></div>`;
+                }).join('');
                 let billsHtml = locBills.map(b => `<div class="text-[11px] flex justify-between text-zinc-300 py-1 border-b border-zinc-800/60"><span>📄 ${b.bill_name} (Due: ${b.bill_due_day}th)</span><span class="font-bold text-rose-400">${formatCurrency(b.bill_amount)}</span></div>`).join('');
 
                 card.innerHTML = `
