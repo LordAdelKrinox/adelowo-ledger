@@ -167,8 +167,11 @@
             revenueInput.value = shopData.revenue !== undefined ? shopData.revenue : '';
             
             // Fixed Defaults: Paper defaults to 5000, Utility defaults to 2000 if not previously set
-            paperInput.value = shopData.paper !== undefined && shopData.paper !== '' ? shopData.paper : 5000;
-            utilityInput.value = shopData.utility !== undefined && shopData.utility !== '' ? shopData.utility : 2000;
+            const savedPaper = Number(shopData.paper);
+            paperInput.value = (!isNaN(savedPaper) && savedPaper > 0) ? savedPaper : 5000;
+
+            const savedUtility = Number(shopData.utility);
+            utilityInput.value = (!isNaN(savedUtility) && savedUtility > 0) ? savedUtility : 2000;
 
             // 1. Sync Data from Asset Page / location_bills table for this shop
             try {
@@ -249,9 +252,12 @@
                 const b = allBudgets[shop] || {};
                 totalRev += Math.max(0, Number(b.revenue) || 0);
                 
-                // Fixed defaults for aggregation if not explicitly customized
-                totalPaper += Math.max(0, b.paper !== undefined && b.paper !== '' ? Number(b.paper) : 5000);
-                totalUtility += Math.max(0, b.utility !== undefined && b.utility !== '' ? Number(b.utility) : 2000);
+                // Fixed defaults aggregation across all 7 shops instantly (5k paper, 2k utility per shop)
+                const shopPaper = Number(b.paper);
+                totalPaper += (!isNaN(shopPaper) && shopPaper > 0) ? shopPaper : 5000;
+
+                const shopUtility = Number(b.utility);
+                totalUtility += (!isNaN(shopUtility) && shopUtility > 0) ? shopUtility : 2000;
 
                 // Compute synced data for this shop from bills or saved budget
                 let shopDataVal = 0;
@@ -353,8 +359,11 @@
                 const b = allBudgets[shop] || {};
                 totalRev += Math.max(0, Number(b.revenue) || 0);
 
-                const p = Math.max(0, b.paper !== undefined && b.paper !== '' ? Number(b.paper) : 5000);
-                const u = Math.max(0, b.utility !== undefined && b.utility !== '' ? Number(b.utility) : 2000);
+                const shopPaper = Number(b.paper);
+                const p = (!isNaN(shopPaper) && shopPaper > 0) ? shopPaper : 5000;
+
+                const shopUtility = Number(b.utility);
+                const u = (!isNaN(shopUtility) && shopUtility > 0) ? shopUtility : 2000;
 
                 let d = 0;
                 if (b.data !== undefined && b.data !== '') {
