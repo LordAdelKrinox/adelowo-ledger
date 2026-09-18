@@ -306,6 +306,7 @@
             const loc = document.getElementById('active-location-select').value;
             const assetData = {
                 location_name: loc,
+                location_type: loc.includes('TechXted') ? 'TechXted Office' : 'Shop', // Satisfies the database NOT NULL constraint
                 asset_name: document.getElementById('asset_name').value,
                 purchase_cost: parseFloat(document.getElementById('purchase_cost').value) || 0,
                 status: document.getElementById('asset_status').value
