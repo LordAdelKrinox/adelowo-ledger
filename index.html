@@ -751,7 +751,8 @@
             const resetTime = resetTimeStr ? new Date(resetTimeStr) : new Date(0);
             const { startTuesday, endMonday } = getTuesdayToMondayRange(new Date());
             
-            const effectiveStart = resetTime > startTuesday ? resetTime : startTuesday;
+            // Ensure the reset only applies to past cycles, protecting current week transactions from Tuesday 00:00 onwards
+            const effectiveStart = (resetTime > startTuesday && resetTime <= new Date()) ? resetTime : startTuesday;
 
             const weeklyTx = allTransactions.filter(t => {
                 const d = new Date(t.created_at);
