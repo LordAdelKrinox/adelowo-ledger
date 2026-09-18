@@ -192,6 +192,7 @@
                                 <option value="Sales">Sales</option>
                                 <option value="Commission">Commission</option>
                                 <option value="Gift">Gift</option>
+                                <option value="Bonus">Bonus</option>
                             </select>
                         </div>
                     </div>
@@ -250,17 +251,25 @@
                 </select>
             </div>
 
-            <!-- Tier 3: Category / Sub-Category Filter -->
+            <!-- Tier 3: Category / Main Channel Filter -->
             <div id="report-category-wrapper">
                 <label class="text-[10px] text-slate-400 font-medium">3. Category / Channel Filter</label>
-                <select id="report-category-filter" onchange="updateShopFilterVisibility()" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-emerald-500">
+                <select id="report-category-filter" onchange="updateReportSubCategoryVisibility()" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-emerald-500">
                     <option value="all">General (All Categories)</option>
                 </select>
             </div>
 
-            <!-- Tier 4: Shop-Specific Filter -->
+            <!-- Tier 4: Income Sub-Category Filter (Dynamic Cascading) -->
+            <div id="report-income-sub-wrapper" class="hidden">
+                <label class="text-[10px] text-slate-400 font-medium">4. Income Sub-Category Filter</label>
+                <select id="report-income-sub-filter" onchange="renderReports()" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-emerald-500">
+                    <option value="all">All Sub-Categories</option>
+                </select>
+            </div>
+
+            <!-- Shop-Specific Filter -->
             <div id="report-shop-wrapper" class="hidden">
-                <label class="text-[10px] text-slate-400 font-medium">4. Specific Shop Filter</label>
+                <label class="text-[10px] text-slate-400 font-medium">Specific Shop Filter</label>
                 <select id="report-shop-filter" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-emerald-500">
                     <option value="all">General (All Shops Combined)</option>
                     <option value="Elewi Odo">Elewi Odo</option>
@@ -444,9 +453,12 @@
             catFilter.innerHTML = '<option value="all">General (All Categories)</option>';
 
             if (typeFilter === 'income') {
-                ['Personal Income', 'Shop Based Income', 'TechXted Based Income', 'Others', 'Service', 'Sales', 'Commission', 'Gift', 'Salary'].forEach(sub => {
-                    catFilter.innerHTML += `<option value="${sub}">${sub}</option>`;
-                });
+                catFilter.innerHTML += `
+                    <option value="Personal Income">Personal Income</option>
+                    <option value="Shop Based Income">Shop Based Income</option>
+                    <option value="TechXted Based Income">TechXted Based Income</option>
+                    <option value="Others">Others</option>
+                `;
             } else if (typeFilter === 'expense') {
                 catFilter.innerHTML += `
                     <option value="Personal">Fixed Personal</option>
@@ -466,13 +478,37 @@
                     <option value="Savings">Expense: Savings</option>
                 `;
             }
-            updateShopFilterVisibility();
-            renderReports();
+            updateReportSubCategoryVisibility();
         }
 
-        function updateShopFilterVisibility() {
+        function updateReportSubCategoryVisibility() {
+            const typeFilter = document.getElementById('report-type-filter').value;
             const catFilterVal = document.getElementById('report-category-filter').value;
+            const incomeSubWrapper = document.getElementById('report-income-sub-wrapper');
+            const incomeSubFilter = document.getElementById('report-income-sub-filter');
             const shopWrapper = document.getElementById('report-shop-wrapper');
+
+            // Reset sub-filter options
+            incomeSubFilter.innerHTML = '<option value="all">All Sub-Categories</option>';
+
+            if (typeFilter === 'income' && catFilterVal !== 'all') {
+                incomeSubWrapper.classList.remove('hidden');
+                let subOptions = [];
+                if (catFilterVal === 'Personal Income') {
+                    subOptions = ['Service', 'Sales', 'Commission', 'Gift', 'Salary'];
+                } else if (catFilterVal === 'Shop Based Income') {
+                    subOptions = ['Service', 'Sales', 'Commission', 'Gift', 'Bonus'];
+                } else {
+                    subOptions = ['Service', 'Sales', 'Commission', 'Gift'];
+                }
+                subOptions.forEach(sub => {
+                    incomeSubFilter.innerHTML += `<option value="${sub}">${sub}</option>`;
+                });
+            } else {
+                incomeSubWrapper.classList.add('hidden');
+                incomeSubFilter.value = 'all';
+            }
+
             if (catFilterVal === 'Shop' || catFilterVal === 'Shop Based Income') {
                 shopWrapper.classList.remove('hidden');
             } else {
@@ -505,7 +541,7 @@
             btn.disabled = true;
 
             const type = typeSelect.value;
-            const trackingType = type === 'income' ? 'Income' : trackingTypeSelect.value;
+            let trackingType = type === 'income' ? 'Income' : trackingTypeSelect.value;
             let subCat = '';
             let shopLoc = null;
             let execVal = document.getElementById('executor').value;
@@ -653,7 +689,7 @@
 
         function promptResetDashboard() {
             const passwordInput = prompt('Enter password to reset the weekly financial health dashboard:');
-            if (passwordInput === null) return; // Cancelled
+            if (passwordInput === null) return;
             if (passwordInput !== 'Krinox1803') {
                 alert('Incorrect password! Reset action cancelled.');
                 return;
@@ -670,6 +706,7 @@
             const scope = document.getElementById('report-scope').value;
             const typeFilter = document.getElementById('report-type-filter').value;
             const catFilter = document.getElementById('report-category-filter').value;
+            const incomeSubFilter = document.getElementById('report-income-sub-filter').value;
             const shopFilter = document.getElementById('report-shop-filter').value;
             
             const startDate = startStr ? new Date(startStr) : new Date(0);
@@ -686,11 +723,12 @@
                 
                 let matchesCat = true;
                 if (catFilter !== 'all') {
-                    if (t.type === 'income') {
-                        matchesCat = (t.tracking_type === catFilter || t.sub_category === catFilter);
-                    } else {
-                        matchesCat = (t.tracking_type === catFilter || t.sub_category === catFilter);
-                    }
+                    matchesCat = (t.tracking_type === catFilter || t.sub_category === catFilter);
+                }
+
+                let matchesSubCat = true;
+                if (incomeSubFilter !== 'all' && t.type === 'income') {
+                    matchesSubCat = (t.sub_category === incomeSubFilter);
                 }
 
                 let matchesShop = true;
@@ -698,7 +736,7 @@
                     matchesShop = (t.shop === shopFilter);
                 }
 
-                return matchesDate && matchesScope && matchesType && matchesCat && matchesShop;
+                return matchesDate && matchesScope && matchesType && matchesCat && matchesSubCat && matchesShop;
             });
         }
 
@@ -748,7 +786,6 @@
             if (allTransactions.length === 0) {
                 listEl.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">No transactions recorded yet.</p>`;
             } else {
-                // Restricted to max 10 transactions
                 allTransactions.slice(0, 10).forEach(t => {
                     const item = document.createElement('div');
                     item.className = "bg-slate-900 border border-slate-800 p-3 rounded-xl flex justify-between items-center text-xs shadow-sm";
