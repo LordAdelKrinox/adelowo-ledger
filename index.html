@@ -30,6 +30,9 @@
                     <button type="button" onclick="promptResetDashboard()" title="Manual Reset for New Week" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 text-[10px] px-2 py-0.5 rounded border border-slate-700 font-medium transition-colors flex items-center gap-1">
                         🔄 Reset
                     </button>
+                    <button type="button" id="undo-reset-btn" onclick="undoResetDashboard()" title="Undo Last Reset" class="hidden bg-amber-950 hover:bg-amber-900 text-amber-300 text-[10px] px-2 py-0.5 rounded border border-amber-800 font-medium transition-colors flex items-center gap-1">
+                        ↩️ Undo Reset
+                    </button>
                 </div>
                 <span id="health-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">Calculating...</span>
             </div>
@@ -708,10 +711,35 @@
                 alert('Incorrect password! Reset action cancelled.');
                 return;
             }
+
+            // Save previous reset state for undo capability
+            const currentResetTime = localStorage.getItem('adel_dashboard_reset_time');
+            if (currentResetTime) {
+                localStorage.setItem('adel_dashboard_previous_reset_time', currentResetTime);
+            }
+
             const resetTimestamp = new Date().toISOString();
             localStorage.setItem('adel_dashboard_reset_time', resetTimestamp);
+            
+            document.getElementById('undo-reset-btn').classList.remove('hidden');
             updateUI();
             alert('Dashboard successfully reset for the new week!');
+        }
+
+        function undoResetDashboard() {
+            const previousResetTime = localStorage.getItem('adel_dashboard_previous_reset_time');
+            if (!previousResetTime) {
+                alert('No previous reset action found to undo.');
+                return;
+            }
+
+            // Restore previous reset time
+            localStorage.setItem('adel_dashboard_reset_time', previousResetTime);
+            localStorage.removeItem('adel_dashboard_previous_reset_time');
+            
+            document.getElementById('undo-reset-btn').classList.add('hidden');
+            updateUI();
+            alert('Dashboard reset successfully undone!');
         }
 
         function getFilteredTransactions() {
@@ -766,7 +794,7 @@
             const { startTuesday, endMonday } = getTuesdayToMondayRange(new Date());
             
             // Protected Weekly Cycle Logic:
-            // The reset button only clears out previous cycles. Mid-week resets do not touch logs within the current Tuesday-to-Monday cycle.
+            // Ensures calculations remain intact inside the current week cycle and aren't prematurely wiped.
             const effectiveStart = (resetTime >= startTuesday) ? resetTime : startTuesday;
 
             const weeklyTx = allTransactions.filter(t => {
@@ -783,6 +811,13 @@
             const netEl = document.getElementById('health-net');
             netEl.innerText = formatCurrency(wNet);
             netEl.className = `text-xs font-bold mt-1 ${wNet >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+
+            // Show Undo button if an active previous reset exists
+            if (localStorage.getItem('adel_dashboard_previous_reset_time')) {
+                document.getElementById('undo-reset-btn').classList.remove('hidden');
+            } else {
+                document.getElementById('undo-reset-btn').classList.add('hidden');
+            }
 
             const badge = document.getElementById('health-badge');
             if (wNet > 0) {
