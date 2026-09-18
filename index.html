@@ -25,7 +25,12 @@
         <!-- Weekly Financial Health Dashboard -->
         <section class="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-lg space-y-3">
             <div class="flex justify-between items-center">
-                <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Weekly Financial Health (Tue - Mon)</h2>
+                <div class="flex items-center gap-2">
+                    <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Weekly Health (Tue - Mon)</h2>
+                    <button type="button" onclick="resetWeeklyDashboard()" title="Manual Reset for New Week" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 text-[10px] px-2 py-0.5 rounded border border-slate-700 font-medium transition-colors flex items-center gap-1">
+                        🔄 Reset
+                    </button>
+                </div>
                 <span id="health-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">Calculating...</span>
             </div>
             <div class="grid grid-cols-3 gap-2 text-center pt-1">
@@ -87,7 +92,7 @@
                     </div>
                     <div id="channel-container">
                         <label class="text-[11px] text-slate-400 font-medium">Category Channel</label>
-                        <select id="tracking_type" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+                        <select id="tracking_type" onchange="toggleFormMode()" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
                             <option value="Personal">Fixed Personal</option>
                             <option value="Shop">Fixed Shop Based</option>
                             <option value="Random">Random Expense</option>
@@ -133,16 +138,75 @@
                     </div>
                 </div>
 
-                <!-- Dynamic Income Panel -->
+                <!-- Dynamic Income Panels -->
                 <div id="income-panel" class="space-y-3 bg-slate-800/60 p-3 rounded-xl border border-slate-700 hidden">
                     <div>
-                        <label class="text-[11px] text-slate-400 font-medium">Income Category</label>
-                        <select id="income_category" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl p-2 text-sm text-slate-100">
-                            <option value="Service">Service</option>
-                            <option value="Sales">Sales</option>
-                            <option value="Commission">Commission</option>
-                            <option value="Gift">Gift</option>
+                        <label class="text-[11px] text-slate-400 font-medium">Income Level Category</label>
+                        <select id="income_main_category" onchange="toggleIncomeCategoryMode()" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl p-2 text-sm text-slate-100">
+                            <option value="Personal Income">1. Personal Income</option>
+                            <option value="Shop Based Income">2. Shop Based Income</option>
+                            <option value="TechXted Based Income">3. TechXted Based Income</option>
+                            <option value="Others">4. Others</option>
                         </select>
+                    </div>
+
+                    <!-- Personal Income Sub-Panel (with Name Executor & Salary) -->
+                    <div id="income-personal-sub-panel" class="space-y-2 pt-1">
+                        <div>
+                            <label class="text-[11px] text-slate-400 font-medium">Select Executor Name</label>
+                            <select id="income_personal_executor" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl p-2 text-sm text-slate-100">
+                                <option value="Adel">Adel</option>
+                                <option value="Chinyere">Chinyere</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[11px] text-slate-400 font-medium">Personal Income Sub-Category</label>
+                            <select id="income_personal_sub" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl p-2 text-sm text-slate-100">
+                                <option value="Service">Service</option>
+                                <option value="Sales">Sales</option>
+                                <option value="Commission">Commission</option>
+                                <option value="Gift">Gift</option>
+                                <option value="Salary">Salary</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Shop Based Income Sub-Panel -->
+                    <div id="income-shop-sub-panel" class="space-y-2 pt-1 hidden">
+                        <div>
+                            <label class="text-[11px] text-slate-400 font-medium">Select Shop Location</label>
+                            <select id="income_shop_location" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl p-2 text-sm text-slate-100 mb-2">
+                                <option value="Elewi Odo">Elewi Odo</option>
+                                <option value="10/10">10/10</option>
+                                <option value="Idi Ape">Idi Ape</option>
+                                <option value="Gbaremu">Gbaremu</option>
+                                <option value="Oluyole">Oluyole</option>
+                                <option value="Gbagi Shop">Gbagi Shop</option>
+                                <option value="Bodija Oju Irin">Bodija Oju Irin</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[11px] text-slate-400 font-medium">Shop Income Sub-Category</label>
+                            <select id="income_shop_sub" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl p-2 text-sm text-slate-100">
+                                <option value="Service">Service</option>
+                                <option value="Sales">Sales</option>
+                                <option value="Commission">Commission</option>
+                                <option value="Gift">Gift</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- TechXted & Others Standard Sub-Panel -->
+                    <div id="income-standard-sub-panel" class="space-y-2 pt-1 hidden">
+                        <div>
+                            <label class="text-[11px] text-slate-400 font-medium">Income Sub-Category</label>
+                            <select id="income_standard_sub" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl p-2 text-sm text-slate-100">
+                                <option value="Service">Service</option>
+                                <option value="Sales">Sales</option>
+                                <option value="Commission">Commission</option>
+                                <option value="Gift">Gift</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
@@ -225,7 +289,7 @@
                 <!-- Metrics injected -->
             </div>
 
-            <!-- Export Format Option (Moved above buttons) -->
+            <!-- Export Format Option -->
             <div>
                 <label class="text-[10px] text-slate-400 font-medium">Export Format Option</label>
                 <select id="export-format" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl p-2 text-xs text-slate-100 focus:outline-none focus:border-emerald-500">
@@ -244,9 +308,9 @@
             </div>
         </section>
 
-        <!-- Recent Logs -->
+        <!-- Recent Logs (Limited to 10) -->
         <section class="space-y-2.5">
-            <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Recent History</h2>
+            <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Recent History (Last 10)</h2>
             <div id="transaction-list" class="space-y-2">
                 <p class="text-xs text-slate-500 text-center py-4">Loading transactions...</p>
             </div>
@@ -332,6 +396,26 @@
         const personalPanel = document.getElementById('personal-sub-panel');
         const shopPanel = document.getElementById('shop-sub-panel');
         const incomePanel = document.getElementById('income-panel');
+        
+        const incomeMainCategory = document.getElementById('income_main_category');
+        const incomePersonalSubPanel = document.getElementById('income-personal-sub-panel');
+        const incomeShopSubPanel = document.getElementById('income-shop-sub-panel');
+        const incomeStandardSubPanel = document.getElementById('income-standard-sub-panel');
+
+        function toggleIncomeCategoryMode() {
+            const mainCat = incomeMainCategory.value;
+            incomePersonalSubPanel.classList.add('hidden');
+            incomeShopSubPanel.classList.add('hidden');
+            incomeStandardSubPanel.classList.add('hidden');
+
+            if (mainCat === 'Personal Income') {
+                incomePersonalSubPanel.classList.remove('hidden');
+            } else if (mainCat === 'Shop Based Income') {
+                incomeShopSubPanel.classList.remove('hidden');
+            } else {
+                incomeStandardSubPanel.classList.remove('hidden');
+            }
+        }
 
         function toggleFormMode() {
             const type = typeSelect.value;
@@ -340,6 +424,7 @@
                 shopPanel.classList.add('hidden');
                 incomePanel.classList.remove('hidden');
                 trackingTypeSelect.parentElement.classList.add('hidden');
+                toggleIncomeCategoryMode();
             } else {
                 incomePanel.classList.add('hidden');
                 trackingTypeSelect.parentElement.classList.remove('hidden');
@@ -350,14 +435,7 @@
         }
 
         typeSelect.addEventListener('change', toggleFormMode);
-
-        trackingTypeSelect.addEventListener('change', (e) => {
-            const val = e.target.value;
-            personalPanel.classList.add('hidden');
-            shopPanel.classList.add('hidden');
-            if (val === 'Personal') personalPanel.classList.remove('hidden');
-            if (val === 'Shop') shopPanel.classList.remove('hidden');
-        });
+        incomeMainCategory.addEventListener('change', toggleIncomeCategoryMode);
 
         // Advanced Report Cascading Sub-Filters
         function updateReportSubFilters() {
@@ -366,7 +444,7 @@
             catFilter.innerHTML = '<option value="all">General (All Categories)</option>';
 
             if (typeFilter === 'income') {
-                ['Service', 'Sales', 'Commission', 'Gift'].forEach(sub => {
+                ['Personal Income', 'Shop Based Income', 'TechXted Based Income', 'Others', 'Service', 'Sales', 'Commission', 'Gift', 'Salary'].forEach(sub => {
                     catFilter.innerHTML += `<option value="${sub}">${sub}</option>`;
                 });
             } else if (typeFilter === 'expense') {
@@ -378,10 +456,10 @@
                 `;
             } else {
                 catFilter.innerHTML += `
-                    <option value="Service">Income: Service</option>
-                    <option value="Sales">Income: Sales</option>
-                    <option value="Commission">Income: Commission</option>
-                    <option value="Gift">Income: Gift</option>
+                    <option value="Personal Income">Income: Personal Income</option>
+                    <option value="Shop Based Income">Income: Shop Based Income</option>
+                    <option value="TechXted Based Income">Income: TechXted Based Income</option>
+                    <option value="Others">Income: Others</option>
                     <option value="Personal">Expense: Fixed Personal</option>
                     <option value="Shop">Expense: Fixed Shop Based</option>
                     <option value="Random">Expense: Random</option>
@@ -395,7 +473,7 @@
         function updateShopFilterVisibility() {
             const catFilterVal = document.getElementById('report-category-filter').value;
             const shopWrapper = document.getElementById('report-shop-wrapper');
-            if (catFilterVal === 'Shop') {
+            if (catFilterVal === 'Shop' || catFilterVal === 'Shop Based Income') {
                 shopWrapper.classList.remove('hidden');
             } else {
                 shopWrapper.classList.add('hidden');
@@ -430,9 +508,20 @@
             const trackingType = type === 'income' ? 'Income' : trackingTypeSelect.value;
             let subCat = '';
             let shopLoc = null;
+            let execVal = document.getElementById('executor').value;
 
             if (type === 'income') {
-                subCat = document.getElementById('income_category').value;
+                const mainIncCat = incomeMainCategory.value;
+                if (mainIncCat === 'Personal Income') {
+                    execVal = document.getElementById('income_personal_executor').value;
+                    subCat = document.getElementById('income_personal_sub').value;
+                } else if (mainIncCat === 'Shop Based Income') {
+                    shopLoc = document.getElementById('income_shop_location').value;
+                    subCat = document.getElementById('income_shop_sub').value;
+                } else {
+                    subCat = document.getElementById('income_standard_sub').value;
+                }
+                trackingType = mainIncCat;
             } else if (trackingType === 'Personal') {
                 subCat = document.getElementById('personal_sub').value;
             } else if (trackingType === 'Shop') {
@@ -443,7 +532,7 @@
             }
 
             const txData = {
-                executor: document.getElementById('executor').value,
+                executor: execVal,
                 type: type,
                 amount: parseFloat(document.getElementById('amount').value),
                 tracking_type: trackingType,
@@ -495,7 +584,19 @@
             toggleFormMode();
 
             if (tx.type === 'income') {
-                document.getElementById('income_category').value = tx.sub_category || 'Service';
+                const mainCat = tx.tracking_type || 'Personal Income';
+                incomeMainCategory.value = mainCat;
+                toggleIncomeCategoryMode();
+
+                if (mainCat === 'Personal Income') {
+                    document.getElementById('income_personal_executor').value = tx.executor || 'Adel';
+                    document.getElementById('income_personal_sub').value = tx.sub_category || 'Service';
+                } else if (mainCat === 'Shop Based Income') {
+                    document.getElementById('income_shop_location').value = tx.shop || 'Elewi Odo';
+                    document.getElementById('income_shop_sub').value = tx.sub_category || 'Service';
+                } else {
+                    document.getElementById('income_standard_sub').value = tx.sub_category || 'Service';
+                }
             } else {
                 trackingTypeSelect.value = tx.tracking_type || 'Personal';
                 trackingTypeSelect.dispatchEvent(new Event('change'));
@@ -550,6 +651,14 @@
             return { startTuesday, endMonday };
         }
 
+        function resetWeeklyDashboard() {
+            if (!confirm('Are you sure you want to manually clear and reset the weekly financial health dashboard?')) return;
+            const resetTimestamp = new Date().toISOString();
+            localStorage.setItem('adel_dashboard_reset_time', resetTimestamp);
+            updateUI();
+            alert('Dashboard successfully reset for the new week!');
+        }
+
         function getFilteredTransactions() {
             const startStr = document.getElementById('report-start-date').value;
             const endStr = document.getElementById('report-end-date').value;
@@ -573,14 +682,14 @@
                 let matchesCat = true;
                 if (catFilter !== 'all') {
                     if (t.type === 'income') {
-                        matchesCat = (t.sub_category === catFilter);
+                        matchesCat = (t.tracking_type === catFilter || t.sub_category === catFilter);
                     } else {
                         matchesCat = (t.tracking_type === catFilter || t.sub_category === catFilter);
                     }
                 }
 
                 let matchesShop = true;
-                if (catFilter === 'Shop' && shopFilter !== 'all') {
+                if (shopFilter !== 'all') {
                     matchesShop = (t.shop === shopFilter);
                 }
 
@@ -595,10 +704,15 @@
             document.getElementById('total-income').innerText = formatCurrency(totalInc);
             document.getElementById('total-expense').innerText = formatCurrency(totalExp);
 
+            const resetTimeStr = localStorage.getItem('adel_dashboard_reset_time');
+            const resetTime = resetTimeStr ? new Date(resetTimeStr) : new Date(0);
             const { startTuesday, endMonday } = getTuesdayToMondayRange(new Date());
+            
+            const effectiveStart = resetTime > startTuesday ? resetTime : startTuesday;
+
             const weeklyTx = allTransactions.filter(t => {
                 const d = new Date(t.created_at);
-                return d >= startTuesday && d <= endMonday;
+                return d >= effectiveStart && d <= endMonday;
             });
 
             let wInc = weeklyTx.filter(t => t.type === 'income').reduce((s, t) => s + Number(t.amount), 0);
@@ -629,11 +743,12 @@
             if (allTransactions.length === 0) {
                 listEl.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">No transactions recorded yet.</p>`;
             } else {
-                allTransactions.slice(0, 15).forEach(t => {
+                // Restricted to max 10 transactions
+                allTransactions.slice(0, 10).forEach(t => {
                     const item = document.createElement('div');
                     item.className = "bg-slate-900 border border-slate-800 p-3 rounded-xl flex justify-between items-center text-xs shadow-sm";
                     const tDate = new Date(t.created_at);
-                    let badgeText = t.shop ? `${t.shop} - ${t.sub_category}` : t.sub_category;
+                    let badgeText = t.shop ? `${t.shop} - ${t.sub_category}` : (t.sub_category || t.tracking_type);
                     item.innerHTML = `
                         <div class="pr-2 space-y-0.5">
                             <p class="font-medium text-slate-200">${t.note} <span class="text-[10px] text-emerald-300 bg-emerald-950 border border-emerald-800 px-1.5 py-0.5 rounded ml-1">${badgeText}</span></p>
@@ -698,7 +813,7 @@
                     const row = document.createElement('div');
                     row.className = "grid grid-cols-12 text-[10px] items-center p-1.5 bg-slate-800/40 rounded border border-slate-800";
                     const tDate = new Date(t.created_at).toLocaleDateString();
-                    const catStr = t.shop ? `${t.shop}` : (t.sub_category || '-');
+                    const catStr = t.shop ? `${t.shop} (${t.sub_category})` : (t.sub_category || t.tracking_type || '-');
                     const amtFormatted = Number(t.amount).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                     
                     row.innerHTML = `
@@ -813,7 +928,7 @@
                     }
 
                     const dateStr = new Date(t.created_at).toLocaleDateString();
-                    const catStr = t.shop ? `${t.shop}` : (t.sub_category || '-');
+                    const catStr = t.shop ? `${t.shop} (${t.sub_category})` : (t.sub_category || t.tracking_type || '-');
 
                     doc.setTextColor(30, 41, 59);
                     doc.text(dateStr, 18, y + 4.5);
@@ -842,7 +957,6 @@
         }
 
         function downloadJPEG() {
-            // Temporarily open preview container to render and capture JPEG cleanly
             openReportPreview();
             const element = document.getElementById('printable-statement');
             
