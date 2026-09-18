@@ -984,21 +984,34 @@
             } else {
                 allTransactions.slice(0, 10).forEach(t => {
                     const item = document.createElement('div');
-                    item.className = "p-3.5 flex justify-between items-center text-xs text-slate-800";
+                    item.className = "p-4 flex items-center justify-between gap-3 text-xs text-slate-800 hover:bg-slate-50/50 transition-colors";
                     const tDate = new Date(t.created_at);
-                    let badgeText = t.shop ? `${t.shop} - ${t.sub_category}` : (t.sub_category || t.tracking_type);
+                    const formattedDate = tDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + ', ' + tDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    
+                    const isIncome = t.type === 'income';
+                    const iconBg = isIncome ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-rose-50 text-rose-600 border-rose-200';
+                    const iconSymbol = isIncome ? '📥' : '📤';
+
                     item.innerHTML = `
-                        <div class="pr-2 space-y-0.5">
-                            <p class="font-bold text-slate-900">${t.note} <span class="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-xl ml-1 font-semibold">${badgeText}</span></p>
-                            <p class="text-slate-500">Executor: <span class="text-slate-800 font-semibold">${t.executor}</span> | ${tDate.toLocaleDateString()}</p>
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="w-10 h-10 rounded-full ${iconBg} border flex items-center justify-center shrink-0 shadow-sm text-sm">
+                                ${iconSymbol}
+                            </div>
+                            <div class="min-w-0 space-y-0.5">
+                                <p class="font-bold text-slate-900 truncate">${t.note}</p>
+                                <p class="text-[10px] text-slate-400 font-medium">${formattedDate} • <span class="text-slate-600 font-semibold">${t.executor || 'General'}</span></p>
+                            </div>
                         </div>
-                        <div class="flex items-center gap-3">
-                            <span class="font-black whitespace-nowrap ${t.type === 'income' ? 'text-emerald-600' : 'text-rose-600'}">
-                                ${t.type === 'income' ? '+' : '-'}${formatCurrency(t.amount)}
-                            </span>
-                            <div class="flex flex-col gap-0.5">
-                                <button onclick="editTransaction(${t.id})" class="text-[10px] text-emerald-700 font-bold hover:underline">Edit</button>
-                                <button onclick="deleteTransaction(${t.id})" class="text-[10px] text-rose-600 font-bold hover:underline">Del</button>
+                        <div class="text-right shrink-0 space-y-1">
+                            <p class="font-extrabold text-sm tracking-tight ${isIncome ? 'text-emerald-600' : 'text-slate-900'}">
+                                ${isIncome ? '+' : '-'}${formatCurrency(t.amount)}
+                            </p>
+                            <div class="flex items-center justify-end gap-2">
+                                <span class="inline-block px-2 py-0.5 rounded-full text-[9px] font-bold ${isIncome ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}">Successful</span>
+                                <div class="flex items-center gap-1.5 pl-1 border-l border-slate-200">
+                                    <button onclick="editTransaction(${t.id})" class="text-[10px] text-teal-700 font-bold hover:underline">Edit</button>
+                                    <button onclick="deleteTransaction(${t.id})" class="text-[10px] text-rose-600 font-bold hover:underline">Del</button>
+                                </div>
                             </div>
                         </div>
                     `;
