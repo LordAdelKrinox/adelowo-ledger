@@ -163,18 +163,53 @@
 
         <!-- Historical Reports & PDF Download -->
         <section class="bg-slate-900 p-4 rounded-2xl border border-slate-800 shadow-lg space-y-3">
-            <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Historical Statements & PDF</h2>
+            <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Advanced Financial Reports & PDF</h2>
             
+            <!-- Tier 1: Executor Filter -->
             <div>
-                <label class="text-[10px] text-slate-400 font-medium">Report Scope / Executor Filter</label>
+                <label class="text-[10px] text-slate-400 font-medium">1. Executor Filter</label>
                 <select id="report-scope" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-emerald-500">
-                    <option value="general">1. General Report (All Executors)</option>
-                    <option value="Adel">2. Executor Adel</option>
-                    <option value="Chinyere">3. Executor Chinyere</option>
+                    <option value="general">General (All Executors)</option>
+                    <option value="Adel">Executor Adel</option>
+                    <option value="Chinyere">Executor Chinyere</option>
                 </select>
             </div>
 
-            <div class="grid grid-cols-2 gap-2">
+            <!-- Tier 2: Transaction Type Filter -->
+            <div>
+                <label class="text-[10px] text-slate-400 font-medium">2. Transaction Type Filter</label>
+                <select id="report-type-filter" onchange="updateReportSubFilters()" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-emerald-500">
+                    <option value="all">General (All Incomes & Expenses)</option>
+                    <option value="income">Income Only</option>
+                    <option value="expense">Expenses Only</option>
+                </select>
+            </div>
+
+            <!-- Tier 3: Category / Sub-Category Filter -->
+            <div id="report-category-wrapper">
+                <label class="text-[10px] text-slate-400 font-medium">3. Category / Channel Filter</label>
+                <select id="report-category-filter" onchange="updateShopFilterVisibility()" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-emerald-500">
+                    <option value="all">General (All Categories)</option>
+                </select>
+            </div>
+
+            <!-- Tier 4: Shop-Specific Filter (Appears only when Fixed Shop Based is selected) -->
+            <div id="report-shop-wrapper" class="hidden">
+                <label class="text-[10px] text-slate-400 font-medium">4. Specific Shop Filter</label>
+                <select id="report-shop-filter" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-emerald-500">
+                    <option value="all">General (All Shops Combined)</option>
+                    <option value="Elewi Odo">Elewi Odo</option>
+                    <option value="10/10">10/10</option>
+                    <option value="Idi Ape">Idi Ape</option>
+                    <option value="Gbaremu">Gbaremu</option>
+                    <option value="Oluyole">Oluyole</option>
+                    <option value="Gbagi Shop">Gbagi Shop</option>
+                    <option value="Bodija Oju Irin">Bodija Oju Irin</option>
+                </select>
+            </div>
+
+            <!-- Date Range Pickers -->
+            <div class="grid grid-cols-2 gap-2 pt-1">
                 <div>
                     <label class="text-[10px] text-slate-400 font-medium">Start Date</label>
                     <input type="date" id="report-start-date" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2 text-xs text-slate-100">
@@ -252,6 +287,51 @@
             if (val === 'Personal') personalPanel.classList.remove('hidden');
             if (val === 'Shop') shopPanel.classList.remove('hidden');
         });
+
+        // Advanced Report Cascading Sub-Filters
+        function updateReportSubFilters() {
+            const typeFilter = document.getElementById('report-type-filter').value;
+            const catFilter = document.getElementById('report-category-filter');
+            catFilter.innerHTML = '<option value="all">General (All Categories)</option>';
+
+            if (typeFilter === 'income') {
+                ['Service', 'Sales', 'Commission', 'Gift'].forEach(sub => {
+                    catFilter.innerHTML += `<option value="${sub}">${sub}</option>`;
+                });
+            } else if (typeFilter === 'expense') {
+                catFilter.innerHTML += `
+                    <option value="Personal">Fixed Personal</option>
+                    <option value="Shop">Fixed Shop Based</option>
+                    <option value="Random">Random Expense</option>
+                    <option value="Savings">Savings</option>
+                `;
+            } else {
+                catFilter.innerHTML += `
+                    <option value="Service">Income: Service</option>
+                    <option value="Sales">Income: Sales</option>
+                    <option value="Commission">Income: Commission</option>
+                    <option value="Gift">Income: Gift</option>
+                    <option value="Personal">Expense: Fixed Personal</option>
+                    <option value="Shop">Expense: Fixed Shop Based</option>
+                    <option value="Random">Expense: Random</option>
+                    <option value="Savings">Expense: Savings</option>
+                `;
+            }
+            updateShopFilterVisibility();
+            renderReports();
+        }
+
+        function updateShopFilterVisibility() {
+            const catFilterVal = document.getElementById('report-category-filter').value;
+            const shopWrapper = document.getElementById('report-shop-wrapper');
+            if (catFilterVal === 'Shop') {
+                shopWrapper.classList.remove('hidden');
+            } else {
+                shopWrapper.classList.add('hidden');
+                document.getElementById('report-shop-filter').value = 'all';
+            }
+            renderReports();
+        }
 
         async function fetchTransactions() {
             const { data, error } = await _supabase
@@ -376,6 +456,8 @@
         document.getElementById('report-start-date').addEventListener('change', renderReports);
         document.getElementById('report-end-date').addEventListener('change', renderReports);
         document.getElementById('report-scope').addEventListener('change', renderReports);
+        document.getElementById('report-category-filter').addEventListener('change', renderReports);
+        document.getElementById('report-shop-filter').addEventListener('change', renderReports);
 
         function formatCurrency(amount) {
             return '₦' + Number(amount).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -401,6 +483,9 @@
             const startStr = document.getElementById('report-start-date').value;
             const endStr = document.getElementById('report-end-date').value;
             const scope = document.getElementById('report-scope').value;
+            const typeFilter = document.getElementById('report-type-filter').value;
+            const catFilter = document.getElementById('report-category-filter').value;
+            const shopFilter = document.getElementById('report-shop-filter').value;
             
             const startDate = startStr ? new Date(startStr) : new Date(0);
             const endDate = endStr ? new Date(endStr) : new Date();
@@ -412,7 +497,23 @@
                 const tDate = new Date(t.created_at);
                 const matchesDate = tDate >= startDate && tDate <= endDate;
                 const matchesScope = (scope === 'general' || t.executor === scope);
-                return matchesDate && matchesScope;
+                const matchesType = (typeFilter === 'all' || t.type === typeFilter);
+                
+                let matchesCat = true;
+                if (catFilter !== 'all') {
+                    if (t.type === 'income') {
+                        matchesCat = (t.sub_category === catFilter);
+                    } else {
+                        matchesCat = (t.tracking_type === catFilter || t.sub_category === catFilter);
+                    }
+                }
+
+                let matchesShop = true;
+                if (catFilter === 'Shop' && shopFilter !== 'all') {
+                    matchesShop = (t.shop === shopFilter);
+                }
+
+                return matchesDate && matchesScope && matchesType && matchesCat && matchesShop;
             });
         }
 
@@ -504,9 +605,10 @@
             const startStr = document.getElementById('report-start-date').value;
             const endStr = document.getElementById('report-end-date').value;
             const scope = document.getElementById('report-scope').value;
+            const typeFilter = document.getElementById('report-type-filter').value.toUpperCase();
             
             const scopeTitle = scope === 'general' ? 'GENERAL FINANCIAL STATEMENT' : `EXECUTOR STATEMENT: ${scope.toUpperCase()}`;
-            const subtitle = `${scopeTitle} (${startStr} to ${endStr})`;
+            const subtitle = `${scopeTitle} [${typeFilter}] (${startStr} to ${endStr})`;
 
             doc.setFillColor(16, 185, 129);
             doc.rect(0, 0, 210, 40, 'F');
@@ -562,7 +664,7 @@
 
             if (filtered.length === 0) {
                 doc.setTextColor(100, 100, 100);
-                doc.text("No transactions found for this period and scope.", 14, y + 10);
+                doc.text("No transactions found for this period and filter scope.", 14, y + 10);
             } else {
                 filtered.forEach((t, index) => {
                     if (y > 270) {
