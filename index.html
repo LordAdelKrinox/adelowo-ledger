@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans antialiased pb-24">
 
@@ -161,9 +162,9 @@
             </form>
         </section>
 
-        <!-- Historical Reports & PDF Download -->
+        <!-- Historical Reports & Export Options -->
         <section class="bg-slate-900 p-4 rounded-2xl border border-slate-800 shadow-lg space-y-3">
-            <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Advanced Financial Reports & PDF</h2>
+            <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Advanced Financial Reports & Export</h2>
             
             <!-- Tier 1: Executor Filter -->
             <div>
@@ -193,7 +194,7 @@
                 </select>
             </div>
 
-            <!-- Tier 4: Shop-Specific Filter (Appears only when Fixed Shop Based is selected) -->
+            <!-- Tier 4: Shop-Specific Filter -->
             <div id="report-shop-wrapper" class="hidden">
                 <label class="text-[10px] text-slate-400 font-medium">4. Specific Shop Filter</label>
                 <select id="report-shop-filter" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-emerald-500">
@@ -224,9 +225,22 @@
                 <!-- Metrics injected -->
             </div>
 
-            <button id="download-pdf-btn" class="w-full bg-emerald-700 hover:bg-emerald-600 text-white font-semibold py-2.5 rounded-xl text-xs transition-colors flex items-center justify-center gap-1 shadow-lg shadow-emerald-900/40">
-                Download Colorful PDF Statement
-            </button>
+            <div class="grid grid-cols-2 gap-2 pt-1">
+                <button type="button" onclick="openReportPreview()" class="bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 rounded-xl text-xs transition-colors shadow-lg shadow-blue-900/40">
+                    Preview Report
+                </button>
+                <button type="button" onclick="triggerDownload()" class="bg-emerald-700 hover:bg-emerald-600 text-white font-semibold py-2.5 rounded-xl text-xs transition-colors shadow-lg shadow-emerald-900/40">
+                    Download Statement
+                </button>
+            </div>
+            
+            <div>
+                <label class="text-[10px] text-slate-400 font-medium">Export Format Option</label>
+                <select id="export-format" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl p-2 text-xs text-slate-100 focus:outline-none focus:border-emerald-500">
+                    <option value="pdf">PDF Document (.pdf)</option>
+                    <option value="jpeg">JPEG Image (.jpg)</option>
+                </select>
+            </div>
         </section>
 
         <!-- Recent Logs -->
@@ -238,6 +252,62 @@
         </section>
 
     </main>
+
+    <!-- Report Preview Modal / Drawer -->
+    <div id="preview-modal" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-3 hidden backdrop-blur-sm">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-md max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-4 bg-slate-800 border-b border-slate-700 flex justify-between items-center">
+                <h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Statement Preview</h3>
+                <button onclick="closeReportPreview()" class="text-slate-400 hover:text-white text-sm font-bold px-2 py-1 bg-slate-700 rounded-lg">✕</button>
+            </div>
+            
+            <div id="preview-scroll-area" class="p-4 overflow-y-auto space-y-4 bg-slate-950 text-xs">
+                <!-- Printable Statement Layout Container -->
+                <div id="printable-statement" class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-3">
+                    <div class="bg-emerald-600 p-3 rounded-lg text-white">
+                        <h4 class="font-extrabold text-sm tracking-wider">ADELOWO'S LEDGER</h4>
+                        <p id="preview-subtitle" class="text-[10px] text-emerald-100 mt-0.5">Financial Statement</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-1.5 text-center bg-slate-800/80 p-2.5 rounded-lg border border-slate-700">
+                        <div>
+                            <p class="text-[9px] text-slate-400 uppercase font-semibold">Total Inflow</p>
+                            <p id="preview-inc" class="font-bold text-emerald-400 text-xs mt-0.5">₦0</p>
+                        </div>
+                        <div>
+                            <p class="text-[9px] text-slate-400 uppercase font-semibold">Total Outflow</p>
+                            <p id="preview-exp" class="font-bold text-rose-400 text-xs mt-0.5">₦0</p>
+                        </div>
+                        <div>
+                            <p class="text-[9px] text-slate-400 uppercase font-semibold">Net Balance</p>
+                            <p id="preview-net" class="font-bold text-blue-400 text-xs mt-0.5">₦0</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5 pt-1">
+                        <div class="grid grid-cols-12 bg-slate-800 text-[10px] font-bold text-slate-300 p-2 rounded">
+                            <span class="col-span-3">Date</span>
+                            <span class="col-span-2">Executor</span>
+                            <span class="col-span-4">Category</span>
+                            <span class="col-span-3 text-right">Amount</span>
+                        </div>
+                        <div id="preview-items-container" class="space-y-1">
+                            <!-- Injected rows -->
+                        </div>
+                    </div>
+                    
+                    <div class="text-[9px] text-slate-500 text-center pt-2 border-t border-slate-800">
+                        Adelowo's Financial Management System — Powered by Supabase
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-3 bg-slate-900 border-t border-slate-800 flex gap-2">
+                <button onclick="closeReportPreview()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2 rounded-xl font-medium transition-colors">Close Preview</button>
+                <button onclick="downloadFromPreview()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2 rounded-xl transition-colors shadow-lg shadow-emerald-900/40">Download Now</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         const SUPABASE_URL = 'https://itbnekbbezzbpsgsidet.supabase.co';
@@ -597,7 +667,71 @@
             `;
         }
 
-        document.getElementById('download-pdf-btn').addEventListener('click', () => {
+        function openReportPreview() {
+            const filtered = getFilteredTransactions();
+            const startStr = document.getElementById('report-start-date').value;
+            const endStr = document.getElementById('report-end-date').value;
+            const scope = document.getElementById('report-scope').value;
+            const typeFilter = document.getElementById('report-type-filter').value.toUpperCase();
+            
+            const scopeTitle = scope === 'general' ? 'GENERAL FINANCIAL STATEMENT' : `EXECUTOR STATEMENT: ${scope.toUpperCase()}`;
+            document.getElementById('preview-subtitle').innerText = `${scopeTitle} [${typeFilter}] (${startStr} to ${endStr})`;
+
+            let totalInc = filtered.filter(t => t.type === 'income').reduce((s, t) => s + Number(t.amount), 0);
+            let totalExp = filtered.filter(t => t.type === 'expense').reduce((s, t) => s + Number(t.amount), 0);
+            let netBalance = totalInc - totalExp;
+
+            document.getElementById('preview-inc').innerText = formatCurrency(totalInc);
+            document.getElementById('preview-exp').innerText = formatCurrency(totalExp);
+            const pNet = document.getElementById('preview-net');
+            pNet.innerText = formatCurrency(netBalance);
+            pNet.className = `font-bold text-xs mt-0.5 ${netBalance >= 0 ? 'text-blue-400' : 'text-amber-400'}`;
+
+            const itemsContainer = document.getElementById('preview-items-container');
+            itemsContainer.innerHTML = '';
+
+            if (filtered.length === 0) {
+                itemsContainer.innerHTML = `<p class="text-[10px] text-slate-500 text-center py-3">No transactions found for this range.</p>`;
+            } else {
+                filtered.forEach(t => {
+                    const row = document.createElement('div');
+                    row.className = "grid grid-cols-12 text-[10px] items-center p-1.5 bg-slate-800/40 rounded border border-slate-800";
+                    const tDate = new Date(t.created_at).toLocaleDateString();
+                    const catStr = t.shop ? `${t.shop}` : (t.sub_category || '-');
+                    const amtFormatted = Number(t.amount).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    
+                    row.innerHTML = `
+                        <span class="col-span-3 text-slate-300">${tDate}</span>
+                        <span class="col-span-2 text-slate-300">${t.executor || '-'}</span>
+                        <span class="col-span-4 text-slate-400 truncate" title="${catStr}">${catStr}</span>
+                        <span class="col-span-3 text-right font-bold ${t.type === 'income' ? 'text-emerald-400' : 'text-rose-400'}">${t.type === 'income' ? '+' : '-'}${amtFormatted}</span>
+                    `;
+                    itemsContainer.appendChild(row);
+                });
+            }
+
+            document.getElementById('preview-modal').classList.remove('hidden');
+        }
+
+        function closeReportPreview() {
+            document.getElementById('preview-modal').classList.add('hidden');
+        }
+
+        function triggerDownload() {
+            const format = document.getElementById('export-format').value;
+            if (format === 'pdf') {
+                downloadPDF();
+            } else {
+                downloadJPEG();
+            }
+        }
+
+        function downloadFromPreview() {
+            closeReportPreview();
+            triggerDownload();
+        }
+
+        function downloadPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             const filtered = getFilteredTransactions();
@@ -704,7 +838,30 @@
             doc.text("Adelowo's Financial Management System — Powered by Supabase", 14, 290);
 
             doc.save(`Adelowo_Statement_${scope}_${startStr}_to_${endStr}.pdf`);
-        });
+        }
+
+        function downloadJPEG() {
+            // Temporarily open preview container to render and capture JPEG cleanly
+            openReportPreview();
+            const element = document.getElementById('printable-statement');
+            
+            setTimeout(() => {
+                html2canvas(element, { scale: 2, backgroundColor: '#090d16' }).then(canvas => {
+                    closeReportPreview();
+                    const link = document.createElement('a');
+                    const startStr = document.getElementById('report-start-date').value;
+                    const endStr = document.getElementById('report-end-date').value;
+                    const scope = document.getElementById('report-scope').value;
+                    
+                    link.download = `Adelowo_Statement_${scope}_${startStr}_to_${endStr}.jpg`;
+                    link.href = canvas.toDataURL('image/jpeg', 0.95);
+                    link.click();
+                }).catch(err => {
+                    closeReportPreview();
+                    alert('Error generating JPEG image: ' + err.message);
+                });
+            }, 200);
+        }
 
         fetchTransactions();
     </script>
