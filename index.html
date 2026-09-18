@@ -53,7 +53,7 @@
             </div>
         </section>
 
-        <!-- Summary Cards (Expanded to include Net Position) -->
+        <!-- Summary Cards -->
         <section class="grid grid-cols-3 gap-2">
             <div class="bg-slate-900 p-3 rounded-2xl border border-slate-800 shadow-lg text-center">
                 <p class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Total Income</p>
@@ -339,7 +339,7 @@
             </div>
         </section>
 
-        <!-- Recent Logs (Limited to 10) -->
+        <!-- Recent Logs -->
         <section class="space-y-2.5">
             <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Recent History (Last 10)</h2>
             <div id="transaction-list" class="space-y-2">
@@ -413,7 +413,7 @@
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let allTransactions = [];
-        let financialChart = null; // Chart.js instance handle
+        let financialChart = null;
         
         const now = new Date();
         const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
@@ -550,7 +550,8 @@
                 console.error('Error fetching data:', error);
                 return;
             }
-            allTransactions = data || [];
+            // Explicitly sort defensively to safeguard backdated sequences
+            allTransactions = (data || []).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
             updateUI();
         }
 
@@ -793,7 +794,6 @@
         }
 
         function updateUI() {
-            // Overall summary calculations
             let totalInc = allTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount), 0);
             let totalExp = allTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + Number(t.amount), 0);
             let totalNet = totalInc - totalExp;
@@ -804,7 +804,6 @@
             totalNetEl.innerText = formatCurrency(totalNet);
             totalNetEl.className = `text-sm font-bold mt-1 ${totalNet >= 0 ? 'text-blue-400' : 'text-rose-400'}`;
 
-            // Render/Update Pie Chart
             updateFinancialPieChart(totalInc, totalExp, totalNet);
 
             const resetTimeStr = localStorage.getItem('adel_dashboard_reset_time');
@@ -852,10 +851,7 @@
             if (allTransactions.length === 0) {
                 listEl.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">No transactions recorded yet.</p>`;
             } else {
-                // FIXED: Explicitly sort copy of transactions by created_at descending to guarantee backdated entries sequence accurately
-                const sortedTransactions = [...allTransactions].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-                
-                sortedTransactions.slice(0, 10).forEach(t => {
+                allTransactions.slice(0, 10).forEach(t => {
                     const item = document.createElement('div');
                     item.className = "bg-slate-900 border border-slate-800 p-3 rounded-xl flex justify-between items-center text-xs shadow-sm";
                     const tDate = new Date(t.created_at);
@@ -890,9 +886,9 @@
                 datasets: [{
                     data: [inc, exp, chartNetVal],
                     backgroundColor: [
-                        '#34d399', // Emerald-400 for Income
-                        '#fb7185', // Rose-400 for Expenses
-                        '#60a5fa'  // Blue-400 for Net Position
+                        '#34d399',
+                        '#fb7185',
+                        '#60a5fa'
                     ],
                     borderColor: '#1e293b',
                     borderWidth: 2
@@ -914,9 +910,7 @@
                                 position: 'bottom',
                                 labels: {
                                     color: '#cbd5e1',
-                                    font: {
-                                        size: 11
-                                    },
+                                    font: { size: 11 },
                                     boxWidth: 12
                                 }
                             },
