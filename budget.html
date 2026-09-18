@@ -184,17 +184,24 @@
                     let syncedDataCost = 0;
                     billRecords.forEach(b => {
                         const nameLower = (b.bill_name || '').toLowerCase();
-                        if (nameLower.includes('data') || nameLower.includes('subscription')) {
+                        if (nameLower.includes('data') || nameLower.includes('subscription') || nameLower.includes('internet') || nameLower.includes('wifi')) {
                             syncedDataCost += Number(b.bill_amount) || 0;
                         }
                     });
-                    dataInput.value = syncedDataCost > 0 ? syncedDataCost : (shopData.data !== undefined ? shopData.data : 0);
+                    
+                    // Only use saved budget data if it was explicitly set greater than 0, otherwise use synced database bills
+                    const savedDataVal = Number(shopData.data);
+                    if (!isNaN(savedDataVal) && savedDataVal > 0) {
+                        dataInput.value = savedDataVal;
+                    } else {
+                        dataInput.value = syncedDataCost > 0 ? syncedDataCost : 0;
+                    }
                 } else {
-                    dataInput.value = shopData.data !== undefined ? shopData.data : 0;
+                    dataInput.value = (shopData.data !== undefined && shopData.data !== '') ? shopData.data : 0;
                 }
             } catch (err) {
                 console.error('Error fetching synced data from asset bills:', err);
-                dataInput.value = shopData.data !== undefined ? shopData.data : 0;
+                dataInput.value = (shopData.data !== undefined && shopData.data !== '') ? shopData.data : 0;
             }
 
             // 2. Sync Salary via Calendar Intelligence from staff table
@@ -259,15 +266,16 @@
                 const shopUtility = Number(b.utility);
                 totalUtility += (!isNaN(shopUtility) && shopUtility > 0) ? shopUtility : 2000;
 
-                // Compute synced data for this shop from bills or saved budget
+                // Compute synced data for this shop from bills or saved budget (ensuring 0 or unassigned fields fall back to bills)
                 let shopDataVal = 0;
-                if (b.data !== undefined && b.data !== '') {
-                    shopDataVal = Number(b.data) || 0;
+                const savedDataNum = Number(b.data);
+                if (!isNaN(savedDataNum) && savedDataNum > 0) {
+                    shopDataVal = savedDataNum;
                 } else {
                     const shopBills = allBills.filter(bill => bill.location_name === shop);
                     shopBills.forEach(bill => {
                         const n = (bill.bill_name || '').toLowerCase();
-                        if (n.includes('data') || n.includes('subscription')) {
+                        if (n.includes('data') || n.includes('subscription') || n.includes('internet') || n.includes('wifi')) {
                             shopDataVal += Number(bill.bill_amount) || 0;
                         }
                     });
@@ -366,12 +374,13 @@
                 const u = (!isNaN(shopUtility) && shopUtility > 0) ? shopUtility : 2000;
 
                 let d = 0;
-                if (b.data !== undefined && b.data !== '') {
-                    d = Number(b.data) || 0;
+                const savedDataNum = Number(b.data);
+                if (!isNaN(savedDataNum) && savedDataNum > 0) {
+                    d = savedDataNum;
                 } else {
                     allBills.filter(bill => bill.location_name === shop).forEach(bill => {
                         const n = (bill.bill_name || '').toLowerCase();
-                        if (n.includes('data') || n.includes('subscription')) {
+                        if (n.includes('data') || n.includes('subscription') || n.includes('internet') || n.includes('wifi')) {
                             d += Number(bill.bill_amount) || 0;
                         }
                     });
