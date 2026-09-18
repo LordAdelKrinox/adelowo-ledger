@@ -166,7 +166,7 @@
             
             revenueInput.value = shopData.revenue !== undefined ? shopData.revenue : '';
             
-            // Fixed Defaults: Explicitly write 5000 and 2000 into the input element value if empty or zero
+            // Fixed Defaults
             const savedPaper = Number(shopData.paper);
             paperInput.value = (!isNaN(savedPaper) && savedPaper > 0) ? savedPaper : 5000;
 
@@ -189,7 +189,6 @@
                         }
                     });
                     
-                    // Only use saved budget data if it was explicitly set greater than 0, otherwise use synced database bills
                     const savedDataVal = Number(shopData.data);
                     if (!isNaN(savedDataVal) && savedDataVal > 0) {
                         dataInput.value = savedDataVal;
@@ -235,7 +234,7 @@
                 salaryInput.value = shopData.salary || 0;
             }
 
-            updateMasterSummary();
+            await updateMasterSummary();
         }
 
         async function updateMasterSummary() {
@@ -255,18 +254,20 @@
                 if (data) allBills = data;
             } catch (err) {}
 
-            allShops.forEach(shop => {
+            // Loop through all 7 shops reliably and accumulate totals
+            for (const shop of allShops) {
                 const b = allBudgets[shop] || {};
                 totalRev += Math.max(0, Number(b.revenue) || 0);
                 
-                // Fixed defaults aggregation across all 7 shops instantly (forces 5k paper, 2k utility per shop into totals if not saved)
+                // Paper Default (₦5,000 per shop if not saved or zero)
                 const shopPaper = Number(b.paper);
                 totalPaper += (!isNaN(shopPaper) && shopPaper > 0) ? shopPaper : 5000;
 
+                // Utility Default (₦2,000 per shop if not saved or zero)
                 const shopUtility = Number(b.utility);
                 totalUtility += (!isNaN(shopUtility) && shopUtility > 0) ? shopUtility : 2000;
 
-                // Compute synced data for this shop from bills or saved budget (ensuring 0 or unassigned fields fall back to bills)
+                // Data calculation for this shop
                 let shopDataVal = 0;
                 const savedDataNum = Number(b.data);
                 if (!isNaN(savedDataNum) && savedDataNum > 0) {
@@ -282,9 +283,12 @@
                 }
                 totalData += shopDataVal;
 
-                // Compute salary for this shop
+                // Salary calculation for this shop based on active calendar week
                 let shopWeekSalary = Number(b.salary) || 0;
-                allStaff.filter(st => st.shop_location === shop).forEach(st => {
+                let dbShopSalary = 0;
+                
+                const shopStaffList = allStaff.filter(st => st.shop_location === shop);
+                shopStaffList.forEach(st => {
                     const dueDay = Number(st.salary_due_day) || 1;
                     let staffWeekKey = "w1";
                     if (dueDay >= 8 && dueDay <= 14) staffWeekKey = "w2";
@@ -292,11 +296,13 @@
                     else if (dueDay >= 22) staffWeekKey = "w4";
 
                     if (staffWeekKey === currentWeekKey) {
-                        shopWeekSalary = Number(st.salary) || 0;
+                        dbShopSalary += Number(st.salary) || 0;
                     }
                 });
-                totalSalary += shopWeekSalary;
-            });
+
+                // Use database calculated staff salary if available, else fallback to local storage
+                totalSalary += (dbShopSalary > 0 ? dbShopSalary : shopWeekSalary);
+            }
 
             const totalAlloc = totalPaper + totalData + totalSalary + totalUtility;
 
@@ -313,7 +319,7 @@
 
         shopSelect.addEventListener('change', (e) => loadShopBudget(e.target.value));
 
-        document.getElementById('save-budget-btn').addEventListener('click', () => {
+        document.getElementById('save-budget-btn').addEventListener('click', async () => {
             const currentShop = shopSelect.value;
             const storageKey = `adelowo_shop_budgets_${currentWeekKey}`;
             const allBudgets = JSON.parse(localStorage.getItem(storageKey)) || {};
@@ -327,7 +333,7 @@
             };
 
             localStorage.setItem(storageKey, JSON.stringify(allBudgets));
-            updateMasterSummary();
+            await updateMasterSummary();
             alert(`Budget for ${currentShop} (${weekLabels[currentWeekKey]}) saved successfully!`);
         });
 
