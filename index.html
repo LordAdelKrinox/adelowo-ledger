@@ -544,14 +544,13 @@
             const { data, error } = await _supabase
                 .from('transactions')
                 .select('*')
-                .order('created_at', { ascending: false });
+                .order('id', { ascending: false });
 
             if (error) {
                 console.error('Error fetching data:', error);
                 return;
             }
-            // Explicitly sort defensively to safeguard backdated sequences
-            allTransactions = (data || []).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            allTransactions = data || [];
             updateUI();
         }
 
