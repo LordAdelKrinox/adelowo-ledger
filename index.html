@@ -734,6 +734,10 @@
                 subCat = trackingType;
             }
 
+            // Fixed timestamp generation: Uses current local time hours/minutes/seconds matched with the chosen date
+            const currentTime = new Date();
+            const finalTimestamp = new Date(`${txDateVal}T${currentTime.toTimeString().split(' ')[0]}`).toISOString();
+
             const txData = {
                 executor: execVal,
                 type: type,
@@ -742,7 +746,7 @@
                 shop: shopLoc,
                 sub_category: subCat,
                 note: document.getElementById('note').value,
-                created_at: new Date(txDateVal + 'T00:00:00').toISOString()
+                created_at: finalTimestamp
             };
 
             let error;
