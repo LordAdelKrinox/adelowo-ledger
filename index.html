@@ -1003,11 +1003,11 @@
                             </div>
                         </div>
                         <div class="text-right shrink-0 space-y-1">
-                            <p class="font-extrabold text-sm tracking-tight ${isIncome ? 'text-emerald-600' : 'text-slate-900'}">
+                            <p class="font-extrabold text-sm tracking-tight ${isIncome ? 'text-emerald-600' : 'text-rose-600'}">
                                 ${isIncome ? '+' : '-'}${formatCurrency(t.amount)}
                             </p>
                             <div class="flex items-center justify-end gap-2">
-                                <span class="inline-block px-2 py-0.5 rounded-full text-[9px] font-bold ${isIncome ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}">Successful</span>
+                                <span class="inline-block px-2 py-0.5 rounded-full text-[9px] font-bold ${isIncome ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'}">Successful</span>
                                 <div class="flex items-center gap-1.5 pl-1 border-l border-slate-200">
                                     <button onclick="editTransaction(${t.id})" class="text-[10px] text-teal-700 font-bold hover:underline">Edit</button>
                                     <button onclick="deleteTransaction(${t.id})" class="text-[10px] text-rose-600 font-bold hover:underline">Del</button>
