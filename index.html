@@ -9,8 +9,21 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        @keyframes pulse-red {
+            0%, 100% {
+                box-shadow: inset 0 0 0 3px rgba(239, 68, 68, 0.4), 0 0 25px rgba(239, 68, 68, 0.3);
+            }
+            50% {
+                box-shadow: inset 0 0 0 4px rgba(239, 68, 68, 0.8), 0 0 45px rgba(239, 68, 68, 0.6);
+            }
+        }
+        .deficit-glow {
+            animation: pulse-red 2.5s infinite ease-in-out;
+        }
+    </style>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans antialiased pb-24">
+<body id="app-body" class="bg-slate-950 text-slate-100 font-sans antialiased pb-24 transition-all duration-500 min-h-screen">
 
     <!-- Top Header -->
     <header class="bg-slate-900 border-b border-slate-800 p-4 sticky top-0 z-10 flex justify-between items-center shadow-md">
@@ -615,6 +628,18 @@
             } else {
                 resetForm();
                 await fetchTransactions();
+
+                // Check net position after submission to trigger/clear deficit glow
+                let currentInc = allTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount), 0);
+                let currentExp = allTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + Number(t.amount), 0);
+                let currentNet = currentInc - currentExp;
+
+                const appBody = document.getElementById('app-body');
+                if (currentNet < 0) {
+                    appBody.classList.add('deficit-glow');
+                } else {
+                    appBody.classList.remove('deficit-glow');
+                }
             }
 
             btn.innerText = 'Save to Cloud Ledger';
@@ -687,6 +712,16 @@
                 alert('Error deleting record: ' + error.message);
             } else {
                 await fetchTransactions();
+                // Update glow state after deletion
+                let currentInc = allTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount), 0);
+                let currentExp = allTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + Number(t.amount), 0);
+                let currentNet = currentInc - currentExp;
+                const appBody = document.getElementById('app-body');
+                if (currentNet < 0) {
+                    appBody.classList.add('deficit-glow');
+                } else {
+                    appBody.classList.remove('deficit-glow');
+                }
             }
         }
 
@@ -879,6 +914,9 @@
         function updateFinancialPieChart(inc, exp, net) {
             const ctx = document.getElementById('financialPieChart').getContext('2d');
             const chartNetVal = Math.abs(net);
+            
+            // Dynamic Net Position color: Blue for surplus/balanced, Deeper Red for deficit
+            const netPositionColor = net >= 0 ? '#60a5fa' : '#991b1b';
 
             const chartData = {
                 labels: ['Total Income', 'Total Expenses', 'Net Position'],
@@ -887,7 +925,7 @@
                     backgroundColor: [
                         '#34d399',
                         '#fb7185',
-                        '#60a5fa'
+                        netPositionColor
                     ],
                     borderColor: '#1e293b',
                     borderWidth: 2
