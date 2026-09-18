@@ -79,23 +79,32 @@
             <h2 class="text-xs font-bold text-zinc-300 uppercase tracking-wider">Shop Specific Weekly Expense Allocations (₦)</h2>
             <div class="grid grid-cols-2 gap-3">
                 <div>
-                    <label class="text-[10px] text-zinc-400 font-medium">Paper (₦)</label>
-                    <input type="number" id="shop-paper" min="0" placeholder="0" class="w-full mt-1 bg-zinc-800/70 border border-zinc-700/80 rounded-2xl p-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500 shadow-inner transition-all">
+                    <label class="text-[10px] text-zinc-400 font-medium flex justify-between items-center">
+                        <span>Paper (₦)</span>
+                        <span class="text-[9px] text-emerald-400 font-normal">Fixed Default ₦5k</span>
+                    </label>
+                    <input type="number" id="shop-paper" min="0" placeholder="5000" class="w-full mt-1 bg-zinc-800/70 border border-zinc-700/80 rounded-2xl p-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500 shadow-inner transition-all">
                 </div>
                 <div>
-                    <label class="text-[10px] text-zinc-400 font-medium">Data (₦)</label>
+                    <label class="text-[10px] text-zinc-400 font-medium flex justify-between items-center">
+                        <span>Data (₦)</span>
+                        <span class="text-[9px] text-emerald-400 font-normal">Asset Sync</span>
+                    </label>
                     <input type="number" id="shop-data" min="0" placeholder="0" class="w-full mt-1 bg-zinc-800/70 border border-zinc-700/80 rounded-2xl p-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500 shadow-inner transition-all">
                 </div>
                 <div>
                     <label class="text-[10px] text-zinc-400 font-medium flex justify-between items-center">
                         <span>Salary (₦)</span>
-                        <span class="text-[9px] text-emerald-400 font-normal">Calendar Auto-synced</span>
+                        <span class="text-[9px] text-emerald-400 font-normal">Staff Auto-synced</span>
                     </label>
                     <input type="number" id="shop-salary" min="0" placeholder="0" class="w-full mt-1 bg-zinc-800/70 border border-zinc-700/80 rounded-2xl p-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500 shadow-inner transition-all">
                 </div>
                 <div>
-                    <label class="text-[10px] text-zinc-400 font-medium">Utility (₦)</label>
-                    <input type="number" id="shop-utility" min="0" placeholder="0" class="w-full mt-1 bg-zinc-800/70 border border-zinc-700/80 rounded-2xl p-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500 shadow-inner transition-all">
+                    <label class="text-[10px] text-zinc-400 font-medium flex justify-between items-center">
+                        <span>Utility (₦)</span>
+                        <span class="text-[9px] text-emerald-400 font-normal">Fixed Default ₦2k</span>
+                    </label>
+                    <input type="number" id="shop-utility" min="0" placeholder="2000" class="w-full mt-1 bg-zinc-800/70 border border-zinc-700/80 rounded-2xl p-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500 shadow-inner transition-all">
                 </div>
             </div>
         </section>
@@ -116,7 +125,7 @@
             <div id="modal-health-content" class="text-xs space-y-3 text-zinc-300 font-medium">
                 <!-- Injected dynamically -->
             </div>
-            <button onclick="closeHealthModal()" class="w-full bg-zinc-800/80 hover:bg-zinc-700 text-zinc-200 py-3 rounded-2xl text-xs font-semibold border border-zinc-700/50 shadow-md">Close Assessment</storage>
+            <button onclick="closeHealthModal()" class="w-full bg-zinc-800/80 hover:bg-zinc-700 text-zinc-200 py-3 rounded-2xl text-xs font-semibold border border-zinc-700/50 shadow-md">Close Assessment</button>
         </div>
     </div>
 
@@ -145,15 +154,7 @@
             return "w4";
         }
 
-        function getWeekIntervalNumber(day) {
-            if (day >= 1 && day <= 7) return "w1";
-            if (day >= 8 && dayNum <= 14) return "w2";
-            if (day >= 15 && day <= 21) return "w3";
-            return "w4";
-        }
-
         // Display live calendar context in header
-        const todayObj = new Date();
         const currentWeekKey = getCurrentCalendarWeek();
         const weekLabels = { "w1": "Week 1 (1st–7th)", "w2": "Week 2 (8th–14th)", "w3": "Week 3 (15th–21st)", "w4": "Week 4 (22nd–End)" };
         document.getElementById('live-calendar-indicator').innerText = `Active Calendar: ${weekLabels[currentWeekKey]}`;
@@ -161,14 +162,39 @@
         async function loadShopBudget(shopName) {
             const storageKey = `adelowo_shop_budgets_${currentWeekKey}`;
             const allBudgets = JSON.parse(localStorage.getItem(storageKey)) || {};
-            const shopData = allBudgets[shopName] || { revenue: '', paper: '', data: '', salary: '', utility: '' };
+            const shopData = allBudgets[shopName] || {};
             
-            revenueInput.value = shopData.revenue;
-            paperInput.value = shopData.paper;
-            dataInput.value = shopData.data;
-            utilityInput.value = shopData.utility;
+            revenueInput.value = shopData.revenue !== undefined ? shopData.revenue : '';
+            
+            // Fixed Defaults: Paper defaults to 5000, Utility defaults to 2000 if not previously set
+            paperInput.value = shopData.paper !== undefined && shopData.paper !== '' ? shopData.paper : 5000;
+            utilityInput.value = shopData.utility !== undefined && shopData.utility !== '' ? shopData.utility : 2000;
 
-            // Calendar Intelligence: Match staff whose salary due date falls in this active calendar week
+            // 1. Sync Data from Asset Page / location_bills table for this shop
+            try {
+                const { data: billRecords, error: billErr } = await _supabase
+                    .from('location_bills')
+                    .select('*')
+                    .eq('location_name', shopName);
+
+                if (!billErr && billRecords) {
+                    let syncedDataCost = 0;
+                    billRecords.forEach(b => {
+                        const nameLower = (b.bill_name || '').toLowerCase();
+                        if (nameLower.includes('data') || nameLower.includes('subscription')) {
+                            syncedDataCost += Number(b.bill_amount) || 0;
+                        }
+                    });
+                    dataInput.value = syncedDataCost > 0 ? syncedDataCost : (shopData.data !== undefined ? shopData.data : 0);
+                } else {
+                    dataInput.value = shopData.data !== undefined ? shopData.data : 0;
+                }
+            } catch (err) {
+                console.error('Error fetching synced data from asset bills:', err);
+                dataInput.value = shopData.data !== undefined ? shopData.data : 0;
+            }
+
+            // 2. Sync Salary via Calendar Intelligence from staff table
             try {
                 const { data: staffList, error } = await _supabase
                     .from('staff')
@@ -185,7 +211,6 @@
                         else if (dueDay >= 15 && dueDay <= 21) staffWeekKey = "w3";
                         else if (dueDay >= 22) staffWeekKey = "w4";
 
-                        // If staff salary due date falls within the current live calendar week
                         if (staffWeekKey === currentWeekKey) {
                             calculatedWeekSalary += Number(st.salary) || 0;
                         }
@@ -214,13 +239,36 @@
                 if (data) allStaff = data;
             } catch (err) {}
 
+            let allBills = [];
+            try {
+                const { data } = await _supabase.from('location_bills').select('*');
+                if (data) allBills = data;
+            } catch (err) {}
+
             allShops.forEach(shop => {
                 const b = allBudgets[shop] || {};
                 totalRev += Math.max(0, Number(b.revenue) || 0);
-                totalPaper += Math.max(0, Number(b.paper) || 0);
-                totalData += Math.max(0, Number(b.data) || 0);
-                totalUtility += Math.max(0, Number(b.utility) || 0);
+                
+                // Fixed defaults for aggregation if not explicitly customized
+                totalPaper += Math.max(0, b.paper !== undefined && b.paper !== '' ? Number(b.paper) : 5000);
+                totalUtility += Math.max(0, b.utility !== undefined && b.utility !== '' ? Number(b.utility) : 2000);
 
+                // Compute synced data for this shop from bills or saved budget
+                let shopDataVal = 0;
+                if (b.data !== undefined && b.data !== '') {
+                    shopDataVal = Number(b.data) || 0;
+                } else {
+                    const shopBills = allBills.filter(bill => bill.location_name === shop);
+                    shopBills.forEach(bill => {
+                        const n = (bill.bill_name || '').toLowerCase();
+                        if (n.includes('data') || n.includes('subscription')) {
+                            shopDataVal += Number(bill.bill_amount) || 0;
+                        }
+                    });
+                }
+                totalData += shopDataVal;
+
+                // Compute salary for this shop
                 let shopWeekSalary = Number(b.salary) || 0;
                 allStaff.filter(st => st.shop_location === shop).forEach(st => {
                     const dueDay = Number(st.salary_due_day) || 1;
@@ -258,10 +306,10 @@
             
             allBudgets[currentShop] = {
                 revenue: revenueInput.value,
-                paper: paperInput.value,
+                paper: paperInput.value !== '' ? paperInput.value : 5000,
                 data: dataInput.value,
                 salary: salaryInput.value,
-                utility: utilityInput.value
+                utility: utilityInput.value !== '' ? utilityInput.value : 2000
             };
 
             localStorage.setItem(storageKey, JSON.stringify(allBudgets));
@@ -275,29 +323,52 @@
             let totalRev = 0, totalAlloc = 0;
             let totalWeekSalaries = 0;
 
+            let allStaff = [];
             try {
-                const { data: allStaff } = await _supabase.from('staff').select('*').eq('work_category', 'Shop');
-                if (allStaff) {
-                    allStaff.forEach(s => {
-                        const dueDay = Number(s.salary_due_day) || 1;
-                        let staffWeekKey = "w1";
-                        if (dueDay >= 8 && dueDay <= 14) staffWeekKey = "w2";
-                        else if (dueDay >= 15 && dueDay <= 21) staffWeekKey = "w3";
-                        else if (dueDay >= 22) staffWeekKey = "w4";
+                const { data } = await _supabase.from('staff').select('*').eq('work_category', 'Shop');
+                if (data) allStaff = data;
+            } catch (e) {}
 
-                        if (staffWeekKey === currentWeekKey) {
-                            totalWeekSalaries += Number(s.salary) || 0;
-                        }
-                    });
-                }
+            let allBills = [];
+            try {
+                const { data } = await _supabase.from('location_bills').select('*');
+                if (data) allBills = data;
+            } catch (e) {}
+
+            try {
+                allStaff.forEach(s => {
+                    const dueDay = Number(s.salary_due_day) || 1;
+                    let staffWeekKey = "w1";
+                    if (dueDay >= 8 && dueDay <= 14) staffWeekKey = "w2";
+                    else if (dueDay >= 15 && dueDay <= 21) staffWeekKey = "w3";
+                    else if (dueDay >= 22) staffWeekKey = "w4";
+
+                    if (staffWeekKey === currentWeekKey) {
+                        totalWeekSalaries += Number(s.salary) || 0;
+                    }
+                });
             } catch (e) {}
 
             allShops.forEach(shop => {
-                const b = allBudgets[shop];
-                if (b) {
-                    totalRev += Math.max(0, Number(b.revenue) || 0);
-                    totalAlloc += Math.max(0, Number(b.paper) || 0) + Math.max(0, Number(b.data) || 0) + Math.max(0, Number(b.utility) || 0);
+                const b = allBudgets[shop] || {};
+                totalRev += Math.max(0, Number(b.revenue) || 0);
+
+                const p = Math.max(0, b.paper !== undefined && b.paper !== '' ? Number(b.paper) : 5000);
+                const u = Math.max(0, b.utility !== undefined && b.utility !== '' ? Number(b.utility) : 2000);
+
+                let d = 0;
+                if (b.data !== undefined && b.data !== '') {
+                    d = Number(b.data) || 0;
+                } else {
+                    allBills.filter(bill => bill.location_name === shop).forEach(bill => {
+                        const n = (bill.bill_name || '').toLowerCase();
+                        if (n.includes('data') || n.includes('subscription')) {
+                            d += Number(bill.bill_amount) || 0;
+                        }
+                    });
                 }
+
+                totalAlloc += (p + d + u);
             });
             totalAlloc += totalWeekSalaries;
 
