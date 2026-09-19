@@ -579,18 +579,23 @@
                 if (error || !staffList || staffList.length === 0) return;
 
                 const { startTuesday, endMonday } = getTuesdayToMondayRange(new Date());
+                const weekKey = startTuesday.toISOString().split('T')[0];
                 
                 // Format range string for UI display
                 const options = { day: 'numeric', month: 'short' };
                 const rangeText = `${startTuesday.toLocaleDateString('en-GB', options)} — ${endMonday.toLocaleDateString('en-GB', options)}`;
                 document.getElementById('payroll-range-label').innerText = `Work Week: ${rangeText}`;
 
-                // Filter staff whose salary due date falls within Tuesday to Monday range
+                // Filter staff whose salary due date falls within Tuesday to Monday range AND not marked paid for this week
                 const dueStaff = staffList.filter(s => {
+                    const isPaidKey = `paid_staff_${s.id}_${weekKey}`;
+                    if (localStorage.getItem(isPaidKey) === 'true') {
+                        return false; // Skip if already marked paid this week
+                    }
+
                     const dueDay = s.salary_due_day;
                     if (!dueDay) return false;
 
-                    // Iterate through all calendar dates in this Tuesday-to-Monday window
                     let curr = new Date(startTuesday);
                     while (curr <= endMonday) {
                         const cMonth = curr.getMonth();
@@ -613,18 +618,21 @@
 
                 dueStaff.forEach(s => {
                     const card = document.createElement('div');
-                    card.className = "bg-slate-50 p-3 rounded-2xl border border-slate-200 flex justify-between items-center";
+                    card.className = "bg-slate-50 p-3 rounded-2xl border border-slate-200 flex justify-between items-center gap-2";
                     const isShop = s.work_category === 'Shop';
                     const details = isShop ? `${s.shop_location} Shop` : 'TechXted Staff';
 
                     card.innerHTML = `
-                        <div>
-                            <h4 class="font-bold text-xs text-slate-900">${s.name}</h4>
-                            <p class="text-[10px] text-slate-500 font-medium">${s.role} • <span class="text-teal-700 font-semibold">${details}</span></p>
+                        <div class="min-w-0 flex-1">
+                            <h4 class="font-bold text-xs text-slate-900 truncate">${s.name}</h4>
+                            <p class="text-[10px] text-slate-500 font-medium truncate">${s.role} • <span class="text-teal-700 font-semibold">${details}</span></p>
+                            <p class="font-extrabold text-xs text-emerald-600 mt-0.5">${formatCurrency(s.salary)} <span class="text-[9px] font-normal text-slate-400">Due This Week</span></p>
                         </div>
-                        <div class="text-right">
-                            <p class="font-extrabold text-xs text-emerald-600">${formatCurrency(s.salary)}</p>
-                            <p class="text-[9px] text-slate-400 font-medium">Due This Week</p>
+                        <div class="flex items-center gap-1.5 shrink-0 pl-2 border-l border-slate-200">
+                            <label class="flex flex-col items-center cursor-pointer select-none">
+                                <input type="checkbox" onchange="markStaffPaid(${s.id}, '${weekKey}', this)" class="w-4 h-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500 cursor-pointer">
+                                <span class="text-[9px] font-semibold text-slate-600 mt-0.5">Paid</span>
+                            </label>
                         </div>
                     `;
                     listContainer.appendChild(card);
@@ -634,6 +642,27 @@
                 document.getElementById('payroll-popup-modal').classList.remove('hidden');
             } catch (err) {
                 console.error("Error loading payroll reminders:", err);
+            }
+        }
+
+        function markStaffPaid(staffId, weekKey, checkboxEl) {
+            if (checkboxEl.checked) {
+                localStorage.setItem(`paid_staff_${staffId}_${weekKey}`, 'true');
+                
+                // Animate removal from the popup list smoothly
+                const card = checkboxEl.closest('.bg-slate-50');
+                card.style.transition = 'all 0.3s ease';
+                card.style.opacity = '0';
+                card.style.transform = 'scale(0.95)';
+                
+                setTimeout(() => {
+                    card.remove();
+                    // Close popup if no staff members remain
+                    const listContainer = document.getElementById('payroll-staff-list');
+                    if (listContainer.children.length === 0) {
+                        closePayrollPopup();
+                    }
+                }, 300);
             }
         }
 
