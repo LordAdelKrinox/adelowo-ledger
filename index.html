@@ -207,10 +207,11 @@
                     <div id="personal-sub-panel" class="space-y-2 bg-slate-50/80 p-3 rounded-2xl border border-slate-200">
                         <label class="text-[11px] text-slate-600 font-semibold">Personal Expense Category</label>
                         <select id="personal_sub" class="w-full bg-white/80 border border-slate-200 rounded-xl p-2 text-sm text-slate-800 shadow-sm">
-                            <option value="Food">Food</option>
-                            <option value="Groceries">Groceries</option>
-                            <option value="Utility">Utility</option>
-                            <option value="Fueling and Transportation">Fueling and Transportation</option>
+                            <option value="Salary">1. Salary</option>
+                            <option value="Rent">2. Rent</option>
+                            <option value="Utility">3. Utility</option>
+                            <option value="Equipment">4. Equipment</option>
+                            <option value="Others">5. Others</option>
                         </select>
                     </div>
 
@@ -230,10 +231,11 @@
                         <div>
                             <label class="text-[11px] text-slate-600 font-semibold">Shop Expense Type</label>
                             <select id="shop_sub" class="w-full bg-white/80 border border-slate-200 rounded-xl p-2 text-sm text-slate-800 shadow-sm">
-                                <option value="Paper">Paper</option>
-                                <option value="Data">Data</option>
-                                <option value="Salary">Salary</option>
-                                <option value="Utility">Utility</option>
+                                <option value="Salary">1. Salary</option>
+                                <option value="Rent">2. Rent</option>
+                                <option value="Utility">3. Utility</option>
+                                <option value="Equipment">4. Equipment</option>
+                                <option value="Others">5. Others</option>
                             </select>
                         </div>
                     </div>
@@ -241,11 +243,11 @@
                     <div id="techxted-sub-panel" class="space-y-2 bg-slate-50/80 p-3 rounded-2xl border border-slate-200 hidden">
                         <label class="text-[11px] text-slate-600 font-semibold">TechXted Expense Category</label>
                         <select id="techxted_sub" class="w-full bg-white/80 border border-slate-200 rounded-xl p-2 text-sm text-slate-800 shadow-sm">
-                            <option value="Subscriptions">Subscriptions</option>
-                            <option value="Hosting and Server">Hosting and Server</option>
-                            <option value="Tools and Software">Tools and Software</option>
-                            <option value="Marketing">Marketing</option>
-                            <option value="Development">Development</option>
+                            <option value="Salary">1. Salary</option>
+                            <option value="Rent">2. Rent</option>
+                            <option value="Utility">3. Utility</option>
+                            <option value="Equipment">4. Equipment</option>
+                            <option value="Others">5. Others</option>
                         </select>
                     </div>
                 </div>
@@ -275,8 +277,8 @@
                             <label class="text-[11px] text-slate-600 font-semibold">Personal Income Sub-Category</label>
                             <select id="income_personal_sub" class="w-full mt-1 bg-white/80 border border-slate-200 rounded-xl p-2 text-sm text-slate-800 shadow-sm">
                                 <option value="Salary">1. Salary</option>
-                                <option value="Utility">2. Utility</option>
-                                <option value="Rent">3. Rent</option>
+                                <option value="Rent">2. Rent</option>
+                                <option value="Utility">3. Utility</option>
                                 <option value="Equipment">4. Equipment</option>
                                 <option value="Others">5. Others</option>
                             </select>
@@ -301,8 +303,8 @@
                             <label class="text-[11px] text-slate-600 font-semibold">Shop Income Sub-Category</label>
                             <select id="income_shop_sub" class="w-full mt-1 bg-white/80 border border-slate-200 rounded-xl p-2 text-sm text-slate-800 shadow-sm">
                                 <option value="Salary">1. Salary</option>
-                                <option value="Utility">2. Utility</option>
-                                <option value="Rent">3. Rent</option>
+                                <option value="Rent">2. Rent</option>
+                                <option value="Utility">3. Utility</option>
                                 <option value="Equipment">4. Equipment</option>
                                 <option value="Others">5. Others</option>
                             </select>
@@ -315,8 +317,8 @@
                             <label class="text-[11px] text-slate-600 font-semibold">Income Sub-Category</label>
                             <select id="income_standard_sub" class="w-full mt-1 bg-white/80 border border-slate-200 rounded-xl p-2 text-sm text-slate-800 shadow-sm">
                                 <option value="Salary">1. Salary</option>
-                                <option value="Utility">2. Utility</option>
-                                <option value="Rent">3. Rent</option>
+                                <option value="Rent">2. Rent</option>
+                                <option value="Utility">3. Utility</option>
                                 <option value="Equipment">4. Equipment</option>
                                 <option value="Others">5. Others</option>
                             </select>
@@ -372,9 +374,9 @@
                 </select>
             </div>
 
-            <!-- Tier 4: Income Sub-Category Filter -->
+            <!-- Tier 4: Sub-Category Filter -->
             <div id="report-income-sub-wrapper" class="hidden">
-                <label class="text-[10px] text-slate-600 font-semibold">4. Income Sub-Category Filter</label>
+                <label class="text-[10px] text-slate-600 font-semibold">4. Sub-Category Filter</label>
                 <select id="report-income-sub-filter" onchange="renderReports()" class="w-full mt-1 bg-slate-50/80 border border-slate-200 rounded-2xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 shadow-sm">
                     <option value="all">All Sub-Categories</option>
                 </select>
@@ -677,9 +679,9 @@
 
             incomeSubFilter.innerHTML = '<option value="all">All Sub-Categories</option>';
 
-            if (typeFilter === 'income' && catFilterVal !== 'all') {
+            if (catFilterVal !== 'all') {
                 incomeSubWrapper.classList.remove('hidden');
-                let subOptions = ['Salary', 'Utility', 'Rent', 'Equipment', 'Others'];
+                let subOptions = ['Salary', 'Rent', 'Utility', 'Equipment', 'Others'];
                 subOptions.forEach(sub => {
                     incomeSubFilter.innerHTML += `<option value="${sub}">${sub}</option>`;
                 });
@@ -839,12 +841,12 @@
                 trackingTypeSelect.value = tx.tracking_type || 'Personal';
                 trackingTypeSelect.dispatchEvent(new Event('change'));
                 if (tx.tracking_type === 'Personal') {
-                    document.getElementById('personal_sub').value = tx.sub_category || 'Food';
+                    document.getElementById('personal_sub').value = tx.sub_category || 'Salary';
                 } else if (tx.tracking_type === 'Shop') {
                     document.getElementById('shop_location').value = tx.shop || 'Elewi Odo';
-                    document.getElementById('shop_sub').value = tx.sub_category || 'Paper';
+                    document.getElementById('shop_sub').value = tx.sub_category || 'Salary';
                 } else if (tx.tracking_type === 'TechXted') {
-                    document.getElementById('techxted_sub').value = tx.sub_category || 'Subscriptions';
+                    document.getElementById('techxted_sub').value = tx.sub_category || 'Salary';
                 }
             }
             document.getElementById('note').value = tx.note || '';
@@ -963,7 +965,7 @@
                 }
 
                 let matchesSubCat = true;
-                if (incomeSubFilter !== 'all' && t.type === 'income') {
+                if (incomeSubFilter !== 'all') {
                     matchesSubCat = (t.sub_category === incomeSubFilter);
                 }
 
