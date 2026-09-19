@@ -534,6 +534,7 @@
                 imgEl.classList.remove('hidden');
                 initialEl.classList.add('hidden');
             }
+            updateReportSubFilters();
         });
 
         function handleProfilePictureUpload(event) {
@@ -613,6 +614,7 @@
 
         typeSelect.addEventListener('change', toggleFormMode);
         incomeMainCategory.addEventListener('change', toggleIncomeCategoryMode);
+        trackingTypeSelect.addEventListener('change', toggleFormMode);
 
         function updateReportSubFilters() {
             const typeFilter = document.getElementById('report-type-filter').value;
@@ -734,7 +736,6 @@
                 subCat = trackingType;
             }
 
-            // Fixed timestamp generation: Uses current local time hours/minutes/seconds matched with the chosen date
             const currentTime = new Date();
             const finalTimestamp = new Date(`${txDateVal}T${currentTime.toTimeString().split(' ')[0]}`).toISOString();
 
