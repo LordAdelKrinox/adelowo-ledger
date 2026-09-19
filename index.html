@@ -536,7 +536,6 @@
         document.getElementById('transaction_date').value = todayStr;
         document.getElementById('current-date').innerText = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
-        // Load saved profile picture if available in localStorage
         window.addEventListener('DOMContentLoaded', () => {
             const savedAvatar = localStorage.getItem('adel_ledger_profile_avatar');
             if (savedAvatar) {
@@ -586,10 +585,6 @@
 
         function scrollToReports() {
             document.getElementById('reports-section').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function scrollToSection(sectionId) {
-            document.getElementById(sectionId).scrollIntoView({ behavior: 'smooth' });
         }
 
         function toggleIncomeCategoryMode() {
