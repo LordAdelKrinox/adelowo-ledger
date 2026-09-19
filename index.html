@@ -241,10 +241,11 @@
                     <div id="techxted-sub-panel" class="space-y-2 bg-slate-50/80 p-3 rounded-2xl border border-slate-200 hidden">
                         <label class="text-[11px] text-slate-600 font-semibold">TechXted Expense Type</label>
                         <select id="techxted_sub" class="w-full bg-white/80 border border-slate-200 rounded-xl p-2 text-sm text-slate-800 shadow-sm">
-                            <option value="Gadgets">Gadgets</option>
-                            <option value="Software">Software</option>
-                            <option value="Maintenance">Maintenance</option>
-                            <option value="Marketing">Marketing</option>
+                            <option value="Salary">Salary</option>
+                            <option value="Rent">Rent</option>
+                            <option value="Utility">Utility</option>
+                            <option value="Equipment">Equipment</option>
+                            <option value="Others">Others</option>
                         </select>
                     </div>
                 </div>
@@ -752,7 +753,6 @@
                 subCat = trackingType;
             }
 
-            // Fixed timestamp generation: Uses current local time hours/minutes/seconds matched with the chosen date
             const currentTime = new Date();
             const finalTimestamp = new Date(`${txDateVal}T${currentTime.toTimeString().split(' ')[0]}`).toISOString();
 
@@ -848,7 +848,7 @@
                     document.getElementById('shop_location').value = tx.shop || 'Elewi Odo';
                     document.getElementById('shop_sub').value = tx.sub_category || 'Paper';
                 } else if (tx.tracking_type === 'TechXted') {
-                    document.getElementById('techxted_sub').value = tx.sub_category || 'Gadgets';
+                    document.getElementById('techxted_sub').value = tx.sub_category || 'Salary';
                 }
             }
             document.getElementById('note').value = tx.note || '';
