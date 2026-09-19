@@ -207,11 +207,10 @@
                     <div id="personal-sub-panel" class="space-y-2 bg-slate-50/80 p-3 rounded-2xl border border-slate-200">
                         <label class="text-[11px] text-slate-600 font-semibold">Personal Expense Category</label>
                         <select id="personal_sub" class="w-full bg-white/80 border border-slate-200 rounded-xl p-2 text-sm text-slate-800 shadow-sm">
-                            <option value="Salary">1. Salary</option>
-                            <option value="Rent">2. Rent</option>
-                            <option value="Utility">3. Utility</option>
-                            <option value="Equipment">4. Equipment</option>
-                            <option value="Others">5. Others</option>
+                            <option value="Food">Food</option>
+                            <option value="Groceries">Groceries</option>
+                            <option value="Utility">Utility</option>
+                            <option value="Fueling and Transportation">Fueling and Transportation</option>
                         </select>
                     </div>
 
@@ -231,23 +230,21 @@
                         <div>
                             <label class="text-[11px] text-slate-600 font-semibold">Shop Expense Type</label>
                             <select id="shop_sub" class="w-full bg-white/80 border border-slate-200 rounded-xl p-2 text-sm text-slate-800 shadow-sm">
-                                <option value="Salary">1. Salary</option>
-                                <option value="Rent">2. Rent</option>
-                                <option value="Utility">3. Utility</option>
-                                <option value="Equipment">4. Equipment</option>
-                                <option value="Others">5. Others</option>
+                                <option value="Paper">Paper</option>
+                                <option value="Data">Data</option>
+                                <option value="Salary">Salary</option>
+                                <option value="Utility">Utility</option>
                             </select>
                         </div>
                     </div>
 
                     <div id="techxted-sub-panel" class="space-y-2 bg-slate-50/80 p-3 rounded-2xl border border-slate-200 hidden">
-                        <label class="text-[11px] text-slate-600 font-semibold">TechXted Expense Category</label>
+                        <label class="text-[11px] text-slate-600 font-semibold">TechXted Expense Type</label>
                         <select id="techxted_sub" class="w-full bg-white/80 border border-slate-200 rounded-xl p-2 text-sm text-slate-800 shadow-sm">
-                            <option value="Salary">1. Salary</option>
-                            <option value="Rent">2. Rent</option>
-                            <option value="Utility">3. Utility</option>
-                            <option value="Equipment">4. Equipment</option>
-                            <option value="Others">5. Others</option>
+                            <option value="Gadgets">Gadgets</option>
+                            <option value="Software">Software</option>
+                            <option value="Maintenance">Maintenance</option>
+                            <option value="Marketing">Marketing</option>
                         </select>
                     </div>
                 </div>
@@ -276,11 +273,11 @@
                         <div>
                             <label class="text-[11px] text-slate-600 font-semibold">Personal Income Sub-Category</label>
                             <select id="income_personal_sub" class="w-full mt-1 bg-white/80 border border-slate-200 rounded-xl p-2 text-sm text-slate-800 shadow-sm">
-                                <option value="Salary">1. Salary</option>
-                                <option value="Rent">2. Rent</option>
-                                <option value="Utility">3. Utility</option>
-                                <option value="Equipment">4. Equipment</option>
-                                <option value="Others">5. Others</option>
+                                <option value="Service">Service</option>
+                                <option value="Sales">Sales</option>
+                                <option value="Commission">Commission</option>
+                                <option value="Gift">Gift</option>
+                                <option value="Salary">Salary</option>
                             </select>
                         </div>
                     </div>
@@ -302,11 +299,11 @@
                         <div>
                             <label class="text-[11px] text-slate-600 font-semibold">Shop Income Sub-Category</label>
                             <select id="income_shop_sub" class="w-full mt-1 bg-white/80 border border-slate-200 rounded-xl p-2 text-sm text-slate-800 shadow-sm">
-                                <option value="Salary">1. Salary</option>
-                                <option value="Rent">2. Rent</option>
-                                <option value="Utility">3. Utility</option>
-                                <option value="Equipment">4. Equipment</option>
-                                <option value="Others">5. Others</option>
+                                <option value="Service">Service</option>
+                                <option value="Sales">Sales</option>
+                                <option value="Commission">Commission</option>
+                                <option value="Gift">Gift</option>
+                                <option value="Bonus">Bonus</option>
                             </select>
                         </div>
                     </div>
@@ -316,11 +313,10 @@
                         <div>
                             <label class="text-[11px] text-slate-600 font-semibold">Income Sub-Category</label>
                             <select id="income_standard_sub" class="w-full mt-1 bg-white/80 border border-slate-200 rounded-xl p-2 text-sm text-slate-800 shadow-sm">
-                                <option value="Salary">1. Salary</option>
-                                <option value="Rent">2. Rent</option>
-                                <option value="Utility">3. Utility</option>
-                                <option value="Equipment">4. Equipment</option>
-                                <option value="Others">5. Others</option>
+                                <option value="Service">Service</option>
+                                <option value="Sales">Sales</option>
+                                <option value="Commission">Commission</option>
+                                <option value="Gift">Gift</option>
                             </select>
                         </div>
                     </div>
@@ -374,9 +370,9 @@
                 </select>
             </div>
 
-            <!-- Tier 4: Sub-Category Filter -->
+            <!-- Tier 4: Income Sub-Category Filter -->
             <div id="report-income-sub-wrapper" class="hidden">
-                <label class="text-[10px] text-slate-600 font-semibold">4. Sub-Category Filter</label>
+                <label class="text-[10px] text-slate-600 font-semibold">4. Income Sub-Category Filter</label>
                 <select id="report-income-sub-filter" onchange="renderReports()" class="w-full mt-1 bg-slate-50/80 border border-slate-200 rounded-2xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 shadow-sm">
                     <option value="all">All Sub-Categories</option>
                 </select>
@@ -549,7 +545,6 @@
                 imgEl.classList.remove('hidden');
                 initialEl.classList.add('hidden');
             }
-            updateReportSubFilters();
         });
 
         function handleProfilePictureUpload(event) {
@@ -632,7 +627,6 @@
 
         typeSelect.addEventListener('change', toggleFormMode);
         incomeMainCategory.addEventListener('change', toggleIncomeCategoryMode);
-        trackingTypeSelect.addEventListener('change', toggleFormMode);
 
         function updateReportSubFilters() {
             const typeFilter = document.getElementById('report-type-filter').value;
@@ -679,9 +673,16 @@
 
             incomeSubFilter.innerHTML = '<option value="all">All Sub-Categories</option>';
 
-            if (catFilterVal !== 'all') {
+            if (typeFilter === 'income' && catFilterVal !== 'all') {
                 incomeSubWrapper.classList.remove('hidden');
-                let subOptions = ['Salary', 'Rent', 'Utility', 'Equipment', 'Others'];
+                let subOptions = [];
+                if (catFilterVal === 'Personal Income') {
+                    subOptions = ['Service', 'Sales', 'Commission', 'Gift', 'Salary'];
+                } else if (catFilterVal === 'Shop Based Income') {
+                    subOptions = ['Service', 'Sales', 'Commission', 'Gift', 'Bonus'];
+                } else {
+                    subOptions = ['Service', 'Sales', 'Commission', 'Gift'];
+                }
                 subOptions.forEach(sub => {
                     incomeSubFilter.innerHTML += `<option value="${sub}">${sub}</option>`;
                 });
@@ -751,6 +752,7 @@
                 subCat = trackingType;
             }
 
+            // Fixed timestamp generation: Uses current local time hours/minutes/seconds matched with the chosen date
             const currentTime = new Date();
             const finalTimestamp = new Date(`${txDateVal}T${currentTime.toTimeString().split(' ')[0]}`).toISOString();
 
@@ -830,23 +832,23 @@
 
                 if (mainCat === 'Personal Income') {
                     document.getElementById('income_personal_executor').value = tx.executor || 'Adel';
-                    document.getElementById('income_personal_sub').value = tx.sub_category || 'Salary';
+                    document.getElementById('income_personal_sub').value = tx.sub_category || 'Service';
                 } else if (mainCat === 'Shop Based Income') {
                     document.getElementById('income_shop_location').value = tx.shop || 'Elewi Odo';
-                    document.getElementById('income_shop_sub').value = tx.sub_category || 'Salary';
+                    document.getElementById('income_shop_sub').value = tx.sub_category || 'Service';
                 } else {
-                    document.getElementById('income_standard_sub').value = tx.sub_category || 'Salary';
+                    document.getElementById('income_standard_sub').value = tx.sub_category || 'Service';
                 }
             } else {
                 trackingTypeSelect.value = tx.tracking_type || 'Personal';
                 trackingTypeSelect.dispatchEvent(new Event('change'));
                 if (tx.tracking_type === 'Personal') {
-                    document.getElementById('personal_sub').value = tx.sub_category || 'Salary';
+                    document.getElementById('personal_sub').value = tx.sub_category || 'Food';
                 } else if (tx.tracking_type === 'Shop') {
                     document.getElementById('shop_location').value = tx.shop || 'Elewi Odo';
-                    document.getElementById('shop_sub').value = tx.sub_category || 'Salary';
+                    document.getElementById('shop_sub').value = tx.sub_category || 'Paper';
                 } else if (tx.tracking_type === 'TechXted') {
-                    document.getElementById('techxted_sub').value = tx.sub_category || 'Salary';
+                    document.getElementById('techxted_sub').value = tx.sub_category || 'Gadgets';
                 }
             }
             document.getElementById('note').value = tx.note || '';
@@ -965,7 +967,7 @@
                 }
 
                 let matchesSubCat = true;
-                if (incomeSubFilter !== 'all') {
+                if (incomeSubFilter !== 'all' && t.type === 'income') {
                     matchesSubCat = (t.sub_category === incomeSubFilter);
                 }
 
