@@ -274,11 +274,11 @@
                         <div>
                             <label class="text-[11px] text-slate-600 font-semibold">Personal Income Sub-Category</label>
                             <select id="income_personal_sub" class="w-full mt-1 bg-white/80 border border-slate-200 rounded-xl p-2 text-sm text-slate-800 shadow-sm">
-                                <option value="Service">Service</option>
-                                <option value="Sales">Sales</option>
-                                <option value="Commission">Commission</option>
-                                <option value="Gift">Gift</option>
-                                <option value="Salary">Salary</option>
+                                <option value="Salary">1. Salary</option>
+                                <option value="Utility">2. Utility</option>
+                                <option value="Rent">3. Rent</option>
+                                <option value="Equipment">4. Equipment</option>
+                                <option value="Others">5. Others</option>
                             </select>
                         </div>
                     </div>
@@ -300,11 +300,11 @@
                         <div>
                             <label class="text-[11px] text-slate-600 font-semibold">Shop Income Sub-Category</label>
                             <select id="income_shop_sub" class="w-full mt-1 bg-white/80 border border-slate-200 rounded-xl p-2 text-sm text-slate-800 shadow-sm">
-                                <option value="Service">Service</option>
-                                <option value="Sales">Sales</option>
-                                <option value="Commission">Commission</option>
-                                <option value="Gift">Gift</option>
-                                <option value="Bonus">Bonus</option>
+                                <option value="Salary">1. Salary</option>
+                                <option value="Utility">2. Utility</option>
+                                <option value="Rent">3. Rent</option>
+                                <option value="Equipment">4. Equipment</option>
+                                <option value="Others">5. Others</option>
                             </select>
                         </div>
                     </div>
@@ -314,10 +314,11 @@
                         <div>
                             <label class="text-[11px] text-slate-600 font-semibold">Income Sub-Category</label>
                             <select id="income_standard_sub" class="w-full mt-1 bg-white/80 border border-slate-200 rounded-xl p-2 text-sm text-slate-800 shadow-sm">
-                                <option value="Service">Service</option>
-                                <option value="Sales">Sales</option>
-                                <option value="Commission">Commission</option>
-                                <option value="Gift">Gift</option>
+                                <option value="Salary">1. Salary</option>
+                                <option value="Utility">2. Utility</option>
+                                <option value="Rent">3. Rent</option>
+                                <option value="Equipment">4. Equipment</option>
+                                <option value="Others">5. Others</option>
                             </select>
                         </div>
                     </div>
@@ -678,14 +679,7 @@
 
             if (typeFilter === 'income' && catFilterVal !== 'all') {
                 incomeSubWrapper.classList.remove('hidden');
-                let subOptions = [];
-                if (catFilterVal === 'Personal Income') {
-                    subOptions = ['Service', 'Sales', 'Commission', 'Gift', 'Salary'];
-                } else if (catFilterVal === 'Shop Based Income') {
-                    subOptions = ['Service', 'Sales', 'Commission', 'Gift', 'Bonus'];
-                } else {
-                    subOptions = ['Service', 'Sales', 'Commission', 'Gift'];
-                }
+                let subOptions = ['Salary', 'Utility', 'Rent', 'Equipment', 'Others'];
                 subOptions.forEach(sub => {
                     incomeSubFilter.innerHTML += `<option value="${sub}">${sub}</option>`;
                 });
@@ -834,12 +828,12 @@
 
                 if (mainCat === 'Personal Income') {
                     document.getElementById('income_personal_executor').value = tx.executor || 'Adel';
-                    document.getElementById('income_personal_sub').value = tx.sub_category || 'Service';
+                    document.getElementById('income_personal_sub').value = tx.sub_category || 'Salary';
                 } else if (mainCat === 'Shop Based Income') {
                     document.getElementById('income_shop_location').value = tx.shop || 'Elewi Odo';
-                    document.getElementById('income_shop_sub').value = tx.sub_category || 'Service';
+                    document.getElementById('income_shop_sub').value = tx.sub_category || 'Salary';
                 } else {
-                    document.getElementById('income_standard_sub').value = tx.sub_category || 'Service';
+                    document.getElementById('income_standard_sub').value = tx.sub_category || 'Salary';
                 }
             } else {
                 trackingTypeSelect.value = tx.tracking_type || 'Personal';
