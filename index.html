@@ -189,6 +189,7 @@
                         <select id="tracking_type" onchange="toggleFormMode()" class="w-full mt-1 bg-slate-50/80 border border-slate-200 rounded-2xl p-2.5 text-sm text-slate-800 focus:outline-none focus:border-emerald-500 shadow-inner">
                             <option value="Personal">Fixed Personal</option>
                             <option value="Shop">Fixed Shop Based</option>
+                            <option value="TechXted">TechXted</option>
                             <option value="Random">Random Expense</option>
                             <option value="Savings">Savings</option>
                         </select>
@@ -235,6 +236,17 @@
                                 <option value="Utility">Utility</option>
                             </select>
                         </div>
+                    </div>
+
+                    <div id="techxted-sub-panel" class="space-y-2 bg-slate-50/80 p-3 rounded-2xl border border-slate-200 hidden">
+                        <label class="text-[11px] text-slate-600 font-semibold">TechXted Expense Category</label>
+                        <select id="techxted_sub" class="w-full bg-white/80 border border-slate-200 rounded-xl p-2 text-sm text-slate-800 shadow-sm">
+                            <option value="Subscriptions">Subscriptions</option>
+                            <option value="Hosting and Server">Hosting and Server</option>
+                            <option value="Tools and Software">Tools and Software</option>
+                            <option value="Marketing">Marketing</option>
+                            <option value="Development">Development</option>
+                        </select>
                     </div>
                 </div>
 
@@ -559,6 +571,7 @@
         const trackingTypeSelect = document.getElementById('tracking_type');
         const personalPanel = document.getElementById('personal-sub-panel');
         const shopPanel = document.getElementById('shop-sub-panel');
+        const techxtedPanel = document.getElementById('techxted-sub-panel');
         const incomePanel = document.getElementById('income-panel');
         
         const incomeMainCategory = document.getElementById('income_main_category');
@@ -600,6 +613,7 @@
             if (type === 'income') {
                 personalPanel.classList.add('hidden');
                 shopPanel.classList.add('hidden');
+                techxtedPanel.classList.add('hidden');
                 incomePanel.classList.remove('hidden');
                 trackingTypeSelect.parentElement.classList.add('hidden');
                 toggleIncomeCategoryMode();
@@ -609,6 +623,7 @@
                 const val = trackingTypeSelect.value;
                 personalPanel.classList.toggle('hidden', val !== 'Personal');
                 shopPanel.classList.toggle('hidden', val !== 'Shop');
+                techxtedPanel.classList.toggle('hidden', val !== 'TechXted');
             }
         }
 
@@ -632,6 +647,7 @@
                 catFilter.innerHTML += `
                     <option value="Personal">Fixed Personal</option>
                     <option value="Shop">Fixed Shop Based</option>
+                    <option value="TechXted">TechXted</option>
                     <option value="Random">Random Expense</option>
                     <option value="Savings">Savings</option>
                 `;
@@ -643,6 +659,7 @@
                     <option value="Others">Income: Others</option>
                     <option value="Personal">Expense: Fixed Personal</option>
                     <option value="Shop">Expense: Fixed Shop Based</option>
+                    <option value="TechXted">Expense: TechXted</option>
                     <option value="Random">Expense: Random</option>
                     <option value="Savings">Expense: Savings</option>
                 `;
@@ -732,6 +749,8 @@
             } else if (trackingType === 'Shop') {
                 subCat = document.getElementById('shop_sub').value;
                 shopLoc = document.getElementById('shop_location').value;
+            } else if (trackingType === 'TechXted') {
+                subCat = document.getElementById('techxted_sub').value;
             } else {
                 subCat = trackingType;
             }
@@ -830,6 +849,8 @@
                 } else if (tx.tracking_type === 'Shop') {
                     document.getElementById('shop_location').value = tx.shop || 'Elewi Odo';
                     document.getElementById('shop_sub').value = tx.sub_category || 'Paper';
+                } else if (tx.tracking_type === 'TechXted') {
+                    document.getElementById('techxted_sub').value = tx.sub_category || 'Subscriptions';
                 }
             }
             document.getElementById('note').value = tx.note || '';
