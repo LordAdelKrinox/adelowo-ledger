@@ -3,12 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adelowo's Ledger</title>
+    <title>Adelowo Akíngbàṣẹ Ledger - Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <!-- Security Check: Redirect back to index if not unlocked -->
+    <script>
+        if (sessionStorage.getItem('ledger_unlocked') !== 'true') {
+            window.location.href = 'index.html';
+        }
+    </script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        ledgerDark: '#022c22',
+                        ledgerLemon: '#84cc16',
+                        ledgerEmerald: '#059669',
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
         @keyframes pulse-red {
             0%, 100% {
@@ -22,20 +44,20 @@
             animation: pulse-red 2.5s infinite ease-in-out;
         }
         body {
-            background: linear-gradient(135deg, #0f766e 0%, #042f2e 45%, #022c22 100%);
+            background: linear-gradient(135deg, #064e3b 0%, #022c22 45%, #021a14 100%);
             background-attachment: fixed;
         }
         .chart-container-3d {
-            filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.1));
+            filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.2));
         }
     </style>
 </head>
-<body id="app-body" class="text-slate-800 font-sans antialiased pb-28 transition-all duration-500 min-h-screen">
+<body id="app-body" class="text-slate-100 font-sans antialiased pb-28 transition-all duration-500 min-h-screen">
 
     <!-- Top Header -->
-    <header class="bg-gradient-to-r from-teal-900/90 to-emerald-950/90 backdrop-blur-md border-b border-white/10 p-4 sticky top-0 z-20 flex justify-between items-center shadow-md text-white">
+    <header class="bg-slate-950/80 backdrop-blur-md border-b border-white/10 p-4 sticky top-0 z-20 flex justify-between items-center shadow-md text-white">
         <div class="flex items-center gap-3">
-            <div onclick="document.getElementById('profile-upload-input').click()" class="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-400 to-orange-500 flex items-center justify-center text-slate-950 font-bold shadow-md overflow-hidden cursor-pointer relative group" title="Click to change profile picture">
+            <div onclick="document.getElementById('profile-upload-input').click()" class="w-10 h-10 rounded-full bg-gradient-to-tr from-lime-400 to-emerald-600 flex items-center justify-center text-slate-950 font-bold shadow-md overflow-hidden cursor-pointer relative group" title="Click to change profile picture">
                 <span id="profile-initial" class="text-sm">A</span>
                 <img id="profile-img-preview" class="w-full h-full object-cover hidden" alt="Profile">
                 <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-[9px] text-white font-medium">Edit</div>
@@ -44,9 +66,9 @@
             <div>
                 <div class="flex items-center gap-1.5">
                     <h1 class="text-xs font-bold tracking-tight text-white">Hi, ADELOWO</h1>
-                    <span class="bg-emerald-500/20 text-emerald-300 text-[9px] font-semibold px-2 py-0.5 rounded-full border border-emerald-500/30">Executor</span>
+                    <span class="bg-lime-500/20 text-lime-300 text-[9px] font-semibold px-2 py-0.5 rounded-full border border-lime-500/30">Executor</span>
                 </div>
-                <p id="current-date" class="text-[10px] text-emerald-200/80 font-medium mt-0.5"></p>
+                <p id="current-date" class="text-[10px] text-slate-400 font-medium mt-0.5"></p>
             </div>
         </div>
         <div class="flex items-center gap-1.5 flex-wrap justify-end">
@@ -59,120 +81,120 @@
     <main class="p-4 max-w-md mx-auto space-y-4">
 
         <!-- Main Balance Card Style -->
-        <section class="bg-white/85 backdrop-blur-xl border border-white/40 p-5 rounded-3xl shadow-xl space-y-4 relative overflow-hidden text-slate-800">
-            <div class="absolute -right-10 -top-10 w-32 h-32 bg-emerald-400/20 rounded-full blur-2xl pointer-events-none"></div>
+        <section class="bg-slate-900/90 backdrop-blur-xl border border-slate-800 p-5 rounded-3xl shadow-xl space-y-4 relative overflow-hidden text-slate-100">
+            <div class="absolute -right-10 -top-10 w-32 h-32 bg-lime-500/10 rounded-full blur-2xl pointer-events-none"></div>
             
             <div class="flex justify-between items-start">
                 <div>
-                    <p class="text-[11px] text-slate-500 font-semibold uppercase tracking-wider">Available Balance</p>
+                    <p class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider">Available Balance</p>
                     <div class="flex items-baseline gap-2 mt-0.5">
-                        <span id="total-net" class="text-2xl font-black text-slate-900 tracking-tight">₦0</span>
+                        <span id="total-net" class="text-2xl font-black text-white tracking-tight">₦0</span>
                     </div>
                 </div>
                 <div class="text-right">
-                    <p class="text-[11px] text-slate-500 font-semibold uppercase tracking-wider">Net Position</p>
-                    <p id="health-net-badge-top" class="text-xs font-bold text-emerald-600 mt-1">Balanced</p>
+                    <p class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider">Net Position</p>
+                    <p id="health-net-badge-top" class="text-xs font-bold text-lime-400 mt-1">Balanced</p>
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-100">
-                <div class="bg-slate-50/80 p-3 rounded-2xl border border-slate-200/60 shadow-sm">
-                    <p class="text-[10px] text-slate-500 uppercase font-bold">Total Income</p>
-                    <p id="total-income" class="text-sm font-extrabold text-emerald-600 mt-0.5">₦0</p>
+            <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-800">
+                <div class="bg-slate-950/60 p-3 rounded-2xl border border-slate-800 shadow-sm">
+                    <p class="text-[10px] text-slate-400 uppercase font-bold">Total Income</p>
+                    <p id="total-income" class="text-sm font-extrabold text-lime-400 mt-0.5">₦0</p>
                 </div>
-                <div class="bg-slate-50/80 p-3 rounded-2xl border border-slate-200/60 shadow-sm">
-                    <p class="text-[10px] text-slate-500 uppercase font-bold">Total Expenses</p>
-                    <p id="total-expense" class="text-sm font-extrabold text-rose-600 mt-0.5">₦0</p>
+                <div class="bg-slate-950/60 p-3 rounded-2xl border border-slate-800 shadow-sm">
+                    <p class="text-[10px] text-slate-400 uppercase font-bold">Total Expenses</p>
+                    <p id="total-expense" class="text-sm font-extrabold text-rose-400 mt-0.5">₦0</p>
                 </div>
             </div>
         </section>
 
         <!-- Quick Icon Actions Grid -->
-        <section class="bg-white/85 backdrop-blur-xl border border-white/40 p-4 rounded-3xl shadow-lg">
+        <section class="bg-slate-900/90 backdrop-blur-xl border border-slate-800 p-4 rounded-3xl shadow-lg">
             <div class="grid grid-cols-4 gap-3 text-center">
                 <button type="button" onclick="scrollToForm('income')" class="group flex flex-col items-center gap-1.5 focus:outline-none">
-                    <div class="w-12 h-12 rounded-2xl bg-emerald-50 group-hover:bg-emerald-100 border border-emerald-200 flex items-center justify-center text-emerald-600 transition-all shadow-sm">
+                    <div class="w-12 h-12 rounded-2xl bg-lime-500/10 group-hover:bg-lime-500/20 border border-lime-500/30 flex items-center justify-center text-lime-400 transition-all shadow-sm">
                         <span class="text-lg">📥</span>
                     </div>
-                    <span class="text-[11px] font-semibold text-slate-700">Income</span>
+                    <span class="text-[11px] font-semibold text-slate-300">Income</span>
                 </button>
                 <button type="button" onclick="scrollToForm('expense')" class="group flex flex-col items-center gap-1.5 focus:outline-none">
-                    <div class="w-12 h-12 rounded-2xl bg-rose-50 group-hover:bg-rose-100 border border-rose-200 flex items-center justify-center text-rose-600 transition-all shadow-sm">
+                    <div class="w-12 h-12 rounded-2xl bg-rose-500/10 group-hover:bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-rose-400 transition-all shadow-sm">
                         <span class="text-lg">📤</span>
                     </div>
-                    <span class="text-[11px] font-semibold text-slate-700">Expense</span>
+                    <span class="text-[11px] font-semibold text-slate-300">Expense</span>
                 </button>
                 <button type="button" onclick="scrollToReports()" class="group flex flex-col items-center gap-1.5 focus:outline-none">
-                    <div class="w-12 h-12 rounded-2xl bg-teal-50 group-hover:bg-teal-100 border border-teal-200 flex items-center justify-center text-teal-700 transition-all shadow-sm">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 group-hover:bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 transition-all shadow-sm">
                         <span class="text-lg">📊</span>
                     </div>
-                    <span class="text-[11px] font-semibold text-slate-700">Reports</span>
+                    <span class="text-[11px] font-semibold text-slate-300">Reports</span>
                 </button>
                 <a href="asset.html" class="group flex flex-col items-center gap-1.5 focus:outline-none">
-                    <div class="w-12 h-12 rounded-2xl bg-amber-50 group-hover:bg-amber-100 border border-amber-200 flex items-center justify-center text-amber-600 transition-all shadow-sm">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-500/10 group-hover:bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 transition-all shadow-sm">
                         <span class="text-lg">🏢</span>
                     </div>
-                    <span class="text-[11px] font-semibold text-slate-700">Assets</span>
+                    <span class="text-[11px] font-semibold text-slate-300">Assets</span>
                 </a>
             </div>
         </section>
 
         <!-- Weekly Financial Health Dashboard -->
-        <section class="bg-white/85 backdrop-blur-xl border border-white/40 p-4 rounded-3xl shadow-lg space-y-3 text-slate-800">
+        <section class="bg-slate-900/90 backdrop-blur-xl border border-slate-800 p-4 rounded-3xl shadow-lg space-y-3 text-slate-100">
             <div class="flex justify-between items-center">
                 <div class="flex items-center gap-2">
-                    <h2 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Weekly Health (Tue - Mon)</h2>
-                    <button type="button" onclick="promptResetDashboard()" title="Manual Reset for New Week" class="bg-slate-100 hover:bg-slate-200 text-emerald-700 text-[10px] px-2 py-0.5 rounded-lg border border-slate-200 font-semibold transition-colors flex items-center gap-1">
+                    <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Weekly Health (Tue - Mon)</h2>
+                    <button type="button" onclick="promptResetDashboard()" title="Manual Reset for New Week" class="bg-slate-800 hover:bg-slate-700 text-lime-400 text-[10px] px-2 py-0.5 rounded-lg border border-slate-700 font-semibold transition-colors flex items-center gap-1">
                         🔄 Reset
                     </button>
-                    <button type="button" id="undo-reset-btn" onclick="undoResetDashboard()" title="Undo Last Reset" class="hidden bg-amber-100 hover:bg-amber-200 text-amber-800 text-[10px] px-2 py-0.5 rounded-lg border border-amber-300 font-semibold transition-colors flex items-center gap-1">
+                    <button type="button" id="undo-reset-btn" onclick="undoResetDashboard()" title="Undo Last Reset" class="hidden bg-amber-950/60 hover:bg-amber-900/80 text-amber-300 text-[10px] px-2 py-0.5 rounded-lg border border-amber-700 font-semibold transition-colors flex items-center gap-1">
                         ↩️ Undo
                     </button>
                 </div>
                 <span id="health-badge" class="text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide">Calculating...</span>
             </div>
             <div class="grid grid-cols-3 gap-2 text-center pt-1">
-                <div class="bg-slate-50/80 p-2.5 rounded-2xl border border-slate-200/60">
-                    <p class="text-[10px] text-slate-500 uppercase font-bold">Inflow</p>
-                    <p id="health-inflow" class="text-xs font-bold text-emerald-600 mt-1">₦0</p>
+                <div class="bg-slate-950/60 p-2.5 rounded-2xl border border-slate-800">
+                    <p class="text-[10px] text-slate-400 uppercase font-bold">Inflow</p>
+                    <p id="health-inflow" class="text-xs font-bold text-lime-400 mt-1">₦0</p>
                 </div>
-                <div class="bg-slate-50/80 p-2.5 rounded-2xl border border-slate-200/60">
-                    <p class="text-[10px] text-slate-500 uppercase font-bold">Outflow</p>
-                    <p id="health-outflow" class="text-xs font-bold text-rose-600 mt-1">₦0</p>
+                <div class="bg-slate-950/60 p-2.5 rounded-2xl border border-slate-800">
+                    <p class="text-[10px] text-slate-400 uppercase font-bold">Outflow</p>
+                    <p id="health-outflow" class="text-xs font-bold text-rose-400 mt-1">₦0</p>
                 </div>
-                <div class="bg-slate-50/80 p-2.5 rounded-2xl border border-slate-200/60">
-                    <p class="text-[10px] text-slate-500 uppercase font-bold">Net Position</p>
-                    <p id="health-net" class="text-xs font-bold text-slate-700 mt-1">₦0</p>
+                <div class="bg-slate-950/60 p-2.5 rounded-2xl border border-slate-800">
+                    <p class="text-[10px] text-slate-400 uppercase font-bold">Net Position</p>
+                    <p id="health-net" class="text-xs font-bold text-slate-200 mt-1">₦0</p>
                 </div>
             </div>
         </section>
 
         <!-- Financial Overview Pie Chart Section -->
-        <section class="bg-white/85 backdrop-blur-xl p-4 rounded-3xl border border-white/40 shadow-xl space-y-3 text-slate-800">
-            <h2 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Financial Breakdown Chart</h2>
+        <section class="bg-slate-900/90 backdrop-blur-xl p-4 rounded-3xl border border-slate-800 shadow-xl space-y-3 text-slate-100">
+            <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Financial Breakdown Chart</h2>
             <div class="relative w-full h-52 flex justify-center items-center chart-container-3d">
                 <canvas id="financialPieChart"></canvas>
             </div>
         </section>
 
         <!-- Quick Entry Form -->
-        <section id="entry-form-section" class="bg-white/85 backdrop-blur-xl p-4 rounded-3xl border border-white/40 shadow-lg space-y-3 text-slate-800">
-            <h2 id="form-title" class="text-xs font-bold text-slate-700 uppercase tracking-wider">Log Transaction</h2>
+        <section id="entry-form-section" class="bg-slate-900/90 backdrop-blur-xl p-4 rounded-3xl border border-slate-800 shadow-lg space-y-3 text-slate-100">
+            <h2 id="form-title" class="text-xs font-bold text-slate-300 uppercase tracking-wider">Log Transaction</h2>
             <form id="transaction-form" class="space-y-3">
                 <input type="hidden" id="edit-id" value="">
                 
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="text-[11px] text-slate-600 font-semibold">Executor</label>
-                        <select id="executor" required class="w-full mt-1 bg-slate-50/80 border border-slate-200 rounded-2xl p-2.5 text-sm text-slate-800 focus:outline-none focus:border-emerald-500 shadow-inner">
+                        <label class="text-[11px] text-slate-300 font-semibold">Executor</label>
+                        <select id="executor" required class="w-full mt-1 bg-slate-950 border border-slate-700 rounded-2xl p-2.5 text-sm text-white focus:outline-none focus:border-lime-500 shadow-inner">
                             <option value="">Select Executor</option>
                             <option value="Adel">Adel</option>
                             <option value="Chinyere">Chinyere</option>
                         </select>
                     </div>
                     <div>
-                        <label class="text-[11px] text-slate-600 font-semibold">Type</label>
-                        <select id="type" required onchange="toggleFormMode()" class="w-full mt-1 bg-slate-50/80 border border-slate-200 rounded-2xl p-2.5 text-sm text-slate-800 focus:outline-none focus:border-emerald-500 shadow-inner">
+                        <label class="text-[11px] text-slate-300 font-semibold">Type</label>
+                        <select id="type" required onchange="toggleFormMode()" class="w-full mt-1 bg-slate-950 border border-slate-700 rounded-2xl p-2.5 text-sm text-white focus:outline-none focus:border-lime-500 shadow-inner">
                             <option value="expense">Expense</option>
                             <option value="income">Income</option>
                         </select>
@@ -181,12 +203,12 @@
 
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="text-[11px] text-slate-600 font-semibold">Amount (₦)</label>
-                        <input type="number" id="amount" step="0.01" min="0.01" required placeholder="1.00" class="w-full mt-1 bg-slate-50/80 border border-slate-200 rounded-2xl p-2.5 text-sm text-slate-800 focus:outline-none focus:border-emerald-500 placeholder-slate-400 shadow-inner">
+                        <label class="text-[11px] text-slate-300 font-semibold">Amount (₦)</label>
+                        <input type="number" id="amount" step="0.01" min="0.01" required placeholder="1.00" class="w-full mt-1 bg-slate-950 border border-slate-700 rounded-2xl p-2.5 text-sm text-white focus:outline-none focus:border-lime-500 placeholder-slate-500 shadow-inner">
                     </div>
                     <div id="channel-container">
-                        <label class="text-[11px] text-slate-600 font-semibold">Category Channel</label>
-                        <select id="tracking_type" onchange="toggleFormMode()" class="w-full mt-1 bg-slate-50/80 border border-slate-200 rounded-2xl p-2.5 text-sm text-slate-800 focus:outline-none focus:border-emerald-500 shadow-inner">
+                        <label class="text-[11px] text-slate-300 font-semibold">Category Channel</label>
+                        <select id="tracking_type" onchange="toggleFormMode()" class="w-full mt-1 bg-slate-950 border border-slate-700 rounded-2xl p-2.5 text-sm text-white focus:outline-none focus:border-lime-500 shadow-inner">
                             <option value="Personal">Fixed Personal</option>
                             <option value="Shop">Fixed Shop Based</option>
                             <option value="TechXted">TechXted</option>
@@ -198,15 +220,15 @@
 
                 <!-- Transaction Date Picker -->
                 <div>
-                    <label class="text-[11px] text-slate-600 font-semibold">Transaction Date</label>
-                    <input type="date" id="transaction_date" required class="w-full mt-1 bg-slate-50/80 border border-slate-200 rounded-2xl p-2.5 text-sm text-slate-800 focus:outline-none focus:border-emerald-500 shadow-inner">
+                    <label class="text-[11px] text-slate-300 font-semibold">Transaction Date</label>
+                    <input type="date" id="transaction_date" required class="w-full mt-1 bg-slate-950 border border-slate-700 rounded-2xl p-2.5 text-sm text-white focus:outline-none focus:border-lime-500 shadow-inner">
                 </div>
 
                 <!-- Dynamic Expense Panels -->
                 <div id="expense-panels-wrapper">
-                    <div id="personal-sub-panel" class="space-y-2 bg-slate-50/80 p-3 rounded-2xl border border-slate-200">
-                        <label class="text-[11px] text-slate-600 font-semibold">Personal Expense Category</label>
-                        <select id="personal_sub" class="w-full bg-white/80 border border-slate-200 rounded-xl p-2 text-sm text-slate-800 shadow-sm">
+                    <div id="personal-sub-panel" class="space-y-2 bg-slate-950/60 p-3 rounded-2xl border border-slate-800">
+                        <label class="text-[11px] text-slate-300 font-semibold">Personal Expense Category</label>
+                        <select id="personal_sub" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2 text-sm text-white shadow-sm">
                             <option value="Food">Food</option>
                             <option value="Groceries">Groceries</option>
                             <option value="Utility">Utility</option>
@@ -214,10 +236,10 @@
                         </select>
                     </div>
 
-                    <div id="shop-sub-panel" class="space-y-2 bg-slate-50/80 p-3 rounded-2xl border border-slate-200 hidden">
+                    <div id="shop-sub-panel" class="space-y-2 bg-slate-950/60 p-3 rounded-2xl border border-slate-800 hidden">
                         <div>
-                            <label class="text-[11px] text-slate-600 font-semibold">Select Shop Location</label>
-                            <select id="shop_location" class="w-full bg-white/80 border border-slate-200 rounded-xl p-2 text-sm text-slate-800 mb-2 shadow-sm">
+                            <label class="text-[11px] text-slate-300 font-semibold">Select Shop Location</label>
+                            <select id="shop_location" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2 text-sm text-white mb-2 shadow-sm">
                                 <option value="Elewi Odo">Elewi Odo</option>
                                 <option value="10/10">10/10</option>
                                 <option value="Idi Ape">Idi Ape</option>
@@ -228,8 +250,8 @@
                             </select>
                         </div>
                         <div>
-                            <label class="text-[11px] text-slate-600 font-semibold">Shop Expense Type</label>
-                            <select id="shop_sub" class="w-full bg-white/80 border border-slate-200 rounded-xl p-2 text-sm text-slate-800 shadow-sm">
+                            <label class="text-[11px] text-slate-300 font-semibold">Shop Expense Type</label>
+                            <select id="shop_sub" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2 text-sm text-white shadow-sm">
                                 <option value="Paper">Paper</option>
                                 <option value="Data">Data</option>
                                 <option value="Salary">Salary</option>
@@ -238,9 +260,9 @@
                         </div>
                     </div>
 
-                    <div id="techxted-sub-panel" class="space-y-2 bg-slate-50/80 p-3 rounded-2xl border border-slate-200 hidden">
-                        <label class="text-[11px] text-slate-600 font-semibold">TechXted Expense Type</label>
-                        <select id="techxted_sub" class="w-full bg-white/80 border border-slate-200 rounded-xl p-2 text-sm text-slate-800 shadow-sm">
+                    <div id="techxted-sub-panel" class="space-y-2 bg-slate-950/60 p-3 rounded-2xl border border-slate-800 hidden">
+                        <label class="text-[11px] text-slate-300 font-semibold">TechXted Expense Type</label>
+                        <select id="techxted_sub" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2 text-sm text-white shadow-sm">
                             <option value="Salary">Salary</option>
                             <option value="Rent">Rent</option>
                             <option value="Utility">Utility</option>
@@ -251,10 +273,10 @@
                 </div>
 
                 <!-- Dynamic Income Panels -->
-                <div id="income-panel" class="space-y-3 bg-slate-50/80 p-3 rounded-2xl border border-slate-200 hidden">
+                <div id="income-panel" class="space-y-3 bg-slate-950/60 p-3 rounded-2xl border border-slate-800 hidden">
                     <div>
-                        <label class="text-[11px] text-slate-600 font-semibold">Income Level Category</label>
-                        <select id="income_main_category" onchange="toggleIncomeCategoryMode()" class="w-full mt-1 bg-white/80 border border-slate-200 rounded-xl p-2 text-sm text-slate-800 shadow-sm">
+                        <label class="text-[11px] text-slate-300 font-semibold">Income Level Category</label>
+                        <select id="income_main_category" onchange="toggleIncomeCategoryMode()" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-xl p-2 text-sm text-white shadow-sm">
                             <option value="Personal Income">1. Personal Income</option>
                             <option value="Shop Based Income">2. Shop Based Income</option>
                             <option value="TechXted Based Income">3. TechXted Based Income</option>
@@ -265,15 +287,15 @@
                     <!-- Personal Income Sub-Panel -->
                     <div id="income-personal-sub-panel" class="space-y-2 pt-1">
                         <div>
-                            <label class="text-[11px] text-slate-600 font-semibold">Select Executor Name</label>
-                            <select id="income_personal_executor" class="w-full mt-1 bg-white/80 border border-slate-200 rounded-xl p-2 text-sm text-slate-800 shadow-sm">
+                            <label class="text-[11px] text-slate-300 font-semibold">Select Executor Name</label>
+                            <select id="income_personal_executor" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-xl p-2 text-sm text-white shadow-sm">
                                 <option value="Adel">Adel</option>
                                 <option value="Chinyere">Chinyere</option>
                             </select>
                         </div>
                         <div>
-                            <label class="text-[11px] text-slate-600 font-semibold">Personal Income Sub-Category</label>
-                            <select id="income_personal_sub" class="w-full mt-1 bg-white/80 border border-slate-200 rounded-xl p-2 text-sm text-slate-800 shadow-sm">
+                            <label class="text-[11px] text-slate-300 font-semibold">Personal Income Sub-Category</label>
+                            <select id="income_personal_sub" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-xl p-2 text-sm text-white shadow-sm">
                                 <option value="Service">Service</option>
                                 <option value="Sales">Sales</option>
                                 <option value="Commission">Commission</option>
@@ -286,8 +308,8 @@
                     <!-- Shop Based Income Sub-Panel -->
                     <div id="income-shop-sub-panel" class="space-y-2 pt-1 hidden">
                         <div>
-                            <label class="text-[11px] text-slate-600 font-semibold">Select Shop Location</label>
-                            <select id="income_shop_location" class="w-full mt-1 bg-white/80 border border-slate-200 rounded-xl p-2 text-sm text-slate-800 mb-2 shadow-sm">
+                            <label class="text-[11px] text-slate-300 font-semibold">Select Shop Location</label>
+                            <select id="income_shop_location" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-xl p-2 text-sm text-white mb-2 shadow-sm">
                                 <option value="Elewi Odo">Elewi Odo</option>
                                 <option value="10/10">10/10</option>
                                 <option value="Idi Ape">Idi Ape</option>
@@ -298,8 +320,8 @@
                             </select>
                         </div>
                         <div>
-                            <label class="text-[11px] text-slate-600 font-semibold">Shop Income Sub-Category</label>
-                            <select id="income_shop_sub" class="w-full mt-1 bg-white/80 border border-slate-200 rounded-xl p-2 text-sm text-slate-800 shadow-sm">
+                            <label class="text-[11px] text-slate-300 font-semibold">Shop Income Sub-Category</label>
+                            <select id="income_shop_sub" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-xl p-2 text-sm text-white shadow-sm">
                                 <option value="Service">Service</option>
                                 <option value="Sales">Sales</option>
                                 <option value="Commission">Commission</option>
@@ -312,8 +334,8 @@
                     <!-- TechXted & Others Standard Sub-Panel -->
                     <div id="income-standard-sub-panel" class="space-y-2 pt-1 hidden">
                         <div>
-                            <label class="text-[11px] text-slate-600 font-semibold">Income Sub-Category</label>
-                            <select id="income_standard_sub" class="w-full mt-1 bg-white/80 border border-slate-200 rounded-xl p-2 text-sm text-slate-800 shadow-sm">
+                            <label class="text-[11px] text-slate-300 font-semibold">Income Sub-Category</label>
+                            <select id="income_standard_sub" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-xl p-2 text-sm text-white shadow-sm">
                                 <option value="Service">Service</option>
                                 <option value="Sales">Sales</option>
                                 <option value="Commission">Commission</option>
@@ -324,15 +346,15 @@
                 </div>
 
                 <div>
-                    <label class="text-[11px] text-slate-600 font-semibold">Description / Note <span id="note-asterisk" class="text-rose-600">*</span></label>
-                    <input type="text" id="note" required placeholder="Detailed description required..." class="w-full mt-1 bg-slate-50/80 border border-slate-200 rounded-2xl p-2.5 text-sm text-slate-800 focus:outline-none focus:border-emerald-500 placeholder-slate-400 shadow-inner">
+                    <label class="text-[11px] text-slate-300 font-semibold">Description / Note <span id="note-asterisk" class="text-rose-400">*</span></label>
+                    <input type="text" id="note" required placeholder="Detailed description required..." class="w-full mt-1 bg-slate-950 border border-slate-700 rounded-2xl p-2.5 text-sm text-white focus:outline-none focus:border-lime-500 placeholder-slate-500 shadow-inner">
                 </div>
 
                 <div class="flex gap-2 pt-1">
-                    <button type="submit" id="submit-btn" class="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-3 rounded-2xl text-sm transition-all shadow-lg shadow-emerald-600/30">
+                    <button type="submit" id="submit-btn" class="flex-1 bg-lime-500 hover:bg-lime-400 text-slate-950 font-bold py-3 rounded-2xl text-sm transition-all shadow-lg shadow-lime-500/20">
                         Save to Cloud Ledger
                     </button>
-                    <button type="button" id="cancel-edit-btn" onclick="resetForm()" class="hidden bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-3 rounded-2xl text-sm transition-colors font-semibold border border-slate-300">
+                    <button type="button" id="cancel-edit-btn" onclick="resetForm()" class="hidden bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-3 rounded-2xl text-sm transition-colors font-semibold border border-slate-700">
                         Cancel
                     </button>
                 </div>
@@ -340,13 +362,13 @@
         </section>
 
         <!-- Historical Reports & Export Options -->
-        <section id="reports-section" class="bg-white/85 backdrop-blur-xl p-4 rounded-3xl border border-white/40 shadow-lg space-y-3 text-slate-800">
-            <h2 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Advanced Financial Reports & Export</h2>
+        <section id="reports-section" class="bg-slate-900/90 backdrop-blur-xl p-4 rounded-3xl border border-slate-800 shadow-lg space-y-3 text-slate-100">
+            <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Advanced Financial Reports & Export</h2>
             
             <!-- Tier 1: Executor Filter -->
             <div>
-                <label class="text-[10px] text-slate-600 font-semibold">1. Executor Filter</label>
-                <select id="report-scope" class="w-full mt-1 bg-slate-50/80 border border-slate-200 rounded-2xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 shadow-sm">
+                <label class="text-[10px] text-slate-400 font-semibold">1. Executor Filter</label>
+                <select id="report-scope" class="w-full mt-1 bg-slate-950 border border-slate-700 rounded-2xl p-2.5 text-xs text-white focus:outline-none focus:border-lime-500 shadow-sm">
                     <option value="general">General (All Executors)</option>
                     <option value="Adel">Executor Adel</option>
                     <option value="Chinyere">Executor Chinyere</option>
@@ -355,8 +377,8 @@
 
             <!-- Tier 2: Transaction Type Filter -->
             <div>
-                <label class="text-[10px] text-slate-600 font-semibold">2. Transaction Type Filter</label>
-                <select id="report-type-filter" onchange="updateReportSubFilters()" class="w-full mt-1 bg-slate-50/80 border border-slate-200 rounded-2xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 shadow-sm">
+                <label class="text-[10px] text-slate-400 font-semibold">2. Transaction Type Filter</label>
+                <select id="report-type-filter" onchange="updateReportSubFilters()" class="w-full mt-1 bg-slate-950 border border-slate-700 rounded-2xl p-2.5 text-xs text-white focus:outline-none focus:border-lime-500 shadow-sm">
                     <option value="all">General (All Incomes & Expenses)</option>
                     <option value="income">Income Only</option>
                     <option value="expense">Expenses Only</option>
@@ -365,24 +387,24 @@
 
             <!-- Tier 3: Category / Main Channel Filter -->
             <div id="report-category-wrapper">
-                <label class="text-[10px] text-slate-600 font-semibold">3. Category / Channel Filter</label>
-                <select id="report-category-filter" onchange="updateReportSubCategoryVisibility()" class="w-full mt-1 bg-slate-50/80 border border-slate-200 rounded-2xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 shadow-sm">
+                <label class="text-[10px] text-slate-400 font-semibold">3. Category / Channel Filter</label>
+                <select id="report-category-filter" onchange="updateReportSubCategoryVisibility()" class="w-full mt-1 bg-slate-950 border border-slate-700 rounded-2xl p-2.5 text-xs text-white focus:outline-none focus:border-lime-500 shadow-sm">
                     <option value="all">General (All Categories)</option>
                 </select>
             </div>
 
             <!-- Tier 4: Income Sub-Category Filter -->
             <div id="report-income-sub-wrapper" class="hidden">
-                <label class="text-[10px] text-slate-600 font-semibold">4. Income Sub-Category Filter</label>
-                <select id="report-income-sub-filter" onchange="renderReports()" class="w-full mt-1 bg-slate-50/80 border border-slate-200 rounded-2xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 shadow-sm">
+                <label class="text-[10px] text-slate-400 font-semibold">4. Income Sub-Category Filter</label>
+                <select id="report-income-sub-filter" onchange="renderReports()" class="w-full mt-1 bg-slate-950 border border-slate-700 rounded-2xl p-2.5 text-xs text-white focus:outline-none focus:border-lime-500 shadow-sm">
                     <option value="all">All Sub-Categories</option>
                 </select>
             </div>
 
             <!-- Shop-Specific Filter -->
             <div id="report-shop-wrapper" class="hidden">
-                <label class="text-[10px] text-slate-600 font-semibold">Specific Shop Filter</label>
-                <select id="report-shop-filter" class="w-full mt-1 bg-slate-50/80 border border-slate-200 rounded-2xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 shadow-sm">
+                <label class="text-[10px] text-slate-400 font-semibold">Specific Shop Filter</label>
+                <select id="report-shop-filter" class="w-full mt-1 bg-slate-950 border border-slate-700 rounded-2xl p-2.5 text-xs text-white focus:outline-none focus:border-lime-500 shadow-sm">
                     <option value="all">General (All Shops Combined)</option>
                     <option value="Elewi Odo">Elewi Odo</option>
                     <option value="10/10">10/10</option>
@@ -397,33 +419,33 @@
             <!-- Date Range Pickers -->
             <div class="grid grid-cols-2 gap-2 pt-1">
                 <div>
-                    <label class="text-[10px] text-slate-600 font-semibold">Start Date</label>
-                    <input type="date" id="report-start-date" class="w-full bg-slate-50/80 border border-slate-200 rounded-xl p-2 text-xs text-slate-800 shadow-sm">
+                    <label class="text-[10px] text-slate-400 font-semibold">Start Date</label>
+                    <input type="date" id="report-start-date" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-xs text-white shadow-sm">
                 </div>
                 <div>
-                    <label class="text-[10px] text-slate-600 font-semibold">End Date</label>
-                    <input type="date" id="report-end-date" class="w-full bg-slate-50/80 border border-slate-200 rounded-xl p-2 text-xs text-slate-800 shadow-sm">
+                    <label class="text-[10px] text-slate-400 font-semibold">End Date</label>
+                    <input type="date" id="report-end-date" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-xs text-white shadow-sm">
                 </div>
             </div>
             
-            <div id="report-output" class="text-xs text-slate-700 bg-slate-50/80 p-3 rounded-2xl border border-slate-200 space-y-1.5 font-semibold">
+            <div id="report-output" class="text-xs text-slate-300 bg-slate-950/60 p-3 rounded-2xl border border-slate-800 space-y-1.5 font-semibold">
                 <!-- Metrics injected -->
             </div>
 
             <!-- Export Format Option -->
             <div>
-                <label class="text-[10px] text-slate-600 font-semibold">Export Format Option</label>
-                <select id="export-format" class="w-full mt-1 bg-slate-50/80 border border-slate-200 rounded-xl p-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 shadow-sm">
+                <label class="text-[10px] text-slate-400 font-semibold">Export Format Option</label>
+                <select id="export-format" class="w-full mt-1 bg-slate-950 border border-slate-700 rounded-xl p-2 text-xs text-white focus:outline-none focus:border-lime-500 shadow-sm">
                     <option value="pdf">PDF Document (.pdf)</option>
                     <option value="jpeg">JPEG Image (.jpg)</option>
                 </select>
             </div>
 
             <div class="grid grid-cols-2 gap-2 pt-1">
-                <button type="button" onclick="openReportPreview()" class="bg-sky-600 hover:bg-sky-500 text-white font-bold py-2.5 rounded-2xl text-xs transition-colors shadow-md shadow-sky-600/30">
+                <button type="button" onclick="openReportPreview()" class="bg-slate-800 hover:bg-slate-700 text-lime-400 font-bold py-2.5 rounded-2xl text-xs transition-colors shadow-md border border-slate-700">
                     Preview Report
                 </button>
-                <button type="button" onclick="triggerDownload()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-2xl text-xs transition-colors shadow-md shadow-emerald-600/30">
+                <button type="button" onclick="triggerDownload()" class="bg-lime-500 hover:bg-lime-400 text-slate-950 font-bold py-2.5 rounded-2xl text-xs transition-colors shadow-md shadow-lime-500/20">
                     Download Statement
                 </button>
             </div>
@@ -432,29 +454,29 @@
         <!-- Recent Logs -->
         <section id="history-section" class="space-y-2.5">
             <h2 class="text-xs font-bold text-white uppercase tracking-wider">Recent History (Last 10)</h2>
-            <div id="transaction-list" class="bg-white/85 backdrop-blur-xl border border-white/40 rounded-3xl shadow-lg divide-y divide-slate-100 overflow-hidden">
-                <p class="text-xs text-slate-500 text-center py-4">Loading transactions...</p>
+            <div id="transaction-list" class="bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-3xl shadow-lg divide-y divide-slate-800 overflow-hidden">
+                <p class="text-xs text-slate-400 text-center py-4">Loading transactions...</p>
             </div>
         </section>
 
     </main>
 
     <!-- Bottom Navigation Bar -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-slate-200 px-4 py-2.5 z-20 shadow-2xl max-w-md mx-auto text-slate-600">
+    <nav class="fixed bottom-0 left-0 right-0 bg-slate-950/90 backdrop-blur-md border-t border-slate-800 px-4 py-2.5 z-20 shadow-2xl max-w-md mx-auto text-slate-400">
         <div class="grid grid-cols-4 text-center">
-            <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="flex flex-col items-center justify-center text-emerald-600 focus:outline-none">
+            <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="flex flex-col items-center justify-center text-lime-400 focus:outline-none">
                 <span class="text-lg">🏠</span>
                 <span class="text-[10px] font-bold mt-0.5">Home</span>
             </button>
-            <button onclick="scrollToReports()" class="flex flex-col items-center justify-center hover:text-emerald-600 focus:outline-none transition-colors">
+            <button onclick="scrollToReports()" class="flex flex-col items-center justify-center hover:text-lime-400 focus:outline-none transition-colors">
                 <span class="text-lg">📊</span>
                 <span class="text-[10px] font-semibold mt-0.5">Reports</span>
             </button>
-            <button onclick="scrollToForm('expense')" class="flex flex-col items-center justify-center hover:text-emerald-600 focus:outline-none transition-colors">
+            <button onclick="scrollToForm('expense')" class="flex flex-col items-center justify-center hover:text-lime-400 focus:outline-none transition-colors">
                 <span class="text-lg">➕</span>
                 <span class="text-[10px] font-semibold mt-0.5">New Tx</span>
             </button>
-            <a href="asset.html" class="flex flex-col items-center justify-center hover:text-emerald-600 focus:outline-none transition-colors">
+            <a href="asset.html" class="flex flex-col items-center justify-center hover:text-lime-400 focus:outline-none transition-colors">
                 <span class="text-lg">🏢</span>
                 <span class="text-[10px] font-semibold mt-0.5">Assets</span>
             </a>
@@ -462,43 +484,43 @@
     </nav>
 
     <!-- Automated Weekly Payroll Reminder Popup Modal -->
-    <div id="payroll-popup-modal" class="fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4 hidden backdrop-blur-md">
-        <div class="bg-white border border-slate-200 rounded-3xl w-full max-w-sm flex flex-col shadow-2xl overflow-hidden text-slate-800 animate-in fade-in zoom-in duration-200">
-            <div class="p-4 bg-gradient-to-r from-teal-800 to-emerald-900 text-white flex justify-between items-center shadow-md">
+    <div id="payroll-popup-modal" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 hidden backdrop-blur-md">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm flex flex-col shadow-2xl overflow-hidden text-slate-100 animate-in fade-in zoom-in duration-200">
+            <div class="p-4 bg-slate-950 border-b border-slate-800 text-white flex justify-between items-center shadow-md">
                 <div class="flex items-center gap-2">
                     <span class="text-xl">🔔</span>
-                    <h3 class="text-xs font-bold uppercase tracking-wider">Weekly Payroll Notice</h3>
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-lime-400">Weekly Payroll Notice</h3>
                 </div>
-                <button onclick="closePayrollPopup()" class="text-white/80 hover:text-white text-sm font-bold px-2 py-0.5 bg-white/10 rounded-xl">✕</button>
+                <button onclick="closePayrollPopup()" class="text-slate-400 hover:text-white text-sm font-bold px-2 py-0.5 bg-slate-800 rounded-xl">✕</button>
             </div>
             
             <div class="p-4 space-y-3">
-                <p id="payroll-range-label" class="text-[11px] font-semibold text-slate-500 text-center uppercase tracking-wide">Work Week: Tue — Mon</p>
+                <p id="payroll-range-label" class="text-[11px] font-semibold text-slate-400 text-center uppercase tracking-wide">Work Week: Tue — Mon</p>
                 <div id="payroll-staff-list" class="space-y-2 max-h-56 overflow-y-auto pr-1">
                     <!-- Dynamic staff list injected here -->
                 </div>
             </div>
 
-            <div class="p-3 bg-slate-50 border-t border-slate-200 flex gap-2">
-                <button onclick="closePayrollPopup()" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 py-2.5 rounded-2xl text-xs font-semibold transition-colors">Dismiss</button>
-                <a href="staff.html" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-2xl text-xs text-center transition-colors shadow-md">Manage Staff</a>
+            <div class="p-3 bg-slate-950 border-t border-slate-800 flex gap-2">
+                <button onclick="closePayrollPopup()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2.5 rounded-2xl text-xs font-semibold transition-colors">Dismiss</button>
+                <a href="staff.html" class="flex-1 bg-lime-500 hover:bg-lime-400 text-slate-950 font-bold py-2.5 rounded-2xl text-xs text-center transition-colors shadow-md">Manage Staff</a>
             </div>
         </div>
     </div>
 
     <!-- Report Preview Modal / Drawer -->
-    <div id="preview-modal" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-3 hidden backdrop-blur-sm">
-        <div class="bg-white border border-slate-200 rounded-3xl w-full max-w-md max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
-            <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center text-slate-800">
-                <h3 class="text-xs font-bold text-emerald-700 uppercase tracking-wider">Statement Preview</h3>
-                <button onclick="closeReportPreview()" class="text-slate-500 hover:text-slate-800 text-sm font-bold px-2.5 py-1 bg-slate-200 rounded-xl">✕</button>
+    <div id="preview-modal" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-3 hidden backdrop-blur-sm">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md max-h-[90vh] flex flex-col shadow-2xl overflow-hidden text-slate-100">
+            <div class="p-4 bg-slate-950 border-b border-slate-800 flex justify-between items-center text-slate-100">
+                <h3 class="text-xs font-bold text-lime-400 uppercase tracking-wider">Statement Preview</h3>
+                <button onclick="closeReportPreview()" class="text-slate-400 hover:text-white text-sm font-bold px-2.5 py-1 bg-slate-800 rounded-xl">✕</button>
             </div>
             
-            <div id="preview-scroll-area" class="p-4 overflow-y-auto space-y-4 bg-slate-100 text-xs">
+            <div id="preview-scroll-area" class="p-4 overflow-y-auto space-y-4 bg-slate-950 text-xs">
                 <!-- Printable Statement Layout Container -->
                 <div id="printable-statement" class="bg-white p-4 rounded-2xl border border-slate-200 space-y-3 shadow-md text-slate-800">
-                    <div class="bg-gradient-to-r from-teal-700 to-emerald-700 p-3.5 rounded-2xl text-white shadow-sm">
-                        <h4 class="font-extrabold text-sm tracking-wider">ADELOWO'S LEDGER</h4>
+                    <div class="bg-gradient-to-r from-emerald-800 to-teal-900 p-3.5 rounded-2xl text-white shadow-sm">
+                        <h4 class="font-extrabold text-sm tracking-wider">ADELOWO AKÍNGBÀṢẸ LEDGER</h4>
                         <p id="preview-subtitle" class="text-[10px] text-emerald-100 mt-0.5">Financial Statement</p>
                     </div>
                     
@@ -535,9 +557,9 @@
                 </div>
             </div>
 
-            <div class="p-3 bg-slate-50 border-t border-slate-200 flex gap-2">
-                <button onclick="closeReportPreview()" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 py-2.5 rounded-2xl font-semibold transition-colors">Close Preview</button>
-                <button onclick="downloadFromPreview()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-2xl transition-colors shadow-md">Download Now</button>
+            <div class="p-3 bg-slate-950 border-t border-slate-800 flex gap-2">
+                <button onclick="closeReportPreview()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2.5 rounded-2xl font-semibold transition-colors">Close Preview</button>
+                <button onclick="downloadFromPreview()" class="flex-1 bg-lime-500 hover:bg-lime-400 text-slate-950 font-bold py-2.5 rounded-2xl transition-colors shadow-md">Download Now</button>
             </div>
         </div>
     </div>
@@ -581,16 +603,14 @@
                 const { startTuesday, endMonday } = getTuesdayToMondayRange(new Date());
                 const weekKey = startTuesday.toISOString().split('T')[0];
                 
-                // Format range string for UI display
                 const options = { day: 'numeric', month: 'short' };
                 const rangeText = `${startTuesday.toLocaleDateString('en-GB', options)} — ${endMonday.toLocaleDateString('en-GB', options)}`;
                 document.getElementById('payroll-range-label').innerText = `Work Week: ${rangeText}`;
 
-                // Filter staff whose salary due date falls within Tuesday to Monday range AND not marked paid for this week
                 const dueStaff = staffList.filter(s => {
                     const isPaidKey = `paid_staff_${s.id}_${weekKey}`;
                     if (localStorage.getItem(isPaidKey) === 'true') {
-                        return false; // Skip if already marked paid this week
+                        return false;
                     }
 
                     const dueDay = s.salary_due_day;
@@ -618,27 +638,26 @@
 
                 dueStaff.forEach(s => {
                     const card = document.createElement('div');
-                    card.className = "bg-slate-50 p-3 rounded-2xl border border-slate-200 flex justify-between items-center gap-2";
+                    card.className = "bg-slate-950 p-3 rounded-2xl border border-slate-800 flex justify-between items-center gap-2";
                     const isShop = s.work_category === 'Shop';
                     const details = isShop ? `${s.shop_location} Shop` : 'TechXted Staff';
 
                     card.innerHTML = `
                         <div class="min-w-0 flex-1">
-                            <h4 class="font-bold text-xs text-slate-900 truncate">${s.name}</h4>
-                            <p class="text-[10px] text-slate-500 font-medium truncate">${s.role} • <span class="text-teal-700 font-semibold">${details}</span></p>
-                            <p class="font-extrabold text-xs text-emerald-600 mt-0.5">${formatCurrency(s.salary)} <span class="text-[9px] font-normal text-slate-400">Due This Week</span></p>
+                            <h4 class="font-bold text-xs text-white truncate">${s.name}</h4>
+                            <p class="text-[10px] text-slate-400 font-medium truncate">${s.role} • <span class="text-lime-400 font-semibold">${details}</span></p>
+                            <p class="font-extrabold text-xs text-lime-400 mt-0.5">${formatCurrency(s.salary)} <span class="text-[9px] font-normal text-slate-500">Due This Week</span></p>
                         </div>
-                        <div class="flex items-center gap-1.5 shrink-0 pl-2 border-l border-slate-200">
+                        <div class="flex items-center gap-1.5 shrink-0 pl-2 border-l border-slate-800">
                             <label class="flex flex-col items-center cursor-pointer select-none">
-                                <input type="checkbox" onchange="markStaffPaid(${s.id}, '${weekKey}', this)" class="w-4 h-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500 cursor-pointer">
-                                <span class="text-[9px] font-semibold text-slate-600 mt-0.5">Paid</span>
+                                <input type="checkbox" onchange="markStaffPaid(${s.id}, '${weekKey}', this)" class="w-4 h-4 text-lime-500 rounded border-slate-700 bg-slate-900 focus:ring-lime-500 cursor-pointer">
+                                <span class="text-[9px] font-semibold text-slate-300 mt-0.5">Paid</span>
                             </label>
                         </div>
                     `;
                     listContainer.appendChild(card);
                 });
 
-                // Show popup modal
                 document.getElementById('payroll-popup-modal').classList.remove('hidden');
             } catch (err) {
                 console.error("Error loading payroll reminders:", err);
@@ -649,15 +668,13 @@
             if (checkboxEl.checked) {
                 localStorage.setItem(`paid_staff_${staffId}_${weekKey}`, 'true');
                 
-                // Animate removal from the popup list smoothly
-                const card = checkboxEl.closest('.bg-slate-50');
+                const card = checkboxEl.closest('.bg-slate-950');
                 card.style.transition = 'all 0.3s ease';
                 card.style.opacity = '0';
                 card.style.transform = 'scale(0.95)';
                 
                 setTimeout(() => {
                     card.remove();
-                    // Close popup if no staff members remain
                     const listContainer = document.getElementById('payroll-staff-list');
                     if (listContainer.children.length === 0) {
                         closePayrollPopup();
@@ -1110,7 +1127,7 @@
 
             const netBadgeTop = document.getElementById('health-net-badge-top');
             netBadgeTop.innerText = totalNet >= 0 ? 'Surplus' : 'Deficit';
-            netBadgeTop.className = `text-xs font-bold mt-1 ${totalNet >= 0 ? 'text-emerald-600' : 'text-rose-600'}`;
+            netBadgeTop.className = `text-xs font-bold mt-1 ${totalNet >= 0 ? 'text-lime-400' : 'text-rose-400'}`;
 
             updateFinancialPieChart(totalInc, totalExp, totalNet);
 
@@ -1133,7 +1150,7 @@
             document.getElementById('health-outflow').innerText = formatCurrency(wExp);
             const netEl = document.getElementById('health-net');
             netEl.innerText = formatCurrency(wNet);
-            netEl.className = `text-xs font-bold mt-1 ${wNet >= 0 ? 'text-emerald-600' : 'text-rose-600'}`;
+            netEl.className = `text-xs font-bold mt-1 ${wNet >= 0 ? 'text-lime-400' : 'text-rose-400'}`;
 
             if (localStorage.getItem('adel_dashboard_previous_reset_time')) {
                 document.getElementById('undo-reset-btn').classList.remove('hidden');
@@ -1144,29 +1161,29 @@
             const badge = document.getElementById('health-badge');
             if (wNet > 0) {
                 badge.innerText = 'Sufficit (Surplus)';
-                badge.className = 'text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide bg-emerald-100 text-emerald-800 border border-emerald-300';
+                badge.className = 'text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide bg-lime-500/20 text-lime-300 border border-lime-500/30';
             } else if (wNet < 0) {
                 badge.innerText = 'Deficit';
-                badge.className = 'text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide bg-rose-100 text-rose-800 border border-rose-300';
+                badge.className = 'text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide bg-rose-500/20 text-rose-300 border border-rose-500/30';
             } else {
                 badge.innerText = 'Balanced';
-                badge.className = 'text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide bg-slate-200 text-slate-700 border border-slate-300';
+                badge.className = 'text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide bg-slate-800 text-slate-300 border border-slate-700';
             }
 
             const listEl = document.getElementById('transaction-list');
             listEl.innerHTML = '';
 
             if (allTransactions.length === 0) {
-                listEl.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">No transactions recorded yet.</p>`;
+                listEl.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">No transactions recorded yet.</p>`;
             } else {
                 allTransactions.slice(0, 10).forEach(t => {
                     const item = document.createElement('div');
-                    item.className = "p-4 flex items-center justify-between gap-3 text-xs text-slate-800 hover:bg-slate-50/50 transition-colors";
+                    item.className = "p-4 flex items-center justify-between gap-3 text-xs text-slate-200 hover:bg-slate-950/40 transition-colors";
                     const tDate = new Date(t.created_at);
                     const formattedDate = tDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + ', ' + tDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                     
                     const isIncome = t.type === 'income';
-                    const iconBg = isIncome ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-rose-50 text-rose-600 border-rose-200';
+                    const iconBg = isIncome ? 'bg-lime-500/10 text-lime-400 border-lime-500/30' : 'bg-rose-500/10 text-rose-400 border-rose-500/30';
                     const iconSymbol = isIncome ? '📥' : '📤';
 
                     item.innerHTML = `
@@ -1175,19 +1192,19 @@
                                 ${iconSymbol}
                             </div>
                             <div class="min-w-0 space-y-0.5">
-                                <p class="font-bold text-slate-900 truncate">${t.note}</p>
-                                <p class="text-[10px] text-slate-400 font-medium">${formattedDate} • <span class="text-slate-600 font-semibold">${t.executor || 'General'}</span></p>
+                                <p class="font-bold text-white truncate">${t.note}</p>
+                                <p class="text-[10px] text-slate-400 font-medium">${formattedDate} • <span class="text-slate-300 font-semibold">${t.executor || 'General'}</span></p>
                             </div>
                         </div>
                         <div class="text-right shrink-0 space-y-1">
-                            <p class="font-extrabold text-sm tracking-tight ${isIncome ? 'text-emerald-600' : 'text-rose-600'}">
+                            <p class="font-extrabold text-sm tracking-tight ${isIncome ? 'text-lime-400' : 'text-rose-400'}">
                                 ${isIncome ? '+' : '-'}${formatCurrency(t.amount)}
                             </p>
                             <div class="flex items-center justify-end gap-2">
-                                <span class="inline-block px-2 py-0.5 rounded-full text-[9px] font-bold ${isIncome ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'}">Successful</span>
-                                <div class="flex items-center gap-1.5 pl-1 border-l border-slate-200">
-                                    <button onclick="editTransaction(${t.id})" class="text-[10px] text-teal-700 font-bold hover:underline">Edit</button>
-                                    <button onclick="deleteTransaction(${t.id})" class="text-[10px] text-rose-600 font-bold hover:underline">Del</button>
+                                <span class="inline-block px-2 py-0.5 rounded-full text-[9px] font-bold ${isIncome ? 'bg-lime-500/10 text-lime-300 border border-lime-500/30' : 'bg-rose-500/10 text-rose-300 border border-rose-500/30'}">Successful</span>
+                                <div class="flex items-center gap-1.5 pl-1 border-l border-slate-800">
+                                    <button onclick="editTransaction(${t.id})" class="text-[10px] text-lime-400 font-bold hover:underline">Edit</button>
+                                    <button onclick="deleteTransaction(${t.id})" class="text-[10px] text-rose-400 font-bold hover:underline">Del</button>
                                 </div>
                             </div>
                         </div>
@@ -1201,18 +1218,18 @@
         function updateFinancialPieChart(inc, exp, net) {
             const ctx = document.getElementById('financialPieChart').getContext('2d');
             const chartNetVal = Math.abs(net);
-            const netPositionColor = net >= 0 ? 'rgba(37, 99, 235, 0.85)' : 'rgba(225, 29, 72, 0.85)';
+            const netPositionColor = net >= 0 ? 'rgba(132, 204, 22, 0.85)' : 'rgba(244, 63, 94, 0.85)';
 
             const chartData = {
                 labels: ['Total Income', 'Total Expenses', 'Net Position'],
                 datasets: [{
                     data: [inc, exp, chartNetVal],
                     backgroundColor: [
-                        'rgba(16, 185, 129, 0.85)',
-                        'rgba(244, 63, 94, 0.85)',
+                        'rgba(5, 150, 105, 0.85)',
+                        'rgba(225, 29, 72, 0.85)',
                         netPositionColor
                     ],
-                    borderColor: 'rgba(255, 255, 255, 0.8)',
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
                     borderWidth: 2,
                     hoverOffset: 8
                 }]
@@ -1232,7 +1249,7 @@
                             legend: {
                                 position: 'bottom',
                                 labels: {
-                                    color: '#334155',
+                                    color: '#cbd5e1',
                                     font: { size: 11, weight: 'bold' },
                                     boxWidth: 12
                                 }
@@ -1259,9 +1276,9 @@
             let net = inc - exp;
 
             document.getElementById('report-output').innerHTML = `
-                <div class="flex justify-between"><span>Inflow:</span> <span class="text-emerald-600 font-bold">${formatCurrency(inc)}</span></div>
-                <div class="flex justify-between"><span>Outflow:</span> <span class="text-rose-600 font-bold">${formatCurrency(exp)}</span></div>
-                <div class="flex justify-between border-t border-slate-200 pt-1.5 mt-1 font-extrabold text-slate-800"><span>Net Balance:</span> <span class="${net >= 0 ? 'text-slate-900' : 'text-amber-600'}">${formatCurrency(net)}</span></div>
+                <div class="flex justify-between"><span>Inflow:</span> <span class="text-lime-400 font-bold">${formatCurrency(inc)}</span></div>
+                <div class="flex justify-between"><span>Outflow:</span> <span class="text-rose-400 font-bold">${formatCurrency(exp)}</span></div>
+                <div class="flex justify-between border-t border-slate-800 pt-1.5 mt-1 font-extrabold text-white"><span>Net Balance:</span> <span class="${net >= 0 ? 'text-lime-400' : 'text-amber-400'}">${formatCurrency(net)}</span></div>
             `;
         }
 
@@ -1342,7 +1359,7 @@
             const scopeTitle = scope === 'general' ? 'GENERAL FINANCIAL STATEMENT' : `EXECUTOR STATEMENT: ${scope.toUpperCase()}`;
             const subtitle = `${scopeTitle} [${typeFilter}] (${startStr} to ${endStr})`;
 
-            doc.setFillColor(16, 185, 129);
+            doc.setFillColor(5, 150, 105);
             doc.rect(0, 0, 210, 40, 'F');
 
             doc.setTextColor(255, 255, 255);
@@ -1371,7 +1388,7 @@
 
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(11);
-            doc.setTextColor(16, 185, 129);
+            doc.setTextColor(5, 150, 105);
             doc.text(formatCurrency(totalInc), 20, 64);
             doc.setTextColor(225, 29, 72);
             doc.text(formatCurrency(totalExp), 85, 64);
@@ -1420,7 +1437,7 @@
 
                     const formattedAmt = Number(t.amount).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                     if (t.type === 'income') {
-                        doc.setTextColor(16, 185, 129);
+                        doc.setTextColor(5, 150, 105);
                         doc.text(`+${formattedAmt}`, 170, y + 4.5);
                     } else {
                         doc.setTextColor(225, 29, 72);
