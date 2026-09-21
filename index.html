@@ -75,12 +75,9 @@
     <script>
         const CORRECT_PASSWORD = "Krinox1803";
 
-        // Optional: If already unlocked in this session, redirect straight to dashboard
+        // Clear any previous unlock state on load so refreshing index always starts fresh
         window.addEventListener('DOMContentLoaded', () => {
-            const isUnlocked = sessionStorage.getItem('ledger_unlocked');
-            if (isUnlocked === 'true') {
-                window.location.href = "dashboard.html";
-            }
+            sessionStorage.removeItem('ledger_unlocked');
         });
 
         function showPasswordPrompt() {
