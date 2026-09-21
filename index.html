@@ -22,24 +22,30 @@
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col justify-end relative overflow-hidden">
 
-    <!-- ================= FULL SCREEN BACKGROUND IMAGE WITH GRADIENT OVERLAY ================= -->
+    <!-- ================= FULL SCREEN BACKGROUND IMAGES WITH AUTOMATIC SLIDER ================= -->
     <div class="absolute inset-0 z-0">
-        <!-- Background image referenced as hero-bg1.jpeg -->
-        <img src="hero-bg1.jpeg" alt="Background" class="w-full h-full object-cover object-center" onerror="this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1200&q=80'">
+        <!-- Background Image 1 -->
+        <img id="bg-slide-0" src="hero-bg1.jpeg" alt="Background 1" 
+             class="absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1000 ease-in-out opacity-100" 
+             onerror="this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1200&q=80'">
         
+        <!-- Background Image 2 (hero-bg3.jpg) -->
+        <img id="bg-slide-1" src="hero-bg3.jpg" alt="Background 2" 
+             class="absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1000 ease-in-out opacity-0" 
+             onerror="this.src='https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=1200&q=80'">
+
         <!-- Deep green and dark gradient overlay to ensure text legibility -->
-        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-emerald-950/40"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-emerald-950/40 z-10"></div>
     </div>
 
     <!-- ================= CONTENT CONTAINER (BOTTOM ALIGNED) ================= -->
-    <div class="relative z-10 max-w-md w-full mx-auto p-6 sm:p-8 flex flex-col justify-end min-h-screen">
+    <div class="relative z-20 max-w-md w-full mx-auto p-6 sm:p-8 flex flex-col justify-end min-h-screen">
         
         <div class="mb-auto pt-10 text-center">
-            <!-- Optional indicator dots styling mimicking mobile onboarding templates -->
+            <!-- Indicator dots synchronized with the background images -->
             <div class="flex justify-center space-x-1.5 mb-6">
-                <span class="w-6 h-1.5 bg-lime-400 rounded-full"></span>
-                <span class="w-1.5 h-1.5 bg-slate-600 rounded-full"></span>
-                <span class="w-1.5 h-1.5 bg-slate-600 rounded-full"></span>
+                <span id="dot-0" class="w-6 h-1.5 bg-lime-400 rounded-full transition-all duration-300"></span>
+                <span id="dot-1" class="w-1.5 h-1.5 bg-slate-600 rounded-full transition-all duration-300"></span>
             </div>
         </div>
 
@@ -95,7 +101,37 @@
         // Clear any previous unlock state on load so refreshing index always starts fresh
         window.addEventListener('DOMContentLoaded', () => {
             sessionStorage.removeItem('ledger_unlocked');
+            startBackgroundSlider();
         });
+
+        // Background Image Swiper Logic
+        let currentSlide = 0;
+        const totalSlides = 2;
+        const slideIntervalTime = 5000; // Time in milliseconds (5 seconds per slide)
+
+        function startBackgroundSlider() {
+            setInterval(() => {
+                // Hide current slide & deactivate current dot
+                document.getElementById(`bg-slide-${currentSlide}`).classList.remove('opacity-100');
+                document.getElementById(`bg-slide-${currentSlide}`).classList.add('opacity-0');
+                
+                const currentDot = document.getElementById(`dot-${currentSlide}`);
+                currentDot.classList.remove('w-6', 'bg-lime-400');
+                currentDot.classList.add('w-1.5', 'bg-slate-600');
+
+                // Advance to next slide index
+                currentSlide = (currentSlide + 1) % totalSlides;
+
+                // Show new slide & activate corresponding dot
+                document.getElementById(`bg-slide-${currentSlide}`).classList.remove('opacity-0');
+                document.getElementById(`bg-slide-${currentSlide}`).classList.add('opacity-100');
+
+                const newDot = document.getElementById(`dot-${currentSlide}`);
+                newDot.classList.remove('w-1.5', 'bg-slate-600');
+                newDot.classList.add('w-6', 'bg-lime-400');
+
+            }, slideIntervalTime);
+        }
 
         function showPasswordPrompt() {
             document.getElementById('actionContainer').classList.add('hidden');
