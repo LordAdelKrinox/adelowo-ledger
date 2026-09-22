@@ -146,7 +146,7 @@
             <div class="flex justify-between items-center">
                 <div class="flex items-center gap-2">
                     <h2 class="text-xs font-bold text-slate-200 uppercase tracking-wider">Financial Health Dashboard</h2>
-                    <button type="button" onclick="promptResetDashboard()" title="Manual Reset" class="bg-slate-800/50 hover:bg-slate-700/80 text-lime-400 text-[10px] px-2 py-0.5 rounded-lg border border-white/10 font-semibold transition-colors flex items-center gap-1">
+                    <button type="button" onclick="promptResetDashboard()" title="Manual Reset (Retains Current Week)" class="bg-slate-800/50 hover:bg-slate-700/80 text-lime-400 text-[10px] px-2 py-0.5 rounded-lg border border-white/10 font-semibold transition-colors flex items-center gap-1">
                         🔄 Reset
                     </button>
                     <button type="button" id="undo-reset-btn" onclick="undoResetDashboard()" title="Undo Last Reset" class="hidden bg-amber-950/50 hover:bg-amber-900/80 text-amber-300 text-[10px] px-2 py-0.5 rounded-lg border border-amber-700/50 font-semibold transition-colors flex items-center gap-1">
@@ -1050,7 +1050,7 @@
         }
 
         function promptResetDashboard() {
-            const passwordInput = prompt('Enter password to manually reset the financial health dashboard:');
+            const passwordInput = prompt('Enter password to manually reset previous weeks (Current week Tuesday-Monday will be retained):');
             if (passwordInput === null) return;
             if (passwordInput !== 'Krinox1803') {
                 alert('Incorrect password! Reset action cancelled.');
@@ -1062,13 +1062,14 @@
                 localStorage.setItem('adel_dashboard_previous_reset_time', currentResetTime);
             }
 
-            // Set reset timestamp to right now so subsequent dashboard readings only include newer transactions,
-            // while preserving all database records for reports.
-            localStorage.setItem('adel_dashboard_reset_time', new Date().toISOString());
+            // Automatically set the reset cutoff time to the start Tuesday of the current work week (Tuesday to Monday)
+            // ensuring everything from the current week is fully retained.
+            const { startTuesday } = getTuesdayToMondayRange(new Date());
+            localStorage.setItem('adel_dashboard_reset_time', startTuesday.toISOString());
             
             document.getElementById('undo-reset-btn').classList.remove('hidden');
             updateUI();
-            alert('Dashboard successfully reset manually (previous readings hidden from active view, full history safe in reports)!');
+            alert('Dashboard successfully reset! Previous weeks have been cleared from active view while current week (Tuesday to Monday) is fully retained.');
         }
 
         function undoResetDashboard() {
