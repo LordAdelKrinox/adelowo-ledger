@@ -474,9 +474,18 @@
 
         <!-- Recent Logs -->
         <section id="history-section" class="space-y-2.5">
-            <h2 class="text-xs font-bold text-white uppercase tracking-wider">Recent History (Last 10)</h2>
+            <div class="flex justify-between items-center">
+                <h2 id="history-header-title" class="text-xs font-bold text-white uppercase tracking-wider">Recent History</h2>
+                <span id="history-count-badge" class="text-[9px] font-semibold text-slate-400">Showing 0 of 0</span>
+            </div>
             <div id="transaction-list" class="bg-slate-900/15 backdrop-blur-md border border-white/10 rounded-3xl shadow-lg divide-y divide-white/10 overflow-hidden">
                 <p class="text-xs text-slate-300 text-center py-4">Loading transactions...</p>
+            </div>
+            <!-- Load More Pagination Button Container -->
+            <div id="load-more-container" class="pt-1 text-center hidden">
+                <button type="button" onclick="loadMoreHistory()" class="w-full bg-slate-800/80 hover:bg-slate-700 text-lime-400 font-bold py-2.5 rounded-2xl text-xs transition-colors border border-white/15 shadow-md flex items-center justify-center gap-1.5">
+                    <span>⬇️ Load More Transactions (+10)</span>
+                </button>
             </div>
         </section>
 
@@ -595,6 +604,7 @@
         let allTransactions = [];
         let financialChart = null;
         let weekOffset = 0; // 0 = Current week, -1 = Previous week, -2 = 2 weeks ago, etc.
+        let historyDisplayLimit = 10; // Initial limit for pagination display
         
         const now = new Date();
         const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
@@ -1080,18 +1090,26 @@
 
         function navigatePreviousWeek() {
             weekOffset -= 1;
+            historyDisplayLimit = 10; // Reset display limit on week navigation
             updateUI();
         }
 
         function navigateBackStep() {
             if (weekOffset < 0) {
                 weekOffset += 1;
+                historyDisplayLimit = 10;
                 updateUI();
             }
         }
 
         function navigateToCurrentWeek() {
             weekOffset = 0;
+            historyDisplayLimit = 10;
+            updateUI();
+        }
+
+        function loadMoreHistory() {
+            historyDisplayLimit += 10;
             updateUI();
         }
 
@@ -1247,13 +1265,19 @@
                 badge.className = 'text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide bg-slate-800 text-slate-300 border border-slate-700';
             }
 
+            // Update History Header & Count Badge
+            document.getElementById('history-header-title').innerText = `Recent History (Showing up to ${historyDisplayLimit})`;
+            const displayedTx = activeCycleTx.slice(0, historyDisplayLimit);
+            document.getElementById('history-count-badge').innerText = `Showing ${displayedTx.length} of ${activeCycleTx.length}`;
+
             const listEl = document.getElementById('transaction-list');
             listEl.innerHTML = '';
 
             if (activeCycleTx.length === 0) {
                 listEl.innerHTML = `<p class="text-xs text-slate-300 text-center py-4">No transactions recorded for this week.</p>`;
+                document.getElementById('load-more-container').classList.add('hidden');
             } else {
-                activeCycleTx.slice(0, 10).forEach(t => {
+                displayedTx.forEach(t => {
                     const item = document.createElement('div');
                     item.className = "p-4 flex items-center justify-between gap-3 text-xs text-slate-200 hover:bg-slate-950/30 transition-colors";
                     const tDate = new Date(t.created_at);
@@ -1288,6 +1312,14 @@
                     `;
                     listEl.appendChild(item);
                 });
+
+                // Show/hide Load More button based on whether there are more records to load in this cycle (up to max 50)
+                const loadMoreContainer = document.getElementById('load-more-container');
+                if (historyDisplayLimit < activeCycleTx.length && historyDisplayLimit < 50) {
+                    loadMoreContainer.classList.remove('hidden');
+                } else {
+                    loadMoreContainer.classList.add('hidden');
+                }
             }
             renderReports();
         }
