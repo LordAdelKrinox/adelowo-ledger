@@ -1190,7 +1190,7 @@
         }
 
         function updateUI() {
-            // Determine active cycle based on weekOffset and device calendar Tuesday-Monday range
+            // Determine active cycle based on weekOffset and device calendar Tuesday-Monday range for Dashboard Charts & Totals
             const { startTuesday, endMonday } = getTuesdayToMondayRangeForOffset(weekOffset);
             
             // Format dynamic dates (e.g., "15th to 21st") utilizing device calendar localization
@@ -1265,16 +1265,16 @@
                 badge.className = 'text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide bg-slate-800 text-slate-300 border border-slate-700';
             }
 
-            // Update History Header & Count Badge
+            // Update History Header & Count Badge to use the full transaction log (`allTransactions`)
             document.getElementById('history-header-title').innerText = `Recent History (Showing up to ${historyDisplayLimit})`;
-            const displayedTx = activeCycleTx.slice(0, historyDisplayLimit);
-            document.getElementById('history-count-badge').innerText = `Showing ${displayedTx.length} of ${activeCycleTx.length}`;
+            const displayedTx = allTransactions.slice(0, historyDisplayLimit);
+            document.getElementById('history-count-badge').innerText = `Showing ${displayedTx.length} of ${allTransactions.length}`;
 
             const listEl = document.getElementById('transaction-list');
             listEl.innerHTML = '';
 
-            if (activeCycleTx.length === 0) {
-                listEl.innerHTML = `<p class="text-xs text-slate-300 text-center py-4">No transactions recorded for this week.</p>`;
+            if (allTransactions.length === 0) {
+                listEl.innerHTML = `<p class="text-xs text-slate-300 text-center py-4">No transactions recorded.</p>`;
                 document.getElementById('load-more-container').classList.add('hidden');
             } else {
                 displayedTx.forEach(t => {
@@ -1313,9 +1313,9 @@
                     listEl.appendChild(item);
                 });
 
-                // Show/hide Load More button based on whether there are more records to load in this cycle (up to max 50)
+                // Show/hide Load More button based on whether there are more records to load globally in the full list (up to max 50)
                 const loadMoreContainer = document.getElementById('load-more-container');
-                if (historyDisplayLimit < activeCycleTx.length && historyDisplayLimit < 50) {
+                if (historyDisplayLimit < allTransactions.length && historyDisplayLimit < 50) {
                     loadMoreContainer.classList.remove('hidden');
                 } else {
                     loadMoreContainer.classList.add('hidden');
