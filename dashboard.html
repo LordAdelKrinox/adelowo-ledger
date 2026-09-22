@@ -82,6 +82,20 @@
 
     <main class="p-4 max-w-md mx-auto space-y-4">
 
+        <!-- Weekly Navigation Bar Controls -->
+        <section class="bg-slate-900/25 backdrop-blur-md border border-white/10 p-3 rounded-2xl shadow-md flex items-center justify-between text-slate-200">
+            <button type="button" onclick="navigatePreviousWeek()" class="bg-slate-800/80 hover:bg-slate-700 text-lime-400 text-[11px] font-bold px-3 py-1.5 rounded-xl border border-white/10 transition-all flex items-center gap-1 shadow-sm">
+                ◀ See Previous Week
+            </button>
+            <div class="text-center">
+                <span id="active-week-label" class="text-[10px] font-extrabold text-lime-300 uppercase tracking-wide block">Current Week</span>
+                <span id="active-week-dates" class="text-[9px] text-slate-300 font-medium">--</span>
+            </div>
+            <button type="button" id="current-week-btn" onclick="navigateToCurrentWeek()" class="hidden bg-lime-500/20 hover:bg-lime-500/30 text-lime-300 text-[11px] font-bold px-3 py-1.5 rounded-xl border border-lime-500/30 transition-all flex items-center gap-1 shadow-sm">
+                Current Week ▶
+            </button>
+        </section>
+
         <!-- Main Balance Card Style -->
         <section class="bg-slate-900/15 backdrop-blur-md border border-white/10 p-5 rounded-3xl shadow-xl space-y-4 relative overflow-hidden text-slate-100">
             <div class="absolute -right-10 -top-10 w-32 h-32 bg-lime-500/10 rounded-full blur-2xl pointer-events-none"></div>
@@ -575,6 +589,7 @@
 
         let allTransactions = [];
         let financialChart = null;
+        let weekOffset = 0; // 0 = Current week, -1 = Previous week, -2 = 2 weeks ago, etc.
         
         const now = new Date();
         const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
@@ -919,10 +934,11 @@
                 resetForm();
                 await fetchTransactions();
 
-                // Compute active cycle net for glow effect check
-                const resetTimeStr = localStorage.getItem('adel_dashboard_reset_time');
-                const resetTime = resetTimeStr ? new Date(resetTimeStr) : new Date(0);
-                const activeCycleTx = allTransactions.filter(t => new Date(t.created_at) >= resetTime);
+                const { startTuesday, endMonday } = getTuesdayToMondayRangeForOffset(weekOffset);
+                const activeCycleTx = allTransactions.filter(t => {
+                    const d = new Date(t.created_at);
+                    return d >= startTuesday && d <= endMonday;
+                });
                 let currentInc = activeCycleTx.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount), 0);
                 let currentExp = activeCycleTx.filter(t => t.type === 'expense').reduce((sum, t) => sum + Number(t.amount), 0);
                 let currentNet = currentInc - currentExp;
@@ -1007,9 +1023,11 @@
                 alert('Error deleting record: ' + error.message);
             } else {
                 await fetchTransactions();
-                const resetTimeStr = localStorage.getItem('adel_dashboard_reset_time');
-                const resetTime = resetTimeStr ? new Date(resetTimeStr) : new Date(0);
-                const activeCycleTx = allTransactions.filter(t => new Date(t.created_at) >= resetTime);
+                const { startTuesday, endMonday } = getTuesdayToMondayRangeForOffset(weekOffset);
+                const activeCycleTx = allTransactions.filter(t => {
+                    const d = new Date(t.created_at);
+                    return d >= startTuesday && d <= endMonday;
+                });
                 let currentInc = activeCycleTx.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount), 0);
                 let currentExp = activeCycleTx.filter(t => t.type === 'expense').reduce((sum, t) => sum + Number(t.amount), 0);
                 let currentNet = currentInc - currentExp;
@@ -1049,6 +1067,22 @@
             return { startTuesday, endMonday };
         }
 
+        function getTuesdayToMondayRangeForOffset(offset) {
+            const baseDate = new Date();
+            baseDate.setDate(baseDate.getDate() + (offset * 7));
+            return getTuesdayToMondayRange(baseDate);
+        }
+
+        function navigatePreviousWeek() {
+            weekOffset -= 1;
+            updateUI();
+        }
+
+        function navigateToCurrentWeek() {
+            weekOffset = 0;
+            updateUI();
+        }
+
         function promptResetDashboard() {
             const passwordInput = prompt('Enter password to manually reset previous weeks (Current week Tuesday-Monday will be retained):');
             if (passwordInput === null) return;
@@ -1062,8 +1096,6 @@
                 localStorage.setItem('adel_dashboard_previous_reset_time', currentResetTime);
             }
 
-            // Automatically set the reset cutoff time to the start Tuesday of the current work week (Tuesday to Monday)
-            // ensuring everything from the current week is fully retained.
             const { startTuesday } = getTuesdayToMondayRange(new Date());
             localStorage.setItem('adel_dashboard_reset_time', startTuesday.toISOString());
             
@@ -1128,11 +1160,38 @@
         }
 
         function updateUI() {
-            // Determine active cycle based on manual reset timestamp (defaults to epoch beginning so all history shows initially until manual reset is hit)
-            const resetTimeStr = localStorage.getItem('adel_dashboard_reset_time');
-            const resetTime = resetTimeStr ? new Date(resetTimeStr) : new Date(0);
+            // Determine active cycle based on weekOffset and device calendar Tuesday-Monday range
+            const { startTuesday, endMonday } = getTuesdayToMondayRangeForOffset(weekOffset);
+            
+            // Format dynamic dates (e.g., "15th to 21st") utilizing device calendar localization
+            const startDayNum = startTuesday.getDate();
+            const endDayNum = endMonday.getDate();
+            const monthName = endMonday.toLocaleDateString('en-GB', { month: 'short' });
+            
+            function getOrdinalSuffix(n) {
+                const s = ["th", "st", "nd", "rd"];
+                const v = n % 100;
+                return n + (s[(v - 20) % 10] || s[v] || s[0]);
+            }
 
-            const activeCycleTx = allTransactions.filter(t => new Date(t.created_at) >= resetTime);
+            const formattedDateRange = `${getOrdinalSuffix(startDayNum)} to ${getOrdinalSuffix(endDayNum)} ${monthName}`;
+            
+            document.getElementById('active-week-dates').innerText = formattedDateRange;
+            const weekLabelEl = document.getElementById('active-week-label');
+            const currentWeekBtn = document.getElementById('current-week-btn');
+
+            if (weekOffset === 0) {
+                weekLabelEl.innerText = "Current Week Dashboard";
+                currentWeekBtn.classList.add('hidden');
+            } else {
+                weekLabelEl.innerText = `Historical View (${Math.abs(weekOffset)} Week${Math.abs(weekOffset) > 1 ? 's' : ''} Ago)`;
+                currentWeekBtn.classList.remove('hidden');
+            }
+
+            const activeCycleTx = allTransactions.filter(t => {
+                const d = new Date(t.created_at);
+                return d >= startTuesday && d <= endMonday;
+            });
 
             let wInc = activeCycleTx.filter(t => t.type === 'income').reduce((s, t) => s + Number(t.amount), 0);
             let wExp = activeCycleTx.filter(t => t.type === 'expense').reduce((s, t) => s + Number(t.amount), 0);
@@ -1176,10 +1235,10 @@
             const listEl = document.getElementById('transaction-list');
             listEl.innerHTML = '';
 
-            if (allTransactions.length === 0) {
-                listEl.innerHTML = `<p class="text-xs text-slate-300 text-center py-4">No transactions recorded yet.</p>`;
+            if (activeCycleTx.length === 0) {
+                listEl.innerHTML = `<p class="text-xs text-slate-300 text-center py-4">No transactions recorded for this week.</p>`;
             } else {
-                allTransactions.slice(0, 10).forEach(t => {
+                activeCycleTx.slice(0, 10).forEach(t => {
                     const item = document.createElement('div');
                     item.className = "p-4 flex items-center justify-between gap-3 text-xs text-slate-200 hover:bg-slate-950/30 transition-colors";
                     const tDate = new Date(t.created_at);
