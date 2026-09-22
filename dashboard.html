@@ -1054,12 +1054,14 @@
                 localStorage.setItem('adel_dashboard_previous_reset_time', currentResetTime);
             }
 
-            const resetTimestamp = new Date().toISOString();
-            localStorage.setItem('adel_dashboard_reset_time', resetTimestamp);
+            // Set reset timestamp to the beginning of the current week's Tuesday boundary
+            // so that all transactions prior to this week are filtered out.
+            const { startTuesday } = getTuesdayToMondayRange(new Date());
+            localStorage.setItem('adel_dashboard_reset_time', startTuesday.toISOString());
             
             document.getElementById('undo-reset-btn').classList.remove('hidden');
             updateUI();
-            alert('Dashboard successfully reset for the new week!');
+            alert('Dashboard successfully reset for the new week (past transactions filtered out)!');
         }
 
         function undoResetDashboard() {
