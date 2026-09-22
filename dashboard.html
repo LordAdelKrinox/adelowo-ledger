@@ -322,6 +322,7 @@
                                 <option value="Commission">Commission</option>
                                 <option value="Gift">Gift</option>
                                 <option value="Salary">Salary</option>
+                                <option value="Others">Others</option>
                             </select>
                         </div>
                     </div>
@@ -845,7 +846,7 @@
                 incomeSubWrapper.classList.remove('hidden');
                 let subOptions = [];
                 if (catFilterVal === 'Personal Income') {
-                    subOptions = ['Service', 'Sales', 'Commission', 'Gift', 'Salary'];
+                    subOptions = ['Service', 'Sales', 'Commission', 'Gift', 'Salary', 'Others'];
                 } else if (catFilterVal === 'Shop Based Income') {
                     subOptions = ['Service', 'Sales', 'Commission', 'Gift', 'Bonus'];
                 } else {
