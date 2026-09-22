@@ -88,7 +88,7 @@
             
             <div class="flex justify-between items-start">
                 <div>
-                    <p class="text-[11px] text-slate-300 font-semibold uppercase tracking-wider">Available Balance (Current Week)</p>
+                    <p class="text-[11px] text-slate-300 font-semibold uppercase tracking-wider">Available Balance (Active Cycle)</p>
                     <div class="flex items-baseline gap-2 mt-0.5">
                         <span id="total-net" class="text-2xl font-black text-white tracking-tight">₦0</span>
                     </div>
@@ -141,12 +141,12 @@
             </div>
         </section>
 
-        <!-- Weekly Financial Health Dashboard -->
+        <!-- Financial Health Dashboard -->
         <section class="bg-slate-900/15 backdrop-blur-md border border-white/10 p-4 rounded-3xl shadow-lg space-y-3 text-slate-100">
             <div class="flex justify-between items-center">
                 <div class="flex items-center gap-2">
-                    <h2 class="text-xs font-bold text-slate-200 uppercase tracking-wider">Weekly Health (Tue - Mon)</h2>
-                    <button type="button" onclick="promptResetDashboard()" title="Manual Reset for New Week" class="bg-slate-800/50 hover:bg-slate-700/80 text-lime-400 text-[10px] px-2 py-0.5 rounded-lg border border-white/10 font-semibold transition-colors flex items-center gap-1">
+                    <h2 class="text-xs font-bold text-slate-200 uppercase tracking-wider">Financial Health Dashboard</h2>
+                    <button type="button" onclick="promptResetDashboard()" title="Manual Reset" class="bg-slate-800/50 hover:bg-slate-700/80 text-lime-400 text-[10px] px-2 py-0.5 rounded-lg border border-white/10 font-semibold transition-colors flex items-center gap-1">
                         🔄 Reset
                     </button>
                     <button type="button" id="undo-reset-btn" onclick="undoResetDashboard()" title="Undo Last Reset" class="hidden bg-amber-950/50 hover:bg-amber-900/80 text-amber-300 text-[10px] px-2 py-0.5 rounded-lg border border-amber-700/50 font-semibold transition-colors flex items-center gap-1">
@@ -173,7 +173,7 @@
 
         <!-- Financial Overview Pie Chart Section -->
         <section class="bg-slate-900/15 backdrop-blur-md p-4 rounded-3xl border border-white/10 shadow-xl space-y-3 text-slate-100">
-            <h2 class="text-xs font-bold text-slate-200 uppercase tracking-wider">Financial Breakdown Chart (Current Week)</h2>
+            <h2 class="text-xs font-bold text-slate-200 uppercase tracking-wider">Financial Breakdown Chart (Active Cycle)</h2>
             <div class="relative w-full h-52 flex justify-center items-center chart-container-3d">
                 <canvas id="financialPieChart"></canvas>
             </div>
@@ -919,17 +919,12 @@
                 resetForm();
                 await fetchTransactions();
 
-                // Compute weekly net for glow effect check
+                // Compute active cycle net for glow effect check
                 const resetTimeStr = localStorage.getItem('adel_dashboard_reset_time');
                 const resetTime = resetTimeStr ? new Date(resetTimeStr) : new Date(0);
-                const { startTuesday, endMonday } = getTuesdayToMondayRange(new Date());
-                const effectiveStart = (resetTime >= startTuesday) ? resetTime : startTuesday;
-                const currentWeeklyTx = allTransactions.filter(t => {
-                    const d = new Date(t.created_at);
-                    return d >= effectiveStart && d <= endMonday;
-                });
-                let currentInc = currentWeeklyTx.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount), 0);
-                let currentExp = currentWeeklyTx.filter(t => t.type === 'expense').reduce((sum, t) => sum + Number(t.amount), 0);
+                const activeCycleTx = allTransactions.filter(t => new Date(t.created_at) >= resetTime);
+                let currentInc = activeCycleTx.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount), 0);
+                let currentExp = activeCycleTx.filter(t => t.type === 'expense').reduce((sum, t) => sum + Number(t.amount), 0);
                 let currentNet = currentInc - currentExp;
 
                 const appBody = document.getElementById('app-body');
@@ -1014,14 +1009,9 @@
                 await fetchTransactions();
                 const resetTimeStr = localStorage.getItem('adel_dashboard_reset_time');
                 const resetTime = resetTimeStr ? new Date(resetTimeStr) : new Date(0);
-                const { startTuesday, endMonday } = getTuesdayToMondayRange(new Date());
-                const effectiveStart = (resetTime >= startTuesday) ? resetTime : startTuesday;
-                const currentWeeklyTx = allTransactions.filter(t => {
-                    const d = new Date(t.created_at);
-                    return d >= effectiveStart && d <= endMonday;
-                });
-                let currentInc = currentWeeklyTx.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount), 0);
-                let currentExp = currentWeeklyTx.filter(t => t.type === 'expense').reduce((sum, t) => sum + Number(t.amount), 0);
+                const activeCycleTx = allTransactions.filter(t => new Date(t.created_at) >= resetTime);
+                let currentInc = activeCycleTx.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount), 0);
+                let currentExp = activeCycleTx.filter(t => t.type === 'expense').reduce((sum, t) => sum + Number(t.amount), 0);
                 let currentNet = currentInc - currentExp;
 
                 const appBody = document.getElementById('app-body');
@@ -1060,7 +1050,7 @@
         }
 
         function promptResetDashboard() {
-            const passwordInput = prompt('Enter password to reset the weekly financial health dashboard:');
+            const passwordInput = prompt('Enter password to manually reset the financial health dashboard:');
             if (passwordInput === null) return;
             if (passwordInput !== 'Krinox1803') {
                 alert('Incorrect password! Reset action cancelled.');
@@ -1072,14 +1062,13 @@
                 localStorage.setItem('adel_dashboard_previous_reset_time', currentResetTime);
             }
 
-            // Set reset timestamp to the beginning of the current week's Tuesday boundary
-            // so that all transactions prior to this week are filtered out.
-            const { startTuesday } = getTuesdayToMondayRange(new Date());
-            localStorage.setItem('adel_dashboard_reset_time', startTuesday.toISOString());
+            // Set reset timestamp to right now so subsequent dashboard readings only include newer transactions,
+            // while preserving all database records for reports.
+            localStorage.setItem('adel_dashboard_reset_time', new Date().toISOString());
             
             document.getElementById('undo-reset-btn').classList.remove('hidden');
             updateUI();
-            alert('Dashboard successfully reset for the new week (past transactions filtered out)!');
+            alert('Dashboard successfully reset manually (previous readings hidden from active view, full history safe in reports)!');
         }
 
         function undoResetDashboard() {
@@ -1094,7 +1083,7 @@
             
             document.getElementById('undo-reset-btn').classList.add('hidden');
             updateUI();
-            alert('Dashboard reset successfully undone!');
+            alert('Dashboard manual reset successfully undone!');
         }
 
         function getFilteredTransactions() {
@@ -1138,21 +1127,14 @@
         }
 
         function updateUI() {
-            // Determine the active work week and reset boundaries for the Main Balance and Weekly Health cards
+            // Determine active cycle based on manual reset timestamp (defaults to epoch beginning so all history shows initially until manual reset is hit)
             const resetTimeStr = localStorage.getItem('adel_dashboard_reset_time');
             const resetTime = resetTimeStr ? new Date(resetTimeStr) : new Date(0);
-            const { startTuesday, endMonday } = getTuesdayToMondayRange(new Date());
-            
-            const effectiveStart = (resetTime >= startTuesday) ? resetTime : startTuesday;
 
-            const weeklyTx = allTransactions.filter(t => {
-                const d = new Date(t.created_at);
-                return d >= effectiveStart && d <= endMonday;
-            });
+            const activeCycleTx = allTransactions.filter(t => new Date(t.created_at) >= resetTime);
 
-            // Available Balance Card & Weekly Health Card both reflect the current filtered weekly transactions
-            let wInc = weeklyTx.filter(t => t.type === 'income').reduce((s, t) => s + Number(t.amount), 0);
-            let wExp = weeklyTx.filter(t => t.type === 'expense').reduce((s, t) => s + Number(t.amount), 0);
+            let wInc = activeCycleTx.filter(t => t.type === 'income').reduce((s, t) => s + Number(t.amount), 0);
+            let wExp = activeCycleTx.filter(t => t.type === 'expense').reduce((s, t) => s + Number(t.amount), 0);
             let wNet = wInc - wExp;
 
             document.getElementById('total-income').innerText = formatCurrency(wInc);
