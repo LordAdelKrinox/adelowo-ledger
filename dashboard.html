@@ -88,7 +88,7 @@
             
             <div class="flex justify-between items-start">
                 <div>
-                    <p class="text-[11px] text-slate-300 font-semibold uppercase tracking-wider">Available Balance</p>
+                    <p class="text-[11px] text-slate-300 font-semibold uppercase tracking-wider">Available Balance (Current Week)</p>
                     <div class="flex items-baseline gap-2 mt-0.5">
                         <span id="total-net" class="text-2xl font-black text-white tracking-tight">₦0</span>
                     </div>
@@ -173,7 +173,7 @@
 
         <!-- Financial Overview Pie Chart Section -->
         <section class="bg-slate-900/15 backdrop-blur-md p-4 rounded-3xl border border-white/10 shadow-xl space-y-3 text-slate-100">
-            <h2 class="text-xs font-bold text-slate-200 uppercase tracking-wider">Financial Breakdown Chart</h2>
+            <h2 class="text-xs font-bold text-slate-200 uppercase tracking-wider">Financial Breakdown Chart (Current Week)</h2>
             <div class="relative w-full h-52 flex justify-center items-center chart-container-3d">
                 <canvas id="financialPieChart"></canvas>
             </div>
@@ -919,8 +919,17 @@
                 resetForm();
                 await fetchTransactions();
 
-                let currentInc = allTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount), 0);
-                let currentExp = allTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + Number(t.amount), 0);
+                // Compute weekly net for glow effect check
+                const resetTimeStr = localStorage.getItem('adel_dashboard_reset_time');
+                const resetTime = resetTimeStr ? new Date(resetTimeStr) : new Date(0);
+                const { startTuesday, endMonday } = getTuesdayToMondayRange(new Date());
+                const effectiveStart = (resetTime >= startTuesday) ? resetTime : startTuesday;
+                const currentWeeklyTx = allTransactions.filter(t => {
+                    const d = new Date(t.created_at);
+                    return d >= effectiveStart && d <= endMonday;
+                });
+                let currentInc = currentWeeklyTx.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount), 0);
+                let currentExp = currentWeeklyTx.filter(t => t.type === 'expense').reduce((sum, t) => sum + Number(t.amount), 0);
                 let currentNet = currentInc - currentExp;
 
                 const appBody = document.getElementById('app-body');
@@ -1003,9 +1012,18 @@
                 alert('Error deleting record: ' + error.message);
             } else {
                 await fetchTransactions();
-                let currentInc = allTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount), 0);
-                let currentExp = allTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + Number(t.amount), 0);
+                const resetTimeStr = localStorage.getItem('adel_dashboard_reset_time');
+                const resetTime = resetTimeStr ? new Date(resetTimeStr) : new Date(0);
+                const { startTuesday, endMonday } = getTuesdayToMondayRange(new Date());
+                const effectiveStart = (resetTime >= startTuesday) ? resetTime : startTuesday;
+                const currentWeeklyTx = allTransactions.filter(t => {
+                    const d = new Date(t.created_at);
+                    return d >= effectiveStart && d <= endMonday;
+                });
+                let currentInc = currentWeeklyTx.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount), 0);
+                let currentExp = currentWeeklyTx.filter(t => t.type === 'expense').reduce((sum, t) => sum + Number(t.amount), 0);
                 let currentNet = currentInc - currentExp;
+
                 const appBody = document.getElementById('app-body');
                 if (currentNet < 0) {
                     appBody.classList.add('deficit-glow');
@@ -1120,21 +1138,7 @@
         }
 
         function updateUI() {
-            let totalInc = allTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount), 0);
-            let totalExp = allTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + Number(t.amount), 0);
-            let totalNet = totalInc - totalExp;
-
-            document.getElementById('total-income').innerText = formatCurrency(totalInc);
-            document.getElementById('total-expense').innerText = formatCurrency(totalExp);
-            const totalNetEl = document.getElementById('total-net');
-            totalNetEl.innerText = formatCurrency(totalNet);
-
-            const netBadgeTop = document.getElementById('health-net-badge-top');
-            netBadgeTop.innerText = totalNet >= 0 ? 'Surplus' : 'Deficit';
-            netBadgeTop.className = `text-xs font-bold mt-1 ${totalNet >= 0 ? 'text-lime-400' : 'text-rose-400'}`;
-
-            updateFinancialPieChart(totalInc, totalExp, totalNet);
-
+            // Determine the active work week and reset boundaries for the Main Balance and Weekly Health cards
             const resetTimeStr = localStorage.getItem('adel_dashboard_reset_time');
             const resetTime = resetTimeStr ? new Date(resetTimeStr) : new Date(0);
             const { startTuesday, endMonday } = getTuesdayToMondayRange(new Date());
@@ -1146,9 +1150,21 @@
                 return d >= effectiveStart && d <= endMonday;
             });
 
+            // Available Balance Card & Weekly Health Card both reflect the current filtered weekly transactions
             let wInc = weeklyTx.filter(t => t.type === 'income').reduce((s, t) => s + Number(t.amount), 0);
             let wExp = weeklyTx.filter(t => t.type === 'expense').reduce((s, t) => s + Number(t.amount), 0);
             let wNet = wInc - wExp;
+
+            document.getElementById('total-income').innerText = formatCurrency(wInc);
+            document.getElementById('total-expense').innerText = formatCurrency(wExp);
+            const totalNetEl = document.getElementById('total-net');
+            totalNetEl.innerText = formatCurrency(wNet);
+
+            const netBadgeTop = document.getElementById('health-net-badge-top');
+            netBadgeTop.innerText = wNet >= 0 ? 'Surplus' : 'Deficit';
+            netBadgeTop.className = `text-xs font-bold mt-1 ${wNet >= 0 ? 'text-lime-400' : 'text-rose-400'}`;
+
+            updateFinancialPieChart(wInc, wExp, wNet);
 
             document.getElementById('health-inflow').innerText = formatCurrency(wInc);
             document.getElementById('health-outflow').innerText = formatCurrency(wExp);
