@@ -873,7 +873,7 @@
             const { data, error } = await _supabase
                 .from('transactions')
                 .select('*')
-                .order('id', { ascending: false });
+                .order('created_at', { ascending: false });
 
             if (error) {
                 console.error('Error fetching data:', error);
@@ -921,8 +921,12 @@
                 subCat = trackingType;
             }
 
+            // Fixed Date Misrepresentation & Scaling: Safely preserve selected backdated day with correct current local time offset
             const currentTime = new Date();
-            const finalTimestamp = new Date(`${txDateVal}T${currentTime.toTimeString().split(' ')[0]}`).toISOString();
+            const hours = String(currentTime.getHours()).padStart(2, '0');
+            const minutes = String(currentTime.getMinutes()).padStart(2, '0');
+            const seconds = String(currentTime.getSeconds()).padStart(2, '0');
+            const finalTimestamp = `${txDateVal}T${hours}:${minutes}:${seconds}`;
 
             const txData = {
                 executor: execVal,
@@ -1067,11 +1071,16 @@
             return '₦' + Number(amount).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
+        // Fixed Offset & Scaling Logic for Tuesday-to-Monday cycles
         function getTuesdayToMondayRange(dateObj) {
             const d = new Date(dateObj);
+            d.setHours(0, 0, 0, 0);
             const day = d.getDay(); 
-            let diff = d.getDate() - day + (day === 0 ? -5 : 2);
-            if (day < 2) diff -= 7;
+            // Calculate distance to the most recent Tuesday (Tuesday = 2)
+            let diff = d.getDate() - day + (day < 2 ? day - 5 : 2);
+            if (day < 2) {
+                diff = d.getDate() - day - 5;
+            }
             
             const startTuesday = new Date(d.setDate(diff));
             startTuesday.setHours(0, 0, 0, 0);
@@ -1091,7 +1100,7 @@
 
         function navigatePreviousWeek() {
             weekOffset -= 1;
-            historyDisplayLimit = 10; // Reset display limit on week navigation
+            historyDisplayLimit = 10; 
             updateUI();
         }
 
@@ -1165,8 +1174,13 @@
             startDate.setHours(0, 0, 0, 0);
             endDate.setHours(23, 59, 59, 999);
 
+            // Respect manual dashboard resets if applied
+            const resetTimeStr = localStorage.getItem('adel_dashboard_reset_time');
+            let resetDateFilter = resetTimeStr ? new Date(resetTimeStr) : new Date(0);
+
             return allTransactions.filter(t => {
                 const tDate = new Date(t.created_at);
+                const matchesReset = tDate >= resetDateFilter;
                 const matchesDate = tDate >= startDate && tDate <= endDate;
                 const matchesScope = (scope === 'general' || t.executor === scope);
                 const matchesType = (typeFilter === 'all' || t.type === typeFilter);
@@ -1186,15 +1200,13 @@
                     matchesShop = (t.shop === shopFilter);
                 }
 
-                return matchesDate && matchesScope && matchesType && matchesCat && matchesSubCat && matchesShop;
+                return matchesReset && matchesDate && matchesScope && matchesType && matchesCat && matchesSubCat && matchesShop;
             });
         }
 
         function updateUI() {
-            // Determine active cycle based on weekOffset and device calendar Tuesday-Monday range for Dashboard Charts & Totals
             const { startTuesday, endMonday } = getTuesdayToMondayRangeForOffset(weekOffset);
             
-            // Format dynamic dates (e.g., "15th to 21st") utilizing device calendar localization
             const startDayNum = startTuesday.getDate();
             const endDayNum = endMonday.getDate();
             const monthName = endMonday.toLocaleDateString('en-GB', { month: 'short' });
@@ -1222,9 +1234,12 @@
                 backStepBtn.classList.remove('hidden');
             }
 
+            const resetTimeStr = localStorage.getItem('adel_dashboard_reset_time');
+            let resetDateFilter = resetTimeStr ? new Date(resetTimeStr) : new Date(0);
+
             const activeCycleTx = allTransactions.filter(t => {
                 const d = new Date(t.created_at);
-                return d >= startTuesday && d <= endMonday;
+                return d >= resetDateFilter && d >= startTuesday && d <= endMonday;
             });
 
             let wInc = activeCycleTx.filter(t => t.type === 'income').reduce((s, t) => s + Number(t.amount), 0);
@@ -1266,15 +1281,14 @@
                 badge.className = 'text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide bg-slate-800 text-slate-300 border border-slate-700';
             }
 
-            // Update History Header & Count Badge to use the full transaction log (`allTransactions`)
             document.getElementById('history-header-title').innerText = `Recent History (Showing up to ${historyDisplayLimit})`;
-            const displayedTx = allTransactions.slice(0, historyDisplayLimit);
+            const displayedTx = allTransactions.filter(t => new Date(t.created_at) >= resetDateFilter).slice(0, historyDisplayLimit);
             document.getElementById('history-count-badge').innerText = `Showing ${displayedTx.length} of ${allTransactions.length}`;
 
             const listEl = document.getElementById('transaction-list');
             listEl.innerHTML = '';
 
-            if (allTransactions.length === 0) {
+            if (displayedTx.length === 0) {
                 listEl.innerHTML = `<p class="text-xs text-slate-300 text-center py-4">No transactions recorded.</p>`;
                 document.getElementById('load-more-container').classList.add('hidden');
             } else {
@@ -1314,7 +1328,6 @@
                     listEl.appendChild(item);
                 });
 
-                // Show/hide Load More button based on whether there are more records to load globally in the full list (up to max 50)
                 const loadMoreContainer = document.getElementById('load-more-container');
                 if (historyDisplayLimit < allTransactions.length && historyDisplayLimit < 50) {
                     loadMoreContainer.classList.remove('hidden');
