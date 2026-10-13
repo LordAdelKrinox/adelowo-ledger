@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "app.vercel.adelowo_ledger.twa",
+        "sha256_cert_fingerprints": ["D0:A1:AA:94:B8:55:6E:FD:5A:0B:FD:E4:0F:62:9B:F6:4D:3B:76:85:C5:02:4A:A1:AD:91:50:A7:EE:19:15:06"]
+      }
+    }]
