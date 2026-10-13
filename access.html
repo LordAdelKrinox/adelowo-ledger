@@ -4,8 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Adelowo Akíngbàṣẹ Ledger</title>
+
+    <!-- PWA & Favicon Links -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="ad-ledge1.png">
+    <link rel="apple-touch-icon" href="ad-ledge1.png">
+    <meta name="theme-color" content="#022c22">
+
     <!-- Tailwind CSS CDN for modern styling -->
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('Service Worker registered! Scope:', reg.scope))
+                    .catch(err => console.log('Service Worker registration failed:', err));
+            });
+        }
+    </script>
+
     <script>
         tailwind.config = {
             theme: {
